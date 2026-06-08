@@ -43,8 +43,8 @@ public class EstimationController {
 
     @PostMapping("/templates/{id}/items")
     public ResponseEntity<List<CostTemplateItem>> addTemplateItem(@PathVariable UUID id, @RequestBody List<Map<String, Object>> items) {
-        estimationService.getTemplateItems(id);
-        return ResponseEntity.ok(estimationService.getTemplateItems(id));
+        List<CostTemplateItem> saved = estimationService.addTemplateItems(id, items);
+        return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/params/{projectType}")

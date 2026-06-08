@@ -1,10 +1,7 @@
-﻿name: QuoteFlow AI
-description: Smart Quotation, Billing, CRM & Marketing Platform
-version: 1.0.0
-
-services:
+﻿services:
   postgres:
     image: postgres:16
+    container_name: quoteflow-postgres
     environment:
       POSTGRES_DB: quoteflow
       POSTGRES_USER: postgres
@@ -14,11 +11,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    container_name: quoteflow-redis
     ports:
       - "6379:6379"
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -78,6 +78,11 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public Product getProductById(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
     public List<Product> getCompanyProducts(UUID companyId) {
         return productRepository.findByCompanyId(companyId);
     }

@@ -260,6 +260,52 @@ function initNavigation() {
   if (initialPage !== 'dashboard') {
     navigate(initialPage, true);
   }
+
+  var sidebar = document.getElementById('sidebar');
+  var collapseBtn = document.getElementById('sidebarCollapse');
+  var toggleBtn = document.getElementById('sidebarToggle');
+  var overlay = document.getElementById('sidebarOverlay');
+
+  function toggleSidebar() {
+    if (!sidebar) return;
+    var isMobile = window.innerWidth <= 900;
+
+    if (isMobile) {
+      sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('open', sidebar.classList.contains('open'));
+    } else {
+      sidebar.classList.toggle('collapsed');
+      var isCollapsed = sidebar.classList.contains('collapsed');
+      try { localStorage.setItem('sidebarCollapsed', isCollapsed ? 'true' : 'false'); } catch(e) {}
+    }
+  }
+
+  if (collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
+  if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true' && sidebar && window.innerWidth > 900) {
+      sidebar.classList.add('collapsed');
+    }
+  } catch(e) {}
+
+  if (overlay) {
+    overlay.addEventListener('click', function() {
+      if (sidebar) {
+        sidebar.classList.remove('open');
+        sidebar.classList.remove('collapsed');
+      }
+      overlay.classList.remove('open');
+    });
+  }
+
+  window.addEventListener('resize', function() {
+    if (!sidebar) return;
+    if (window.innerWidth > 900) {
+      sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+    }
+  });
 }
 
 function getPageFromUrl() {

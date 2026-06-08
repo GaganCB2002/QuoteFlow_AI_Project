@@ -6,6 +6,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -83,6 +85,10 @@ public class Invoice {
 
     @Column(name = "e_signature_url")
     private String eSignatureUrl;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<InvoiceItem> items = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String notes;

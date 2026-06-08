@@ -3,8 +3,8 @@ import { LogIn, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [phone, setPhone] = useState('1234567890');
-  const [password, setPassword] = useState('password123');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {

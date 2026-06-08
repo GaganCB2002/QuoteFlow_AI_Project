@@ -27,7 +27,19 @@ public class EncryptionUtil {
 
     @PostConstruct
     public void init() {
-        byte[] decoded = Base64.getDecoder().decode(base64EncodedKey);
+        byte[] decoded;
+        String trimmed = base64EncodedKey.trim();
+        if (trimmed.matches("^[0-9a-fA-F]+$")) {
+            int len = trimmed.length();
+            if (len % 2 != 0) throw new IllegalStateException("Hex key must have even length");
+            decoded = new byte[len / 2];
+            for (int i = 0; i < len; i += 2) {
+                decoded[i / 2] = (byte) ((Character.digit(trimmed.charAt(i), 16) << 4)
+                        + Character.digit(trimmed.charAt(i + 1), 16));
+            }
+        } else {
+            decoded = Base64.getDecoder().decode(trimmed);
+        }
         if (decoded.length != 16 && decoded.length != 24 && decoded.length != 32) {
             throw new IllegalStateException("Encryption key must be 16, 24, or 32 bytes (AES-128/192/256)");
         }

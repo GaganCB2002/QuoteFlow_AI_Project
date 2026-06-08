@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -135,6 +136,29 @@ public class EstimationService {
         CostTemplate template = costTemplateRepository.findById(templateId)
                 .orElseThrow(() -> new RuntimeException("Cost template not found"));
         return costTemplateItemRepository.findByTemplateId(template.getId());
+    }
+
+    @Transactional
+    public List<CostTemplateItem> addTemplateItems(UUID templateId, List<Map<String, Object>> items) {
+        CostTemplate template = costTemplateRepository.findById(templateId)
+                .orElseThrow(() -> new RuntimeException("Cost template not found"));
+        List<CostTemplateItem> saved = new ArrayList<>();
+        if (items != null) {
+            for (Map<String, Object> itemMap : items) {
+                CostTemplateItem item = CostTemplateItem.builder()
+                        .template(template)
+                        .category((String) itemMap.get("category"))
+                        .name((String) itemMap.get("name"))
+                        .description((String) itemMap.get("description"))
+                        .costPrice(new BigDecimal(itemMap.getOrDefault("costPrice", "0").toString()))
+                        .sellingPrice(new BigDecimal(itemMap.getOrDefault("sellingPrice", "0").toString()))
+                        .isOptional(itemMap.containsKey("isOptional") && (Boolean) itemMap.get("isOptional"))
+                        .sortOrder(itemMap.containsKey("sortOrder") ? (Integer) itemMap.get("sortOrder") : 0)
+                        .build();
+                saved.add(costTemplateItemRepository.save(item));
+            }
+        }
+        return saved;
     }
 
     @Transactional

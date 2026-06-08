@@ -28,10 +28,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable UUID id) {
-        Product product = productService.getCompanyProducts(UUID.randomUUID()).stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productService.getProductById(id);
         return ResponseEntity.ok(product);
     }
 
