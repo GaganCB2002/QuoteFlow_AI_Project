@@ -1,16 +1,11 @@
 import React from 'react';
 import { Building2, Save, Upload } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Layout from './Layout';
 
 const CompanyProfile = () => {
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
-      <main className="flex-1 overflow-auto p-8 max-w-4xl mx-auto w-full">
-        <div className="flex items-center space-x-4 mb-8">
-          <Link to="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors">
-            &larr; Back to Dashboard
-          </Link>
-        </div>
+    <Layout title="Company Profile" subtitle="Manage your business details">
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
@@ -67,8 +62,8 @@ const CompanyProfile = () => {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

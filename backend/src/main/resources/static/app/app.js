@@ -1653,6 +1653,14 @@ var notifFilter = 'all';
 function renderNotifications() {
   var container = document.getElementById('notificationList');
   if (!container) return;
+  
+  try {
+    var newNotifs = JSON.parse(localStorage.getItem('qf_new_notifications') || '[]');
+    if (newNotifs.length > 0) {
+      sampleNotifications.unshift(...newNotifs);
+      localStorage.setItem('qf_new_notifications', '[]');
+    }
+  } catch(e) {}
 
   var filtered = sampleNotifications.filter(function(n) {
     return notifFilter === 'all' || n.type === notifFilter;
@@ -2048,6 +2056,14 @@ function renderNotifDropdown() {
 function updateNotifBadge() {
   var badge = document.getElementById('notifBadge');
   if (!badge) return;
+  try {
+    var newNotifs = JSON.parse(localStorage.getItem('qf_new_notifications') || '[]');
+    if (newNotifs.length > 0) {
+      sampleNotifications.unshift(...newNotifs);
+      localStorage.setItem('qf_new_notifications', '[]');
+    }
+  } catch(e) {}
+
   var count = sampleNotifications.filter(function(n) { return n.unread; }).length;
   badge.textContent = count;
   badge.style.display = count > 0 ? 'flex' : 'none';

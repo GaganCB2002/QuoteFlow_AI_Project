@@ -76,8 +76,8 @@ const CustomerList = () => {
             </tbody>
           </table>
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 
