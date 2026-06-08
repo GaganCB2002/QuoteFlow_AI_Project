@@ -1,4 +1,4 @@
-name: QuoteFlow AI
+﻿name: QuoteFlow AI
 description: Smart Quotation, Billing, CRM & Marketing Platform
 version: 1.0.0
 
@@ -13,7 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d
+      - ./migrations:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:7-alpine
