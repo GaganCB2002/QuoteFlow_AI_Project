@@ -210,6 +210,11 @@
 </div>
 
 <script defer>
+if (window.location.pathname.endsWith('.html')) {
+  var clean = window.location.pathname.replace('/app/', '/').replace('.html', '');
+  window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+}
+
 var tfaPending = false;
 
 // Show the sign-in card (hide 2FA)

@@ -139,6 +139,11 @@
 </div>
 
 <script defer>
+if (window.location.pathname.endsWith('.html')) {
+  var clean = window.location.pathname.replace('/app/', '/').replace('.html', '');
+  window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+}
+
 function registerUser() {
   var name = document.getElementById('regName').value.trim();
   var phone = document.getElementById('regPhone').value.trim();

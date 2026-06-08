@@ -5,6 +5,11 @@
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
+  if (window.location.pathname.endsWith('.html')) {
+    var clean = window.location.pathname.replace('/app/', '/').replace('.html', '');
+    window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+  }
+
   try {
     initNavigation();
     initEstimation();
@@ -244,6 +249,22 @@ function closeSidebar() {
   if (o) o.classList.remove('open');
 }
 
+function handleNavClick(e) {
+  var item = e.target.closest('.nav-item');
+  if (!item) return;
+  e.preventDefault();
+  var page = item.getAttribute('data-page');
+  if (page) {
+    navigate(page);
+    if (window.innerWidth <= 900) {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+    }
+  }
+}
+
 function initNavigation() {
   window.addEventListener('popstate', function(event) {
     var page = (event.state && event.state.page) ? event.state.page : getPageFromUrl();
@@ -254,22 +275,16 @@ function initNavigation() {
     navigate(initialPage, true);
   }
 
-  // Add click listeners to all navigation links
+  // Direct click listeners on nav items
   document.querySelectorAll('.nav-item').forEach(function(item) {
-    item.addEventListener('click', function(e) {
-      e.preventDefault();
-      var page = this.getAttribute('data-page');
-      if (page) {
-        navigate(page);
-        if (window.innerWidth <= 900) {
-          var sidebar = document.getElementById('sidebar');
-          var overlay = document.getElementById('sidebarOverlay');
-          if (sidebar) sidebar.classList.remove('open');
-          if (overlay) overlay.classList.remove('open');
-        }
-      }
-    });
+    item.addEventListener('click', handleNavClick);
   });
+
+  // Event delegation on sidebar nav container for robustness
+  var sidebarNav = document.querySelector('.sidebar-nav');
+  if (sidebarNav) {
+    sidebarNav.addEventListener('click', handleNavClick);
+  }
 
   var sidebar = document.getElementById('sidebar');
   var collapseBtn = document.getElementById('sidebarCollapse');
@@ -321,7 +336,7 @@ function initNavigation() {
 function getPageFromUrl() {
   var path = window.location.pathname.replace(/^\//, '').replace(/\.html$/, '');
   if (path.startsWith('app/')) path = path.replace('app/', '');
-  var validPages = ['dashboard', 'estimation', 'quotations', 'products', 'invoices', 'receipts', 'customers', 'crm', 'marketing', 'finance', 'notifications', 'visitors', 'admin'];
+  var validPages = ['dashboard', 'estimation', 'quotations', 'products', 'invoices', 'receipts', 'customers', 'crm', 'marketing', 'finance', 'documents', 'notifications', 'visitors', 'admin'];
   if (validPages.includes(path)) return path;
   return 'dashboard';
 }
