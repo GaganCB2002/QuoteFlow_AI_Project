@@ -277,60 +277,73 @@ function getPageFromUrl() {
 var wizardQuestions = {
   'Website': [
     { type: 'number', id: 'pages', label: 'Number of Pages', def: 5, min: 1 },
-    { type: 'toggle', id: 'adminPanel', label: 'Admin Panel', def: true },
+    { type: 'toggle', id: 'adminPanel', label: 'Admin Panel (CMS)', def: true },
     { type: 'toggle', id: 'blog', label: 'Blog / News Section', def: false },
     { type: 'toggle', id: 'contactForm', label: 'Contact Form', def: true },
     { type: 'toggle', id: 'paymentGateway', label: 'Payment Gateway', def: false },
-    { type: 'toggle', id: 'seo', label: 'SEO Optimization', def: false },
+    { type: 'toggle', id: 'seo', label: 'SEO Optimization', def: true },
     { type: 'toggle', id: 'multiLanguage', label: 'Multi-language Support', def: false },
+    { type: 'checkboxes', id: 'techStack', label: 'Preferred Technology Stack (Advanced)', opts: ['HTML/CSS/JS (Vanilla)', 'React / Next.js', 'Vue.js / Nuxt', 'Angular', 'WordPress', 'PHP / Laravel'] }
   ],
   'Mobile App': [
-    { type: 'toggle', id: 'android', label: 'Android', def: true },
-    { type: 'toggle', id: 'ios', label: 'iOS', def: false },
-    { type: 'toggle', id: 'adminPanel', label: 'Admin Panel', def: true },
+    { type: 'checkboxes', id: 'platforms', label: 'Target Platforms', opts: ['Android Native', 'iOS Native', 'Cross-Platform (Flutter / React Native)'] },
+    { type: 'toggle', id: 'adminPanel', label: 'Backend Admin Panel', def: true },
     { type: 'toggle', id: 'pushNotifications', label: 'Push Notifications', def: true },
-    { type: 'toggle', id: 'paymentGateway', label: 'Payment Gateway', def: true },
-    { type: 'toggle', id: 'maps', label: 'Maps Integration', def: false },
-    { type: 'toggle', id: 'chat', label: 'Chat System', def: false },
-    { type: 'toggle', id: 'videoUpload', label: 'Video Upload', def: false },
+    { type: 'toggle', id: 'paymentGateway', label: 'Payment Integration', def: true },
+    { type: 'toggle', id: 'maps', label: 'Geolocation & Maps Integration', def: false },
+    { type: 'toggle', id: 'chat', label: 'In-App Chat / Messaging', def: false },
+    { type: 'toggle', id: 'videoUpload', label: 'Media & Video Upload', def: false },
+    { type: 'checkboxes', id: 'advancedFeatures', label: 'Advanced Modules (Optional)', opts: ['Biometric Login', 'AI / ML Integration', 'Augmented Reality (AR)', 'Offline Sync Capability'] }
   ],
   'ERP': [
-    { type: 'checkboxes', id: 'erpModules', label: 'Modules Required', opts: ['Inventory', 'HR / Payroll', 'Accounting', 'CRM', 'Purchase', 'Sales', 'Manufacturing', 'Project Management'] },
-    { type: 'number', id: 'usersCount', label: 'Number of Users', def: 10, min: 1 },
+    { type: 'checkboxes', id: 'erpModules', label: 'Modules Required', opts: ['Inventory Management', 'HR / Payroll', 'Accounting & Finance', 'CRM', 'Purchase Management', 'Sales Management', 'Manufacturing', 'Project Management'] },
+    { type: 'number', id: 'usersCount', label: 'Expected Concurrent Users', def: 10, min: 1 },
+    { type: 'toggle', id: 'cloudDeployment', label: 'Cloud-Based Deployment', def: true },
+    { type: 'toggle', id: 'apiIntegration', label: 'Third-Party API Integrations', def: false },
+    { type: 'checkboxes', id: 'techStack', label: 'Preferred Tech Stack', opts: ['Java / Spring Boot', 'Python / Django', '.NET Core', 'Node.js'] }
   ],
   'CRM': [
-    { type: 'checkboxes', id: 'crmFeatures', label: 'Features Required', opts: ['Email Integration', 'Analytics Dashboard', 'Reports & Dashboards', 'Automation', 'Lead Scoring', 'Call Logging', 'Customer Portal'] },
+    { type: 'checkboxes', id: 'crmFeatures', label: 'Features Required', opts: ['Email Integration', 'Analytics Dashboard', 'Reports & Dashboards', 'Workflow Automation', 'Lead Scoring', 'Call Logging', 'Customer Portal'] },
     { type: 'number', id: 'usersCount', label: 'Number of Users', def: 5, min: 1 },
+    { type: 'toggle', id: 'mobileAppAccess', label: 'Mobile App Access', def: true },
+    { type: 'checkboxes', id: 'advancedFeatures', label: 'Advanced Capabilities', opts: ['AI Predictive Scoring', 'WhatsApp API Integration', 'Social Media Sync', 'Advanced Role-Based Access'] }
   ],
   'Billing Software': [
-    { type: 'checkboxes', id: 'billingFeatures', label: 'Features Required', opts: ['Inventory Management', 'GST Support', 'Invoice Generation', 'Reports', 'Payment Gateway', 'Customer Portal', 'SMS/Email Notifications'] },
-    { type: 'number', id: 'usersCount', label: 'Number of Users', def: 3, min: 1 },
+    { type: 'checkboxes', id: 'billingFeatures', label: 'Core Features Required', opts: ['Inventory Management', 'GST / Tax Support', 'Automated Invoice Generation', 'Financial Reports', 'Payment Gateway Integration', 'Customer Portal', 'SMS/Email Notifications'] },
+    { type: 'number', id: 'usersCount', label: 'Number of Admin Users', def: 3, min: 1 },
+    { type: 'toggle', id: 'barcodeScanner', label: 'Barcode Scanner Integration', def: false },
+    { type: 'toggle', id: 'multiStore', label: 'Multi-Store Branching', def: false }
   ],
   'E-Commerce': [
-    { type: 'number', id: 'productsCount', label: 'Number of Products', def: 50, min: 1 },
+    { type: 'number', id: 'productsCount', label: 'Estimated Number of Products', def: 500, min: 1 },
     { type: 'toggle', id: 'paymentGateway', label: 'Payment Gateway', def: true },
-    { type: 'toggle', id: 'shippingIntegration', label: 'Shipping Integration', def: true },
-    { type: 'toggle', id: 'adminPanel', label: 'Admin Panel', def: true },
-    { type: 'toggle', id: 'seo', label: 'SEO Optimization', def: false },
-    { type: 'toggle', id: 'multiLanguage', label: 'Multi-language Support', def: false },
+    { type: 'toggle', id: 'shippingIntegration', label: 'Logistics & Shipping API', def: true },
+    { type: 'toggle', id: 'adminPanel', label: 'Vendor/Admin Panel', def: true },
+    { type: 'toggle', id: 'multiVendor', label: 'Multi-Vendor Marketplace Support', def: false },
+    { type: 'toggle', id: 'inventorySync', label: 'Real-time Inventory Sync', def: true },
+    { type: 'checkboxes', id: 'techStack', label: 'Platform Choice', opts: ['Shopify', 'WooCommerce', 'Magento', 'Custom Node.js/React', 'Custom Java/Spring Boot'] }
   ],
   'Digital Marketing': [
-    { type: 'checkboxes', id: 'platforms', label: 'Target Platforms', opts: ['Google Ads', 'Facebook / Instagram', 'LinkedIn', 'Twitter', 'YouTube'] },
+    { type: 'checkboxes', id: 'platforms', label: 'Target Platforms', opts: ['Google Ads', 'Facebook / Instagram', 'LinkedIn', 'Twitter / X', 'YouTube'] },
     { type: 'select', id: 'adBudget', label: 'Monthly Ad Budget', opts: ['< Rs 10,000', 'Rs 10,000 - 25,000', 'Rs 25,000 - 50,000', 'Rs 50,000 - 1,00,000', 'Rs 1,00,000+'], def: 'Rs 10,000 - 25,000' },
-    { type: 'toggle', id: 'contentCreation', label: 'Content Creation', def: true },
-    { type: 'toggle', id: 'analytics', label: 'Analytics & Reporting', def: true },
+    { type: 'toggle', id: 'contentCreation', label: 'Graphic/Video Content Creation', def: true },
+    { type: 'toggle', id: 'analytics', label: 'Advanced Analytics & Pixel Tracking', def: true },
+    { type: 'checkboxes', id: 'advancedFeatures', label: 'Advanced Strategies', opts: ['A/B Testing', 'Retargeting Campaigns', 'Influencer Outreach', 'Conversion Rate Optimization (CRO)'] }
   ],
   'SEO': [
     { type: 'number', id: 'keywordsCount', label: 'Target Keywords', def: 20, min: 1 },
-    { type: 'toggle', id: 'contentStrategy', label: 'Content Strategy', def: false },
-    { type: 'toggle', id: 'technicalAudit', label: 'Technical SEO Audit', def: true },
-    { type: 'toggle', id: 'linkBuilding', label: 'Link Building', def: false },
-    { type: 'toggle', id: 'monthlyReporting', label: 'Monthly Reporting', def: true },
+    { type: 'toggle', id: 'contentStrategy', label: 'Content Strategy (Blog Writing)', def: false },
+    { type: 'toggle', id: 'technicalAudit', label: 'Technical SEO Audit & Fixes', def: true },
+    { type: 'toggle', id: 'linkBuilding', label: 'High-Authority Link Building', def: false },
+    { type: 'toggle', id: 'monthlyReporting', label: 'Monthly Reporting & Calls', def: true },
+    { type: 'toggle', id: 'localSeo', label: 'Local SEO (Google My Business)', def: true }
   ],
   'Custom Software': [
-    { type: 'textarea', id: 'customModules', label: 'Key Modules / Features', ph: 'Describe the main modules required...' },
-    { type: 'number', id: 'usersCount', label: 'Target Number of Users', def: 100, min: 1 },
-    { type: 'checkboxes', id: 'platforms', label: 'Target Platforms', opts: ['Web', 'Desktop (Windows)', 'Mobile (Android)', 'Mobile (iOS)'] },
+    { type: 'textarea', id: 'customModules', label: 'Basic Requirements / Core Modules', ph: 'Describe the main functionalities of the application...' },
+    { type: 'number', id: 'usersCount', label: 'Target Concurrent Users', def: 100, min: 1 },
+    { type: 'checkboxes', id: 'platforms', label: 'Target Deployment Platforms', opts: ['Web Application', 'Desktop App (Windows/Mac)', 'Mobile App (Android)', 'Mobile App (iOS)'] },
+    { type: 'checkboxes', id: 'techStack', label: 'Preferred Technology Stack (Advanced)', opts: ['Frontend: React/Next.js', 'Frontend: Vue/Angular', 'Backend: Node.js', 'Backend: Java/Spring Boot', 'Backend: Python/Django', 'Database: PostgreSQL/MySQL', 'Database: MongoDB/NoSQL'] },
+    { type: 'checkboxes', id: 'advancedFeatures', label: 'Advanced Requirements', opts: ['AI / Machine Learning Algorithms', 'Big Data / High Volume Processing', 'Blockchain / Web3 Integration', 'Microservices Architecture', 'CI/CD Pipeline Setup', 'Enterprise-grade Security / Compliance (HIPAA, SOC2)'] }
   ],
 };
 
@@ -812,7 +825,10 @@ function updateLiveCostPanel() {
 
   html += '<div id="profitStatusBar" style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;background:' + profitBarColor.replace('var(--success)', 'rgba(16,185,129,.1)').replace('var(--danger)', 'rgba(239,68,68,.1)') + ';color:' + profitBarColor + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">' + profitBarIcon + '</svg> ' + profitBarText + '</div>';
 
-  html += '<button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:16px" onclick="generateQuotation()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Generate Quotation</button>';
+  html += '<div style="display:flex;gap:12px;margin-top:16px">';
+  html += '<button class="btn btn-primary btn-lg" style="flex:1;justify-content:center" onclick="generateQuotation()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Save to Dashboard</button>';
+  html += '<button class="btn btn-outline btn-lg" style="flex:1;justify-content:center" onclick="downloadQuotationPDF()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF</button>';
+  html += '</div>';
 
   content.innerHTML = html;
 }
@@ -904,7 +920,7 @@ function switchDocTab(btn, tab) {
 
 function generateQuotation() {
   if (estimationData.finalTotal <= 0 && estimationData.subtotal <= 0) {
-    alert('Please estimate the project cost first before generating a quotation.');
+    alert('Please estimate the project cost first before saving.');
     return;
   }
   var quoteId = 'Q-2026-' + String(Date.now()).slice(-4);
@@ -920,10 +936,31 @@ function generateQuotation() {
     status: 'Draft',
     date: new Date().toISOString().slice(0, 10),
     approval: '\u2014',
+    details: JSON.parse(JSON.stringify(estimationData))
   });
   renderQuotes();
-  alert('Quotation ' + quoteId + ' generated successfully for Rs ' + amount.toLocaleString() + '! Navigate to Quotations page to view.');
+  alert('Quotation ' + quoteId + ' saved successfully! Navigate to Admin / Quotations to view and send.');
   navigate('quotations');
+}
+
+function downloadQuotationPDF() {
+  if (estimationData.finalTotal <= 0 && estimationData.subtotal <= 0) {
+    alert('Please estimate the project cost first before downloading.');
+    return;
+  }
+  var element = document.getElementById('estDocumentsSection');
+  if (typeof html2pdf !== 'undefined') {
+    var opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: 'Quotation_' + (estimationData.projectName || 'Project').replace(/\s+/g, '_') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  } else {
+    alert('PDF generation library not loaded. Please try again.');
+  }
 }
 
 // ============================================================
@@ -1037,6 +1074,16 @@ function initSearchQuote() {
       renderQuotes();
     });
   }
+  // Also wire topbar search to filter quotes when on quotations page
+  var globalSearch = document.getElementById('globalSearch');
+  if (globalSearch) {
+    globalSearch.addEventListener('input', function() {
+      if (document.getElementById('page-quotations').style.display !== 'none') {
+        quoteSearchTerm = this.value.toLowerCase();
+        renderQuotes();
+      }
+    });
+  }
 }
 
 function initQuoteFilters() {
@@ -1085,12 +1132,23 @@ function renderQuotes() {
       '<td><span class="status-badge ' + approvalLabel + '">' + q.approval + '</span></td>' +
       '<td>' + q.date + '</td>' +
       '<td style="display:flex;gap:4px">' +
+        '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--primary)" onclick="viewQuote(\'' + q.id + '\')">View</button>' +
         '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px" onclick="alert(\'Downloading PDF for ' + q.id + '\')">PDF</button>' +
-        '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px" onclick="alert(\'Sharing ' + q.id + ' via WhatsApp\')">Share</button>' +
+        (q.status === 'Draft' ? '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--primary)" onclick="sendQuote(\'' + q.id + '\')">Send</button>' : '') +
         (q.status !== 'Accepted' && q.status !== 'Rejected' ? '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--success)" onclick="approveQuote(\'' + q.id + '\')">Approve</button>' : '') +
       '</td>' +
       '</tr>';
   }).join('');
+}
+
+function sendQuote(id) {
+  var idx = sampleQuotes.findIndex(function(q) { return q.id === id; });
+  if (idx >= 0) {
+    sampleQuotes[idx].status = 'Sent';
+    sampleQuotes[idx].approval = 'Pending';
+    renderQuotes();
+    alert('Quotation ' + id + ' has been sent to the client securely!');
+  }
 }
 
 function approveQuote(id) {
@@ -1101,6 +1159,27 @@ function approveQuote(id) {
     renderQuotes();
     alert('Quotation ' + id + ' has been approved!');
   }
+}
+
+function viewQuote(id) {
+  var q = sampleQuotes.find(function(x) { return x.id === id; });
+  if (!q) return;
+  document.getElementById('viewQuoteOverlay').classList.add('open');
+  document.getElementById('viewQuoteId').textContent = q.id;
+  document.getElementById('viewQuoteCustomer').textContent = q.customer;
+  document.getElementById('viewQuoteProject').textContent = q.project;
+  document.getElementById('viewQuoteItems').textContent = q.items;
+  document.getElementById('viewQuoteAmount').textContent = 'Rs ' + q.amount.toLocaleString();
+  document.getElementById('viewQuoteDate').textContent = q.date;
+  var statusEl = document.getElementById('viewQuoteStatus');
+  statusEl.textContent = q.status;
+  statusEl.className = 'status-badge ' + (q.status === 'Accepted' ? 'status-accepted' : q.status === 'Sent' || q.status === 'Viewed' ? 'status-sent' : q.status === 'Draft' ? 'status-draft' : 'status-rejected');
+  var approvalEl = document.getElementById('viewQuoteApproval');
+  approvalEl.textContent = q.approval;
+  approvalEl.className = 'status-badge ' + (q.approval === 'Approved' ? 'status-accepted' : q.approval === 'Denied' ? 'status-rejected' : 'status-sent');
+}
+function closeViewQuote() {
+  document.getElementById('viewQuoteOverlay').classList.remove('open');
 }
 
 function showNewQuote() {
@@ -1457,9 +1536,9 @@ function renderNotifications() {
       'danger': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
     };
 
-    return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" data-type="' + n.type + '">' +
+    return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" data-type="' + n.type + '" onclick="showNotifDetail(' + n.id + ')">' +
       '<div class="notif-icon ' + n.icon + '">' + (iconTypes[n.type] || iconTypes.info) + '</div>' +
-      '<div class="notif-content" onclick="markNotifRead(' + n.id + ')">' +
+      '<div class="notif-content">' +
         '<div class="notif-title">' + n.title + '</div>' +
         '<div class="notif-message">' + n.message + '</div>' +
       '</div>' +
@@ -1472,6 +1551,40 @@ function markNotifRead(id) {
   var n = sampleNotifications.find(function(x) { return x.id === id; });
   if (n) n.unread = false;
   renderNotifications();
+}
+
+function showNotifDetail(id) {
+  closeNotifDropdown();
+  closeUserDropdown();
+  var n = sampleNotifications.find(function(x) { return x.id === id; });
+  if (!n) return;
+  markNotifRead(id);
+  var icons = {
+    info: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    success: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    warning: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    danger: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+  };
+  var bgColors = { info: 'rgba(129,140,248,.1)', success: 'rgba(110,231,183,.15)', warning: 'rgba(251,191,36,.15)', danger: 'rgba(251,113,133,.15)' };
+  var textColors = { info: 'var(--primary)', success: 'var(--success)', warning: 'var(--warning)', danger: 'var(--danger)' };
+  var iconEl = document.getElementById('notifDetailIcon');
+  if (iconEl) {
+    iconEl.innerHTML = icons[n.type] || icons.info;
+    iconEl.style.background = bgColors[n.type] || bgColors.info;
+    iconEl.style.color = textColors[n.type] || textColors.info;
+  }
+  var titleEl = document.getElementById('notifDetailTitle');
+  if (titleEl) titleEl.textContent = n.title;
+  var timeEl = document.getElementById('notifDetailTime');
+  if (timeEl) timeEl.textContent = n.time;
+  var bodyEl = document.getElementById('notifDetailBody');
+  if (bodyEl) bodyEl.textContent = n.message;
+  var overlay = document.getElementById('notifDetailOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+function closeNotifDetail() {
+  var overlay = document.getElementById('notifDetailOverlay');
+  if (overlay) overlay.classList.remove('open');
 }
 
 function markAllNotifRead() {
@@ -1737,6 +1850,8 @@ document.addEventListener('keydown', function(e) {
     closeProductModal();
     closeNotifDropdown();
     closeUserDropdown();
+    closeNotifDetail();
+    closeViewQuote();
   }
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
@@ -1795,7 +1910,7 @@ function renderNotifDropdown() {
       'warning': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
       'danger': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
     };
-    return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" onclick="markNotifRead(' + n.id + ');event.stopPropagation()">' +
+    return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" onclick="showNotifDetail(' + n.id + ');event.stopPropagation()">' +
       '<div class="notif-icon ' + n.icon + '" style="width:32px;height:32px">' + (iconTypes[n.type] || iconTypes.info) + '</div>' +
       '<div class="notif-content"><div class="notif-title" style="font-size:13px">' + n.title + '</div><div class="notif-message" style="font-size:12px">' + n.message + '</div></div>' +
       '<div class="notif-time" style="font-size:10px">' + n.time + '</div>' +
