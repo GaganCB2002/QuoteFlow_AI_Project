@@ -7,9 +7,9 @@
   <meta name="description" content="Create your free QuoteFlow AI account — AI-powered quotations, GST invoices, CRM, and marketing.">
   <meta name="robots" content="index, follow">
   <meta name="author" content="QuoteFlow AI">
-  <link rel="canonical" href="https://quoteflow.ai/app/register.html">
+  <link rel="canonical" href="https://quoteflow.ai/register">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://quoteflow.ai/app/register.html">
+  <meta property="og:url" content="https://quoteflow.ai/register">
   <meta property="og:title" content="Register — QuoteFlow AI">
   <meta property="og:description" content="Create your free QuoteFlow AI account — AI-powered quotations, GST billing, CRM & marketing platform.">
   <meta property="og:image" content="https://quoteflow.ai/og-image.png">
@@ -132,7 +132,7 @@
       </button>
 
       <div class="auth-footer">
-        Already have an account? <a href="/app/login.html">Sign In</a>
+        Already have an account? <a href="/login">Sign In</a>
       </div>
     </div>
   </div>
@@ -173,7 +173,7 @@ function registerUser() {
   users.push({ name: name, phone: phone, email: email, password: password, role: role });
   localStorage.setItem('qf_users', JSON.stringify(users));
   alert('Account created successfully! You can now sign in.');
-  window.location.href = '/app/login.html';
+  window.location.href = '/login';
 }
 </script>
 </body>

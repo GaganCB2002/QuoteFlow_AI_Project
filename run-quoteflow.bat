@@ -21,12 +21,12 @@ cd ..
 :: Step 3: Start the Vite Frontend in a new window
 echo [3/3] Starting Vite Frontend...
 cd frontend
-start "QuoteFlow Frontend (Port 3000)" cmd /k "npm run dev"
+start "QuoteFlow Frontend (Port 8001)" cmd /k "npm run dev"
 cd ..
 
 echo ========================================
 echo   All services have been started!
 echo   Backend is running on http://localhost:8081
-echo   Frontend is running on http://localhost:3000
+echo   Frontend is running on http://localhost:8001
 echo ========================================
 pause

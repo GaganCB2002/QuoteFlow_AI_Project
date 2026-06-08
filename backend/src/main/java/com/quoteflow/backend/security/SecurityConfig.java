@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/health/**", "/api/public/**",
                                 "/api/visitors/**", "/api/landing-leads/**",
                                 "/", "/index.html", "/css/**", "/app/**", "/landing/**",
-                                "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers", "/crm", "/marketing", "/finance", "/notifications", "/visitors", "/admin", "/settings", "/profile",
+                                "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers", "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile", "/login", "/register",
                                 "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -7,9 +7,9 @@
   <meta name="description" content="Sign in to QuoteFlow AI — create AI-powered quotations, GST invoices, manage CRM, and share via WhatsApp.">
   <meta name="robots" content="index, follow">
   <meta name="author" content="QuoteFlow AI">
-  <link rel="canonical" href="https://quoteflow.ai/app/login.html">
+  <link rel="canonical" href="https://quoteflow.ai/login">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://quoteflow.ai/app/login.html">
+  <meta property="og:url" content="https://quoteflow.ai/login">
   <meta property="og:title" content="Sign In — QuoteFlow AI">
   <meta property="og:description" content="Sign in to QuoteFlow AI — AI-powered quotations, GST billing, CRM & marketing platform.">
   <meta property="og:image" content="https://quoteflow.ai/og-image.png">
@@ -203,7 +203,7 @@
       </button>
 
       <div class="auth-footer">
-        Don't have an account? <a href="/app/register.html">Register</a>
+        Don't have an account? <a href="/register">Register</a>
       </div>
     </div>
   </div>
@@ -255,7 +255,7 @@ function autoFillTest() {
     btn.style.background = '';
     btn.style.borderColor = '';
     // Auto-login with 2FA skip (test mode)
-    window.location.href = '/app/dashboard.html';
+    window.location.href = '/dashboard';
   }, 600);
 }
 
@@ -294,7 +294,7 @@ function tfaMove(el, idx) {
 }
 
 function skipTfa() {
-  window.location.href = '/app/dashboard.html';
+  window.location.href = '/dashboard';
 }
 
 function verifyTfa() {
@@ -306,7 +306,7 @@ function verifyTfa() {
   }
   // Demo TOTP code: 123456
   if (code === '123456') {
-    window.location.href = '/app/dashboard.html';
+    window.location.href = '/dashboard';
   } else {
     alert('Invalid code. Try 123456 (dev mode)');
   }
@@ -354,7 +354,7 @@ function verifyOtp() {
     alert('Please enter complete OTP');
     return;
   }
-  window.location.href = '/app/dashboard.html';
+  window.location.href = '/dashboard';
 }
 </script>
 </body>
