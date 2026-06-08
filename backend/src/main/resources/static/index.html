@@ -38,7 +38,7 @@
     "author": {"@type": "Organization", "name": "QuoteFlow AI"},
     "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "250"}
   }
-  </script>
+</script>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231e3a5f'/><path d='M35 75V25h12l18 32V25h12v50H65L45 40v35H35z' fill='white'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231e3a5f'/><path d='M35 75V25h12l18 32V25h12v50H65L45 40v35H35z' fill='white'/></svg>">
@@ -978,29 +978,7 @@ function genWizard(type) {
 }
 </script>
 
-<!-- Lead Capture Form -->
-<div id="lead-btn" onclick="toggleLeadForm()" aria-label="Get a Callback">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-</div>
-<div id="lead-panel">
-  <div id="lead-header">
-    <div>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Get a Callback
-    </div>
-    <button onclick="toggleLeadForm()" aria-label="Close">&#x2715;</button>
-  </div>
-  <div id="lead-body">
-    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Leave your details and our team will reach out to you.</p>
-    <div class="form-group"><label>Full Name</label><input type="text" id="leadName" placeholder="Your full name"></div>
-    <div class="form-group"><label>Email Address</label><input type="email" id="leadEmail" placeholder="your@email.com"></div>
-    <div class="form-group"><label>Phone Number</label><input type="tel" id="leadPhone" placeholder="10-digit mobile number"></div>
-    <div class="form-group"><label>Company (optional)</label><input type="text" id="leadCompany" placeholder="Your business name"></div>
-    <div class="form-group"><label>Message</label><textarea id="leadMessage" rows="3" placeholder="How can we help you?" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);outline:none;resize:none"></textarea></div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitLead()">Submit &rarr;</button>
-    <div id="leadSuccess" style="display:none;text-align:center;padding:20px;color:var(--success);font-weight:600">Thank you! We'll contact you shortly.</div>
-  </div>
-</div>
+
 
 <!-- AI Assistant Chatbot -->
 <div id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI Assistant">
@@ -1021,6 +999,7 @@ function genWizard(type) {
       <span class="ai-quick-reply" onclick="quickChat('features')">Features</span>
       <span class="ai-quick-reply" onclick="quickChat('pricing')">Pricing</span>
       <span class="ai-quick-reply" onclick="quickChat('how it works')">How it works</span>
+      <span class="ai-quick-reply" onclick="quickChat('get a callback')">Get a callback</span>
     </div>
   </div>
   <div id="ai-chat-input-area">
@@ -1070,6 +1049,13 @@ function escapeHTML(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function getAIGuideResponse(q) {
+  if (q.includes('callback') || q.includes('contact') || q.includes('call me')) {
+    return '<strong>Get a Callback</strong><br>Leave your details and our team will reach out to you.<br><br>' +
+           '<div style="margin-bottom:8px"><input type="text" id="aiLeadName" placeholder="Your full name" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
+           '<div style="margin-bottom:8px"><input type="tel" id="aiLeadPhone" placeholder="10-digit mobile number" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
+           '<div style="margin-bottom:8px"><textarea id="aiLeadMessage" placeholder="Your requirements or message" rows="2" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font);resize:none"></textarea></div>' +
+           '<button style="width:100%;padding:8px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px" onclick="submitAILead(this)">Submit Details &rarr;</button>';
+  }
   if (q.includes('create account') || q.includes('sign up') || q.includes('register') || q.includes('registration')) {
     return '<strong>Creating an account</strong><br><br>1. Click the <strong>"Start Free"</strong> or <strong>"Free Trial"</strong> button on this page<br>2. You\'ll go to the <strong>Register page</strong> at <strong>/app/register.html</strong><br>3. Fill in your name, phone, email, and password<br>4. Select your role (Business Owner / Freelancer / Accountant)<br>5. Click <strong>Create Account</strong><br><br>Already have an account? Use the <strong>demo credentials</strong> on this page to log in instantly!';
   }
@@ -1226,6 +1212,25 @@ function submitLead() {
       document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = 'none'; });
     } catch(e) { alert('Could not save. Please try again.'); }
   });
+}
+
+function submitAILead(btn) {
+  const name = document.getElementById('aiLeadName').value.trim();
+  const phone = document.getElementById('aiLeadPhone').value.trim();
+  const message = document.getElementById('aiLeadMessage').value.trim();
+  if (!name || !phone) { alert('Please enter name and phone number'); return; }
+  if (phone.length < 10) { alert('Please enter a valid 10-digit phone number'); return; }
+  btn.innerText = 'Submitted!';
+  btn.style.opacity = '0.5';
+  btn.disabled = true;
+  fetch('/api/public/leads', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name, phone: phone, message: message, source: 'ai-bot'})
+  }).catch(function(){});
+  setTimeout(function() {
+    addMsg('Thanks ' + escapeHTML(name) + '! We have received your request and will call you at ' + escapeHTML(phone) + ' shortly.', 'bot');
+  }, 600);
 }
 </script>
 

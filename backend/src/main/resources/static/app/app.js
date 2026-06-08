@@ -174,12 +174,12 @@ const sampleExpenses = [
 
 const sampleNotifications = [
   { id: 1, type: 'info', icon: 'info', title: 'New quotation created', message: 'Quotation Q-2026-0042 generated for Rahul Verma.', time: '2 min ago', unread: true },
-  { id: 2, type: 'success', icon: 'success', title: 'Payment received', message: 'Payment of Rs 1,77,000 received from Sneha Reddy.', time: '1 hour ago', unread: true },
+  { id: 2, type: 'success', icon: 'success', title: 'Payment received', message: 'Payment of ₹1,77,000 received from Sneha Reddy.', time: '1 hour ago', unread: true },
   { id: 3, type: 'warning', icon: 'warning', title: 'Invoice overdue', message: 'Invoice INV-2026-0016 for Priya Singh is overdue.', time: '3 hours ago', unread: true },
   { id: 4, type: 'info', icon: 'info', title: 'New customer registered', message: 'BlueOcean Ltd has registered as a new customer.', time: 'Yesterday', unread: false },
-  { id: 5, type: 'success', icon: 'success', title: 'Deal won!', message: 'StellarTech deal closed at Rs 4,20,000. Congratulations!', time: '2 days ago', unread: false },
+  { id: 5, type: 'success', icon: 'success', title: 'Deal won!', message: 'StellarTech deal closed at ₹4,20,000. Congratulations!', time: '2 days ago', unread: false },
   { id: 6, type: 'danger', icon: 'danger', title: 'Subscription expiring', message: 'Your Pro Plan subscription expires in 7 days.', time: '3 days ago', unread: false },
-  { id: 7, type: 'warning', icon: 'warning', title: 'Low disk space', message: 'Server storage is at 92%. Consider清理ing old backups.', time: '4 days ago', unread: false },
+  { id: 7, type: 'warning', icon: 'warning', title: 'Low disk space', message: 'Server storage is at 92%. Consider cleaning up old backups.', time: '4 days ago', unread: false },
   { id: 8, type: 'success', icon: 'success', title: 'Campaign completed', message: 'Summer Sale Blast reached 2,380 recipients.', time: '5 days ago', unread: false },
   { id: 9, type: 'info', icon: 'info', title: 'New lead assigned', message: 'Deepak Mehta from Website has been assigned to you.', time: '6 days ago', unread: false },
 ];
@@ -325,7 +325,7 @@ var wizardQuestions = {
   ],
   'Digital Marketing': [
     { type: 'checkboxes', id: 'platforms', label: 'Target Platforms', opts: ['Google Ads', 'Facebook / Instagram', 'LinkedIn', 'Twitter / X', 'YouTube'] },
-    { type: 'select', id: 'adBudget', label: 'Monthly Ad Budget', opts: ['< Rs 10,000', 'Rs 10,000 - 25,000', 'Rs 25,000 - 50,000', 'Rs 50,000 - 1,00,000', 'Rs 1,00,000+'], def: 'Rs 10,000 - 25,000' },
+    { type: 'select', id: 'adBudget', label: 'Monthly Ad Budget', opts: ['< ₹10,000', '₹10,000 - 25,000', '₹25,000 - 50,000', '₹50,000 - 1,00,000', '₹1,00,000+'], def: '₹10,000 - 25,000' },
     { type: 'toggle', id: 'contentCreation', label: 'Graphic/Video Content Creation', def: true },
     { type: 'toggle', id: 'analytics', label: 'Advanced Analytics & Pixel Tracking', def: true },
     { type: 'checkboxes', id: 'advancedFeatures', label: 'Advanced Strategies', opts: ['A/B Testing', 'Retargeting Campaigns', 'Influencer Outreach', 'Conversion Rate Optimization (CRO)'] }
@@ -397,7 +397,8 @@ function initEstimation() {
   estimationData.timeline = [];
   estimationData.modules = [];
   estimationData.generatedDocs = false;
-  document.getElementById('estDocumentsSection').style.display = 'none';
+  var docsEl = document.getElementById('estDocumentsSection');
+  if (docsEl) docsEl.style.display = 'none';
   resetLiveCostPanel();
   renderWizardStep();
 }
@@ -406,10 +407,12 @@ function switchEstimationMode(btn, mode) {
   document.querySelectorAll('#page-estimation > .tabs .tab').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
   estimationData.mode = mode;
-  document.getElementById('estAiPanel').style.display = mode === 'ai' ? 'block' : 'none';
-  document.getElementById('estWizardPanel').style.display = mode === 'wizard' ? 'block' : 'none';
+  var aiPanel = document.getElementById('estAiPanel');
+  if (aiPanel) aiPanel.style.display = mode === 'ai' ? 'block' : 'none';
+  var wizardPanel = document.getElementById('estWizardPanel');
+  if (wizardPanel) wizardPanel.style.display = mode === 'wizard' ? 'block' : 'none';
   if (mode === 'wizard') { estimationData.wizardStep = 1; renderWizardStep(); }
-  if (mode === 'ai') { document.getElementById('estDocumentsSection').style.display = 'none'; resetLiveCostPanel(); }
+  if (mode === 'ai') { var el = document.getElementById('estDocumentsSection'); if (el) el.style.display = 'none'; resetLiveCostPanel(); }
 }
 
 function renderWizardStep() {
@@ -421,7 +424,7 @@ function renderWizardStep() {
   var prevBtn = document.getElementById('wizardPrevBtn');
   var nextBtn = document.getElementById('wizardNextBtn');
 
-  indicator.textContent = 'Step ' + step + ' of 3';
+  if (indicator) indicator.textContent = 'Step ' + step + ' of 3';
   progress.forEach(function(p, i) {
     p.className = 'progress-step' + (i + 1 <= step ? (i + 1 < step ? ' completed' : ' active') : '');
   });
@@ -505,9 +508,9 @@ function renderWizardStep() {
     html += '<div style="margin-top:16px;padding:16px;background:var(--primary-bg);border-radius:var(--radius-sm)"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Summary</div>';
     html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>Project Type</span><strong>' + estimationData.projectType + '</strong></div>';
     html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>Project Name</span><strong>' + (estimationData.projectName || 'Untitled') + '</strong></div>';
-    html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid var(--border);margin-top:4px;padding-top:8px"><span>Estimated Subtotal</span><strong>Rs ' + (estimationData.subtotal || 0).toLocaleString() + '</strong></div>';
-    html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>Profit Margin (20%)</span><strong>Rs ' + (estimationData.profitAmount || 0).toLocaleString() + '</strong></div>';
-    html += '<div style="display:flex;justify-content:space-between;font-size:16px;padding:8px 0 0;border-top:2px solid var(--primary);margin-top:4px;font-weight:800;color:var(--primary)"><span>Final Quotation</span><span>Rs ' + (estimationData.finalTotal || 0).toLocaleString() + '</span></div></div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid var(--border);margin-top:4px;padding-top:8px"><span>Estimated Subtotal</span><strong>₹' + (estimationData.subtotal || 0).toLocaleString() + '</strong></div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>Profit Margin (20%)</span><strong>₹' + (estimationData.profitAmount || 0).toLocaleString() + '</strong></div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:16px;padding:8px 0 0;border-top:2px solid var(--primary);margin-top:4px;font-weight:800;color:var(--primary)"><span>Final Quotation</span><span>₹' + (estimationData.finalTotal || 0).toLocaleString() + '</span></div></div>';
     content.innerHTML = html;
     calculateCosts();
     updateLiveCostPanel();
@@ -530,7 +533,9 @@ function updateWizardSelection(id, val) {
 }
 
 function updateWizardCheckboxes(id) {
-  var checks = document.querySelectorAll('#wizardContent input[type="checkbox"][value]');
+  var group = document.getElementById('wiz_' + id);
+  if (!group) return;
+  var checks = group.querySelectorAll('input[type="checkbox"][value]');
   var vals = [];
   checks.forEach(function(c) { if (c.checked) vals.push(c.value); });
   estimationData.selections[id] = vals;
@@ -586,8 +591,11 @@ function resetWizard() {
 }
 
 function analyzeAIRequirement() {
-  var text = document.getElementById('aiRequirement').value.trim();
-  var name = document.getElementById('estProjectName').value.trim() || 'Untitled Project';
+  var aiReq = document.getElementById('aiRequirement');
+  var projName = document.getElementById('estProjectName');
+  if (!aiReq) return;
+  var text = aiReq.value.trim();
+  var name = (projName ? projName.value.trim() : '') || 'Untitled Project';
   if (!text) { alert('Please describe your project requirements.'); return; }
   estimationData.projectName = name;
   var panel = document.getElementById('estAiPanel');
@@ -595,7 +603,8 @@ function analyzeAIRequirement() {
   loadingDiv.className = 'est-loading';
   loadingDiv.id = 'aiLoading';
   loadingDiv.innerHTML = '<div class="est-spinner"></div> AI is analyzing your requirements...';
-  panel.querySelector('div[style*="padding"]').appendChild(loadingDiv);
+  var aiTarget = panel.querySelector('div[style*="padding"]');
+  if (aiTarget) aiTarget.appendChild(loadingDiv); else panel.appendChild(loadingDiv);
   setTimeout(function() {
     var el = document.getElementById('aiLoading');
     if (el) el.remove();
@@ -805,7 +814,7 @@ function updateLiveCostPanel() {
     html += '<div style="font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.3px;padding:8px 0 4px;border-top:1px solid var(--border)">' + cat + '</div>';
     html += '<table class="cost-table"><tbody>';
     categories[cat].forEach(function(i) {
-      html += '<tr><td style="font-size:13px">' + i.label + '</td><td style="font-size:13px">Rs ' + i.amount.toLocaleString() + '</td></tr>';
+      html += '<tr><td style="font-size:13px">' + i.label + '</td><td style="font-size:13px">₹' + i.amount.toLocaleString() + '</td></tr>';
     });
     html += '</tbody></table>';
   });
@@ -814,14 +823,14 @@ function updateLiveCostPanel() {
   var profitColor = estimationData.profitAmount > 0 ? 'var(--success)' : 'var(--danger)';
 
   html += '<table class="cost-table" style="margin-top:12px"><tbody>';
-  html += '<tr><td style="font-weight:700;padding-top:12px;border-top:1px solid var(--border)">Subtotal</td><td style="font-weight:700;padding-top:12px;border-top:1px solid var(--border);color:var(--primary)">Rs ' + estimationData.subtotal.toLocaleString() + '</td></tr>';
-  html += '<tr><td>Profit Margin (' + estimationData.profitMarginPct + '%)</td><td style="color:' + profitColor + '">Rs ' + estimationData.profitAmount.toLocaleString() + '</td></tr>';
-  html += '<tr class="cost-total"><td>Final Quotation</td><td>Rs ' + estimationData.finalTotal.toLocaleString() + '</td></tr>';
+  html += '<tr><td style="font-weight:700;padding-top:12px;border-top:1px solid var(--border)">Subtotal</td><td style="font-weight:700;padding-top:12px;border-top:1px solid var(--border);color:var(--primary)">₹' + estimationData.subtotal.toLocaleString() + '</td></tr>';
+  html += '<tr><td>Profit Margin (' + estimationData.profitMarginPct + '%)</td><td style="color:' + profitColor + '">₹' + estimationData.profitAmount.toLocaleString() + '</td></tr>';
+  html += '<tr class="cost-total"><td>Final Quotation</td><td>₹' + estimationData.finalTotal.toLocaleString() + '</td></tr>';
   html += '</tbody></table>';
 
   var profitBarColor = estimationData.profitAmount >= 0 ? 'var(--success)' : 'var(--danger)';
   var profitBarIcon = estimationData.profitAmount >= 0 ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
-  var profitBarText = estimationData.profitAmount >= 0 ? 'Profit of Rs ' + estimationData.profitAmount.toLocaleString() + ' included' : 'Loss detected! Review pricing';
+  var profitBarText = estimationData.profitAmount >= 0 ? 'Profit of ₹' + estimationData.profitAmount.toLocaleString() + ' included' : 'Loss detected! Review pricing';
 
   html += '<div id="profitStatusBar" style="margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;background:' + profitBarColor.replace('var(--success)', 'rgba(16,185,129,.1)').replace('var(--danger)', 'rgba(239,68,68,.1)') + ';color:' + profitBarColor + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">' + profitBarIcon + '</svg> ' + profitBarText + '</div>';
 
@@ -860,16 +869,16 @@ function showDocumentPreviews(result) {
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:16px">' +
     '<div><div style="font-size:11px;color:var(--text-light)">Client</div><div style="font-size:14px;font-weight:600">' + clientName + '</div></div>' +
     '<div><div style="font-size:11px;color:var(--text-light)">Project Type</div><div style="font-size:14px;font-weight:600">' + projectType + '</div></div>' +
-    '<div><div style="font-size:11px;color:var(--text-light)">Total Amount</div><div style="font-size:20px;font-weight:800;color:var(--primary)">Rs ' + estimationData.finalTotal.toLocaleString() + '</div></div>' +
+    '<div><div style="font-size:11px;color:var(--text-light)">Total Amount</div><div style="font-size:20px;font-weight:800;color:var(--primary)">₹' + estimationData.finalTotal.toLocaleString() + '</div></div>' +
     '<div><div style="font-size:11px;color:var(--text-light)">Status</div><div><span class="status-badge status-draft">Draft</span></div></div>' +
     '</div>' +
     '<div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:8px">Cost Summary</div>' +
     '<table class="cost-table"><tbody>' +
-    '<tr><td>Estimated Subtotal</td><td>Rs ' + estimationData.subtotal.toLocaleString() + '</td></tr>' +
-    '<tr><td>Profit Margin (' + estimationData.profitMarginPct + '%)</td><td>Rs ' + estimationData.profitAmount.toLocaleString() + '</td></tr>' +
-    '<tr class="cost-total"><td>Grand Total</td><td>Rs ' + estimationData.finalTotal.toLocaleString() + '</td></tr>' +
+    '<tr><td>Estimated Subtotal</td><td>₹' + estimationData.subtotal.toLocaleString() + '</td></tr>' +
+    '<tr><td>Profit Margin (' + estimationData.profitMarginPct + '%)</td><td>₹' + estimationData.profitAmount.toLocaleString() + '</td></tr>' +
+    '<tr class="cost-total"><td>Grand Total</td><td>₹' + estimationData.finalTotal.toLocaleString() + '</td></tr>' +
     '</tbody></table></div>';
-  document.getElementById('docQuotation').innerHTML = quotationHtml;
+  var docQ = document.getElementById('docQuotation'); if (docQ) docQ.innerHTML = quotationHtml;
 
   // Proposal tab
   var techStack = projectType === 'Mobile App' ? 'React Native / Flutter, Node.js, MongoDB' : projectType === 'ERP' ? 'Java / .NET, PostgreSQL, React' : projectType === 'E-Commerce' ? 'React, Node.js, MySQL, Stripe' : 'HTML5, CSS3, JavaScript, React, Node.js, MongoDB';
@@ -886,16 +895,16 @@ function showDocumentPreviews(result) {
     '<div style="font-size:13px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.3px;margin-top:16px;margin-bottom:8px">Terms</div>' +
     '<div style="font-size:13px;color:var(--gray-700)">• 50% advance payment to commence project<br>• 25% on mid-delivery review<br>• 25% on final delivery<br>• 1 year free maintenance included<br>• Source code ownership transferred</div>' +
     '</div>';
-  document.getElementById('docProposal').innerHTML = proposalHtml;
+  var docP = document.getElementById('docProposal'); if (docP) docP.innerHTML = proposalHtml;
 
   // Timeline tab
-  var phases = result.timeline || estimationData.timeline || [
+  var phases = (result.timeline && result.timeline.length ? result.timeline : estimationData.timeline && estimationData.timeline.length ? estimationData.timeline : [
     { name: 'Planning & Analysis', days: 5 },
     { name: 'UI/UX Design', days: 7 },
     { name: 'Development', days: 12 },
     { name: 'Testing & QA', days: 5 },
     { name: 'Deployment', days: 3 },
-  ];
+  ]);
   var maxDays = Math.max.apply(null, phases.map(function(p) { return p.days; }));
   var totalDays = phases.reduce(function(s, p) { return s + p.days; }, 0);
   var timelineHtml = '<div style="padding:4px 0">' +
@@ -906,7 +915,7 @@ function showDocumentPreviews(result) {
     }).join('') +
     '<div style="margin-top:16px;font-size:13px;color:var(--text-light)">Estimated effort: <strong>' + (result.totalHours || estimationData.totalHours || 150) + ' hours</strong></div>' +
     '</div>';
-  document.getElementById('docTimeline').innerHTML = timelineHtml;
+  var docT = document.getElementById('docTimeline'); if (docT) docT.innerHTML = timelineHtml;
 }
 
 function switchDocTab(btn, tab) {
@@ -914,7 +923,7 @@ function switchDocTab(btn, tab) {
   btn.classList.add('active');
   var targetId = 'doc' + tab.charAt(0).toUpperCase() + tab.slice(1);
   ['docQuotation', 'docProposal', 'docTimeline'].forEach(function(id) {
-    document.getElementById(id).style.display = id === targetId ? 'block' : 'none';
+    var el = document.getElementById(id); if (el) el.style.display = id === targetId ? 'block' : 'none';
   });
 }
 
@@ -963,6 +972,63 @@ function downloadQuotationPDF() {
   }
 }
 
+function downloadQuotePDF(quoteId) {
+  var q = null;
+  for (var i = 0; i < sampleQuotes.length; i++) {
+    if (sampleQuotes[i].id === quoteId) { q = sampleQuotes[i]; break; }
+  }
+  if (!q) { alert('Quotation not found.'); return; }
+  var details = q.details || null;
+  var itemsHtml = '';
+  if (details && details.costItems && details.costItems.length > 0) {
+    details.costItems.forEach(function(item, idx) {
+      var label = item.label || item.name || 'Item ' + (idx+1);
+      var amt = item.amount || 0;
+      itemsHtml += '<tr><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px">' + escapeHTML(label) + '</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:center">1</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:right">₹' + Number(amt).toLocaleString() + '</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:right;font-weight:600">₹' + Number(amt).toLocaleString() + '</td></tr>';
+    });
+  } else {
+    var defaults = q.project === 'Website Development' ? ['UI/UX Design','Frontend Dev','Backend Dev'] : q.project === 'Mobile App' ? ['App Design','App Development'] : q.project === 'E-Commerce' || q.project === 'E-commerce' ? ['E-commerce Setup'] : ['Consulting','Development','Testing'];
+    defaults.forEach(function(name) {
+      var rate = Math.round(q.amount / defaults.length);
+      itemsHtml += '<tr><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px">' + name + '</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:center">1</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:right">₹' + Number(rate).toLocaleString() + '</td><td style="padding:8px 10px;border-bottom:1px solid #e0d8cc;font-size:12px;text-align:right;font-weight:600">₹' + Number(rate).toLocaleString() + '</td></tr>';
+    });
+  }
+  var today = new Date();
+  var validUntil = new Date(today); validUntil.setDate(validUntil.getDate() + 30);
+  var dateStr = today.toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'});
+  var validStr = validUntil.toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'});
+  var html = '<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto;padding:40px;color:#333">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #b8860b">' +
+      '<div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' +
+          '<span style="font-size:22px;font-weight:800;color:#b8860b">QuoteFlow</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:#666;line-height:1.6">QuoteFlow Technologies Pvt. Ltd.<br>123 Innovation Drive, Tech Park<br>Bangalore - 560001, India</div>' +
+      '</div>' +
+      '<div style="text-align:right;font-size:11px;color:#666;line-height:1.6">Email: hello@quoteflow.in<br>Phone: +91 80 4567 8900<br>GST: 29AABCU9603R1Z1</div>' +
+    '</div>' +
+    '<div style="text-align:center;margin-bottom:24px"><h1 style="font-size:24px;font-weight:800;color:#b8860b;margin:0 0 4px">QUOTATION</h1><div style="font-size:11px;color:#ccc;letter-spacing:4px">─────────────────────────────</div></div>' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:24px">' +
+      '<div><div style="font-size:11px;color:#999;margin-bottom:4px">Quote No.</div><div style="font-size:16px;font-weight:700">' + escapeHTML(q.id) + '</div><div style="font-size:11px;color:#999;margin-top:12px;margin-bottom:4px">Date</div><div style="font-size:13px">' + dateStr + '</div><div style="font-size:11px;color:#999;margin-top:8px;margin-bottom:4px">Valid Until</div><div style="font-size:13px">' + validStr + '</div></div>' +
+      '<div style="text-align:right"><div style="font-size:11px;color:#999;margin-bottom:4px">Bill To</div><div style="font-size:16px;font-weight:700">' + escapeHTML(q.customer) + '</div><div style="font-size:13px;margin-top:4px;color:#666">cc: ' + escapeHTML(q.customer.toLowerCase().replace(/\s+/g,'.')) + '@email.com</div></div>' +
+    '</div>' +
+    '<div style="background:#f7f5f0;padding:12px 16px;border-radius:6px;margin-bottom:20px;font-size:14px"><span style="font-weight:600">Project:</span> ' + escapeHTML(q.project) + '</div>' +
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:20px"><thead><tr style="background:#b8860b;color:#fff"><th style="padding:10px;text-align:left;font-size:12px;font-weight:600">Item</th><th style="padding:10px;text-align:center;font-size:12px;font-weight:600">Qty</th><th style="padding:10px;text-align:right;font-size:12px;font-weight:600">Rate</th><th style="padding:10px;text-align:right;font-size:12px;font-weight:600">Amount</th></tr></thead><tbody>' + itemsHtml + '</tbody></table>' +
+    '<div style="text-align:right;margin-bottom:24px;padding:12px 16px;background:#f7f5f0;border-radius:6px"><div style="font-size:14px;color:#666;margin-bottom:4px">Total Amount</div><div style="font-size:24px;font-weight:800;color:#b8860b">₹' + Number(q.amount).toLocaleString() + '</div></div>' +
+    '<div style="border-top:1px solid #e0d8cc;padding-top:16px"><div style="font-size:12px;font-weight:700;color:#b8860b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Terms & Conditions</div><div style="font-size:11px;color:#666;line-height:1.8">1. Payment Terms: 50% advance, 25% on mid-delivery, 25% on final delivery.<br>2. This quotation is valid for 30 days from the date above.<br>3. Delivery timeline confirmed upon acceptance.<br>4. Source code ownership transferred upon full payment.<br>5. 1 year free maintenance included from delivery date.</div></div>' +
+    '<div style="text-align:center;margin-top:30px;padding-top:16px;border-top:1px solid #e0d8cc;font-size:10px;color:#999">Thank you for your business! \u00b7 QuoteFlow Technologies Pvt. Ltd. \u00b7 hello@quoteflow.in \u00b7 +91 80 4567 8900</div>' +
+  '</div>';
+  var container = document.createElement('div');
+  container.style.position = 'absolute'; container.style.left = '-9999px'; container.style.top = '0';
+  container.innerHTML = html;
+  document.body.appendChild(container);
+  if (typeof html2pdf !== 'undefined') {
+    var opt = { margin: [0.4, 0.4, 0.4, 0.4], filename: 'Quotation_' + q.id + '_' + escapeHTML(q.customer).replace(/\s+/g,'_') + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+    html2pdf().set(opt).from(container).save().then(function() { try { document.body.removeChild(container); } catch(e){} });
+  } else { alert('PDF generation library not loaded. Please try again.'); try { document.body.removeChild(container); } catch(e){} }
+}
+
 // ============================================================
 // PRODUCT MANAGEMENT
 // ============================================================
@@ -976,7 +1042,7 @@ function openProductModal() {
   ['prodName', 'prodHSN', 'prodPrice', 'prodStock'].forEach(function(id) {
     document.getElementById(id).value = '';
   });
-  document.getElementById('prodCategory').value = 'Web Development';
+  document.getElementById('prodCategory').value = 'Products';
   document.getElementById('prodGST').value = '18';
   document.getElementById('prodStatus').value = 'active';
 }
@@ -992,9 +1058,9 @@ function saveProduct() {
     name: name,
     category: document.getElementById('prodCategory').value,
     hsn: document.getElementById('prodHSN').value || '9983',
-    price: parseInt(document.getElementById('prodPrice').value) || 0,
-    gst: parseInt(document.getElementById('prodGST').value) || 18,
-    stock: parseInt(document.getElementById('prodStock').value) || 0,
+    price: parseInt(document.getElementById('prodPrice').value, 10) || 0,
+    gst: parseInt(document.getElementById('prodGST').value, 10) || 18,
+    stock: parseInt(document.getElementById('prodStock').value, 10) || 0,
     status: document.getElementById('prodStatus').value,
   };
   if (editingProductIndex >= 0) {
@@ -1035,7 +1101,7 @@ function renderProducts() {
       '<td><strong>' + p.name + '</strong></td>' +
       '<td>' + p.category + '</td>' +
       '<td>' + p.hsn + '</td>' +
-      '<td>Rs ' + p.price.toLocaleString() + '</td>' +
+      '<td>₹' + p.price.toLocaleString() + '</td>' +
       '<td>' + p.gst + '%</td>' +
       '<td>' + (p.stock || '\u2014') + '</td>' +
       '<td><span class="status-badge ' + statusClass + '">' + p.status + '</span></td>' +
@@ -1127,13 +1193,13 @@ function renderQuotes() {
       '<td>' + q.customer + '</td>' +
       '<td>' + q.project + '</td>' +
       '<td>' + q.items + '</td>' +
-      '<td><strong>Rs ' + q.amount.toLocaleString() + '</strong></td>' +
+      '<td><strong>₹' + q.amount.toLocaleString() + '</strong></td>' +
       '<td><span class="status-badge ' + statusClass + '">' + q.status + '</span></td>' +
       '<td><span class="status-badge ' + approvalLabel + '">' + q.approval + '</span></td>' +
       '<td>' + q.date + '</td>' +
       '<td style="display:flex;gap:4px">' +
         '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--primary)" onclick="viewQuote(\'' + q.id + '\')">View</button>' +
-        '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px" onclick="alert(\'Downloading PDF for ' + q.id + '\')">PDF</button>' +
+        '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--danger)" onclick="downloadQuotePDF(\'' + q.id + '\')">PDF</button>' +
         (q.status === 'Draft' ? '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--primary)" onclick="sendQuote(\'' + q.id + '\')">Send</button>' : '') +
         (q.status !== 'Accepted' && q.status !== 'Rejected' ? '<button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11px;color:var(--success)" onclick="approveQuote(\'' + q.id + '\')">Approve</button>' : '') +
       '</td>' +
@@ -1169,7 +1235,7 @@ function viewQuote(id) {
   document.getElementById('viewQuoteCustomer').textContent = q.customer;
   document.getElementById('viewQuoteProject').textContent = q.project;
   document.getElementById('viewQuoteItems').textContent = q.items;
-  document.getElementById('viewQuoteAmount').textContent = 'Rs ' + q.amount.toLocaleString();
+  document.getElementById('viewQuoteAmount').textContent = '₹' + q.amount.toLocaleString();
   document.getElementById('viewQuoteDate').textContent = q.date;
   var statusEl = document.getElementById('viewQuoteStatus');
   statusEl.textContent = q.status;
@@ -1200,8 +1266,8 @@ function renderInvoices() {
       '<td><strong>' + i.id + '</strong></td>' +
       '<td>' + typeLabel + '</td>' +
       '<td>' + i.customer + '</td>' +
-      '<td>Rs ' + i.amount.toLocaleString() + '</td>' +
-      '<td>Rs ' + i.paid.toLocaleString() + '</td>' +
+      '<td>₹' + i.amount.toLocaleString() + '</td>' +
+      '<td>₹' + i.paid.toLocaleString() + '</td>' +
       '<td><span class="status-badge ' + statusClass + '">' + i.status + '</span></td>' +
       '<td>' + i.due + '</td>' +
       '<td><button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px" onclick="alert(\'Generate QR for ' + i.id + '\')">QR</button></td>' +
@@ -1221,7 +1287,7 @@ function renderReceipts() {
     return '<tr>' +
       '<td><strong>' + r.id + '</strong></td>' +
       '<td>' + r.customer + '</td>' +
-      '<td>Rs ' + r.amount.toLocaleString() + '</td>' +
+      '<td>₹' + r.amount.toLocaleString() + '</td>' +
       '<td>' + r.mode + '</td>' +
       '<td>' + r.date + '</td>' +
       '<td><span class="status-badge ' + statusClass + '">' + r.status + '</span></td>' +
@@ -1245,7 +1311,7 @@ function renderCustomers() {
       '<td>' + c.phone + '</td>' +
       '<td>' + c.gst + '</td>' +
       '<td><span style="font-weight:700;color:' + scoreColor + '">' + c.credit + '</span></td>' +
-      '<td>Rs ' + c.spent.toLocaleString() + '</td>' +
+      '<td>₹' + c.spent.toLocaleString() + '</td>' +
       '<td><button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px">View</button></td>' +
       '</tr>';
   }).join('');
@@ -1258,8 +1324,8 @@ function renderCustomers() {
 function switchCRMTab(el, tab) {
   document.querySelectorAll('#page-crm .tab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
-  document.getElementById('crmLeads').style.display = tab === 'leads' ? 'block' : 'none';
-  document.getElementById('crmDeals').style.display = tab === 'deals' ? 'block' : 'none';
+  var leads = document.getElementById('crmLeads'); if (leads) leads.style.display = tab === 'leads' ? 'block' : 'none';
+  var deals = document.getElementById('crmDeals'); if (deals) deals.style.display = tab === 'deals' ? 'block' : 'none';
 }
 
 function renderLeads() {
@@ -1312,7 +1378,7 @@ function renderPipeline() {
           var cardStyle = isWon ? 'border-left:3px solid var(--success)' : isLost ? 'border-left:3px solid var(--danger);opacity:.6' : '';
           return '<div class="deal-card" style="' + cardStyle + '" draggable="true" data-deal-id="' + d.id + '" ondragstart="dragDeal(event)" ondblclick="moveDealStage(' + d.id + ')">' +
             '<div class="deal-name">' + d.name + '</div>' +
-            '<div class="deal-amount">Rs ' + d.amount.toLocaleString() + '</div>' +
+            '<div class="deal-amount">₹' + d.amount.toLocaleString() + '</div>' +
             '<div class="deal-meta"><span>Close: ' + d.closeDate + '</span><span class="deal-prob ' + d.probClass + '">' + d.prob + '%</span></div>' +
           '</div>';
         }).join('') +
@@ -1338,7 +1404,8 @@ function renderPipeline() {
 }
 
 function dragDeal(e) {
-  e.dataTransfer.setData('text/plain', e.target.closest('.deal-card').getAttribute('data-deal-id'));
+  var card = e.target.closest('.deal-card');
+  if (card) e.dataTransfer.setData('text/plain', card.getAttribute('data-deal-id'));
 }
 
 function moveDealStage(dealId, newStage) {
@@ -1410,7 +1477,7 @@ function switchFinanceTab(el, tab) {
   el.classList.add('active');
   var targetId = 'finance' + tab.charAt(0).toUpperCase() + tab.slice(1);
   ['financeOverview', 'financeIncome', 'financeExpenses', 'financeGST'].forEach(function(id) {
-    document.getElementById(id).style.display = id === targetId ? 'block' : 'none';
+    var el = document.getElementById(id); if (el) el.style.display = id === targetId ? 'block' : 'none';
   });
 }
 
@@ -1428,7 +1495,7 @@ function renderIncome() {
     return '<tr>' +
       '<td><strong>' + i.customer + '</strong></td>' +
       '<td>' + i.desc + '</td>' +
-      '<td><strong>Rs ' + i.amount.toLocaleString() + '</strong></td>' +
+      '<td><strong>₹' + i.amount.toLocaleString() + '</strong></td>' +
       '<td>' + i.date + '</td>' +
       '<td>' + i.mode + '</td>' +
       '<td><button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px" onclick="alert(\'Edit income entry\')">Edit</button></td>' +
@@ -1443,7 +1510,7 @@ function renderExpenses() {
     return '<tr>' +
       '<td><strong>' + e.category + '</strong></td>' +
       '<td>' + e.desc + '</td>' +
-      '<td><strong>Rs ' + e.amount.toLocaleString() + '</strong></td>' +
+      '<td><strong>₹' + e.amount.toLocaleString() + '</strong></td>' +
       '<td>' + e.date + '</td>' +
       '<td>' + e.mode + '</td>' +
       '<td><button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:12px" onclick="alert(\'Edit expense entry\')">Edit</button></td>' +
@@ -1465,9 +1532,9 @@ function renderFinanceOverview() {
   // Update stat cards
   var finStats = document.querySelectorAll('#financeOverview .stat-card .stat-value');
   if (finStats.length >= 4) {
-    finStats[0].textContent = 'Rs ' + totalIncome.toLocaleString();
-    finStats[1].textContent = 'Rs ' + totalExpenses.toLocaleString();
-    finStats[2].textContent = 'Rs ' + netProfit.toLocaleString();
+    finStats[0].textContent = '₹' + totalIncome.toLocaleString();
+    finStats[1].textContent = '₹' + totalExpenses.toLocaleString();
+    finStats[2].textContent = '₹' + netProfit.toLocaleString();
     finStats[3].textContent = profitMargin + '%';
   }
 
@@ -1486,10 +1553,10 @@ function renderGSTReports() {
 
   var gstStats = document.querySelectorAll('#financeGST .stat-card .stat-value');
   if (gstStats.length >= 4) {
-    gstStats[0].textContent = 'Rs ' + cgst.toLocaleString();
-    gstStats[1].textContent = 'Rs ' + sgst.toLocaleString();
-    gstStats[2].textContent = 'Rs ' + igst.toLocaleString();
-    gstStats[3].textContent = 'Rs ' + totalGst.toLocaleString();
+    gstStats[0].textContent = '₹' + cgst.toLocaleString();
+    gstStats[1].textContent = '₹' + sgst.toLocaleString();
+    gstStats[2].textContent = '₹' + igst.toLocaleString();
+    gstStats[3].textContent = '₹' + totalGst.toLocaleString();
   }
 
   // GST returns table
@@ -1501,7 +1568,7 @@ function renderGSTReports() {
       { period: 'Jun 2026', cgst: 21800, sgst: 21800, igst: 7600, total: 51200, filed: '\u2014', status: 'Pending' },
     ].map(function(r) {
       var statusClass = r.status === 'Filed' ? 'status-accepted' : 'status-draft';
-      return '<tr><td>' + r.period + '</td><td>Rs ' + r.cgst.toLocaleString() + '</td><td>Rs ' + r.sgst.toLocaleString() + '</td><td>Rs ' + r.igst.toLocaleString() + '</td><td><strong>Rs ' + r.total.toLocaleString() + '</strong></td><td>' + r.filed + '</td><td><span class="status-badge ' + statusClass + '">' + r.status + '</span></td></tr>';
+      return '<tr><td>' + r.period + '</td><td>₹' + r.cgst.toLocaleString() + '</td><td>₹' + r.sgst.toLocaleString() + '</td><td>₹' + r.igst.toLocaleString() + '</td><td><strong>₹' + r.total.toLocaleString() + '</strong></td><td>' + r.filed + '</td><td><span class="status-badge ' + statusClass + '">' + r.status + '</span></td></tr>';
     }).join('');
   }
 }
@@ -1606,10 +1673,14 @@ function filterNotif(el, type) {
 function switchAdminTab(el, tab) {
   document.querySelectorAll('#page-admin .tab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
-  var map = { users: 'adminUsers', subscriptions: 'adminSubscriptions', audit: 'adminAudit' };
-  ['adminUsers', 'adminSubscriptions', 'adminAudit'].forEach(function(id) {
-    document.getElementById(id).style.display = id === map[tab] ? 'block' : 'none';
+  var map = { users: 'adminUsers', leads: 'adminLeads', subscriptions: 'adminSubscriptions', audit: 'adminAudit' };
+  ['adminUsers', 'adminLeads', 'adminSubscriptions', 'adminAudit'].forEach(function(id) {
+    var elem = document.getElementById(id);
+    if(elem) elem.style.display = id === map[tab] ? 'block' : 'none';
   });
+  if (tab === 'leads') {
+    fetchAndRenderLeads();
+  }
 }
 
 function renderAdmin() {
@@ -1728,13 +1799,13 @@ function loadDashboard() {
     setText('statActiveCustomers', activeCustomers);
 
     var statRevenue = document.querySelector('#page-dashboard .stat-card:nth-child(3) .stat-value');
-    if (statRevenue) statRevenue.textContent = 'Rs ' + totalRevenue.toLocaleString();
+    if (statRevenue) statRevenue.textContent = '₹' + totalRevenue.toLocaleString();
 
     var tbody = document.getElementById('recentQuotes');
     if (tbody) {
       tbody.innerHTML = sampleQuotes.slice(0, 4).map(function(q) {
         var statusClass = q.status === 'Accepted' ? 'status-accepted' : q.status === 'Sent' ? 'status-sent' : q.status === 'Viewed' ? 'status-sent' : q.status === 'Draft' ? 'status-draft' : 'status-rejected';
-        return '<tr><td>' + q.id + '</td><td>' + q.customer + '</td><td>Rs ' + q.amount.toLocaleString() + '</td><td><span class="status-badge ' + statusClass + '">' + q.status + '</span></td><td>' + q.date + '</td></tr>';
+        return '<tr><td>' + q.id + '</td><td>' + q.customer + '</td><td>₹' + q.amount.toLocaleString() + '</td><td><span class="status-badge ' + statusClass + '">' + q.status + '</span></td><td>' + q.date + '</td></tr>';
       }).join('');
     }
 
@@ -1786,7 +1857,7 @@ function updateDashboardAssessment() {
         '<p style="font-size:13px;color:var(--text-light);margin-top:4px">' + insight + '</p>' +
         '<div style="display:flex;gap:16px;margin-top:10px;font-size:12px;flex-wrap:wrap">' +
           '<span><strong>' + conversionRate + '%</strong> Conv. Rate</span>' +
-          '<span><strong>Rs ' + revenue.toLocaleString() + '</strong> Revenue</span>' +
+          '<span><strong>₹' + revenue.toLocaleString() + '</strong> Revenue</span>' +
           '<span><strong>' + pendingInvoices + '</strong> Pending Inv.</span>' +
           '<span><strong>' + crmLeads + '</strong> Active Leads</span>' +
           '<span><strong>' + todayVisits + '</strong> Visitors Today</span>' +
@@ -2002,38 +2073,38 @@ function getAIResponse(input) {
   var activeLeads = sampleLeads.filter(function(l) { return l.status === 'New' || l.status === 'Active'; });
 
   if (/revenue|income|earn|total.*sale/i.test(t)) {
-    return 'Total revenue from accepted quotations is <strong>Rs ' + totalRevenue.toLocaleString() + '</strong>. Your net profit after expenses (Rs ' + totalExpenses.toLocaleString() + ') is <strong>Rs ' + netProfit.toLocaleString() + '</strong>.';
+    return 'Total revenue from accepted quotations is <strong>₹' + totalRevenue.toLocaleString() + '</strong>. Your net profit after expenses (₹' + totalExpenses.toLocaleString() + ') is <strong>₹' + netProfit.toLocaleString() + '</strong>.';
   }
   if (/expense|spend|cost|overhead/i.test(t)) {
     var topCat = {};
     sampleExpenses.forEach(function(e) { topCat[e.category] = (topCat[e.category] || 0) + e.amount; });
     var sorted = Object.keys(topCat).sort(function(a,b) { return topCat[b] - topCat[a]; });
     var top = sorted[0] || 'N/A';
-    return 'Total expenses: <strong>Rs ' + totalExpenses.toLocaleString() + '</strong>. Top expense category: <strong>' + top + '</strong> (Rs ' + (topCat[top] || 0).toLocaleString() + '). Consider reviewing ' + top + ' costs to optimize.';
+    return 'Total expenses: <strong>₹' + totalExpenses.toLocaleString() + '</strong>. Top expense category: <strong>' + top + '</strong> (₹' + (topCat[top] || 0).toLocaleString() + '). Consider reviewing ' + top + ' costs to optimize.';
   }
   if (/invoice|pending.*payment|outstanding|due/i.test(t)) {
     if (pendingInvoices.length === 0) return 'All invoices are paid. Great job!';
-    return 'You have <strong>' + pendingInvoices.length + ' pending invoice(s)</strong> totalling <strong>Rs ' + pendingAmount.toLocaleString() + '</strong>. The oldest overdue is ' + pendingInvoices[0].id + ' for ' + pendingInvoices[0].customer + '.';
+    return 'You have <strong>' + pendingInvoices.length + ' pending invoice(s)</strong> totalling <strong>₹' + pendingAmount.toLocaleString() + '</strong>. The oldest overdue is ' + pendingInvoices[0].id + ' for ' + pendingInvoices[0].customer + '.';
   }
   if (/customer|client|whos.*buy/i.test(t)) {
     var topCust = sampleCustomers.slice().sort(function(a,b) { return b.spent - a.spent; });
-    return 'Top customer: <strong>' + topCust[0].name + '</strong> (Rs ' + topCust[0].spent.toLocaleString() + '). You have ' + sampleCustomers.length + ' active customers with average credit score of ' + Math.round(sampleCustomers.reduce(function(s,c){return s+c.credit;},0)/sampleCustomers.length) + '.';
+    return 'Top customer: <strong>' + topCust[0].name + '</strong> (₹' + topCust[0].spent.toLocaleString() + '). You have ' + sampleCustomers.length + ' active customers with average credit score of ' + Math.round(sampleCustomers.reduce(function(s,c){return s+c.credit;},0)/sampleCustomers.length) + '.';
   }
   if (/quote|quotation|estimate/i.test(t)) {
     var totalQuotes = sampleQuotes.length;
     var accepted = acceptedQuotes.length;
     var rate = totalQuotes > 0 ? Math.round(accepted / totalQuotes * 100) : 0;
-    return 'You have <strong>' + totalQuotes + ' quotations</strong> with a <strong>' + rate + '% acceptance rate</strong>. ' + (rate < 40 ? 'Tip: Review your pricing or follow up faster.' : 'Good performance! Keep it up.') + ' Average quote value: Rs ' + Math.round(totalRevenue / (accepted || 1)).toLocaleString() + '.';
+    return 'You have <strong>' + totalQuotes + ' quotations</strong> with a <strong>' + rate + '% acceptance rate</strong>. ' + (rate < 40 ? 'Tip: Review your pricing or follow up faster.' : 'Good performance! Keep it up.') + ' Average quote value: ₹' + Math.round(totalRevenue / (accepted || 1)).toLocaleString() + '.';
   }
   if (/lead|prospect|pipeline|deal/i.test(t)) {
     var won = sampleDeals.filter(function(d) { return d.stage === 'Closed Won'; }).length;
     var active = sampleDeals.filter(function(d) { return d.stage !== 'Closed Won' && d.stage !== 'Closed Lost'; }).length;
     var pipelineValue = active.reduce(function(s, d) { return s + d.amount; }, 0);
-    return 'Deal pipeline: <strong>' + active + ' active deals</strong> worth <strong>Rs ' + pipelineValue.toLocaleString() + '</strong>. You have won ' + won + ' deals. ' + activeLeads.length + ' lead(s) need attention.';
+    return 'Deal pipeline: <strong>' + active + ' active deals</strong> worth <strong>₹' + pipelineValue.toLocaleString() + '</strong>. You have won ' + won + ' deals. ' + activeLeads.length + ' lead(s) need attention.';
   }
   if (/insight|recommend|suggest|advise|tip/i.test(t)) {
     var insights = [];
-    if (pendingInvoices.length > 0) insights.push('Follow up on ' + pendingInvoices.length + ' pending invoices (Rs ' + pendingAmount.toLocaleString() + ')');
+    if (pendingInvoices.length > 0) insights.push('Follow up on ' + pendingInvoices.length + ' pending invoices (₹' + pendingAmount.toLocaleString() + ')');
     if (activeLeads.length > 0) insights.push('Contact ' + activeLeads.length + ' active leads to move them through pipeline');
     var quoteRate = sampleQuotes.length > 0 ? Math.round(acceptedQuotes.length / sampleQuotes.length * 100) : 0;
     if (quoteRate < 40) insights.push('Improve quotation acceptance rate (currently ' + quoteRate + '%) by adding personalized follow-ups');
@@ -2092,3 +2163,44 @@ function getAIResponse(input) {
 
   updateNotifBadge();
 })();
+
+function fetchAndRenderLeads() {
+  var tbody = document.getElementById('adminLeadsTbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Loading leads...</td></tr>';
+  fetch('/api/landing-leads')
+    .then(function(r) { return r.json(); })
+    .then(function(leads) {
+      if (!leads || leads.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No leads found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = leads.map(function(l) {
+        var date = l.createdAt ? new Date(l.createdAt).toLocaleDateString() : 'N/A';
+        var contactStr = (l.phone || '') + (l.email ? '<br><span style="opacity:.6;font-size:12px">'+l.email+'</span>' : '');
+        var source = l.source || 'Direct';
+        var message = l.message ? '<div style="max-width:250px;white-space:normal;font-size:12px;opacity:.8">' + l.message + '</div>' : '-';
+        var contactedBadge = l.contacted ? '<span class="status-badge status-accepted">Yes</span>' : '<span class="status-badge status-draft" onclick="markLeadContacted(''+l.id+'')" style="cursor:pointer" title="Click to mark as contacted">No</span>';
+        
+        return '<tr>' +
+          '<td>' + date + '</td>' +
+          '<td style="font-weight:600">' + (l.name || 'Unknown') + '</td>' +
+          '<td>' + contactStr + '</td>' +
+          '<td><span style="background:var(--primary-bg);color:var(--primary);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">' + source + '</span></td>' +
+          '<td>' + message + '</td>' +
+          '<td>' + contactedBadge + '</td>' +
+          '</tr>';
+      }).join('');
+    })
+    .catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:red">Failed to load leads.</td></tr>';
+      console.error(e);
+    });
+}
+
+function markLeadContacted(id) {
+  if(!confirm("Mark this lead as contacted?")) return;
+  fetch('/api/landing-leads/' + id + '/contacted', { method: 'PUT' })
+    .then(function() { fetchAndRenderLeads(); })
+    .catch(function(e) { alert("Failed to update status"); console.error(e); });
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:mobile": "npx cap sync",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -24,6 +25,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.17.0",
     "lucide-react": "^1.17.0",
