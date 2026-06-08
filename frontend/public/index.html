@@ -42,6 +42,87 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231e3a5f'/><path d='M35 75V25h12l18 32V25h12v50H65L45 40v35H35z' fill='white'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231e3a5f'/><path d='M35 75V25h12l18 32V25h12v50H65L45 40v35H35z' fill='white'/></svg>">
+  <style>
+    /* AI Chatbot */
+    #ai-chat-btn {
+      position:fixed; bottom:24px; right:24px; z-index:9999;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,#1e3a5f,#2d5a8a);
+      color:#fff; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(30,58,95,.35);
+      transition:all .25s ease
+    }
+    #ai-chat-btn:hover { transform:scale(1.08); box-shadow:0 6px 24px rgba(30,58,95,.45) }
+    #ai-chat-btn svg { width:26px; height:26px }
+    #ai-chat-panel {
+      position:fixed; bottom:92px; right:24px; z-index:9998;
+      width:340px; height:460px; background:#fff;
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.15);
+      display:none; flex-direction:column; overflow:hidden;
+      border:1px solid var(--border); animation:slideUp .3s ease
+    }
+    #ai-chat-panel.open { display:flex }
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+    #ai-chat-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px; background:var(--primary); color:#fff;
+      font-weight:600; font-size:14px
+    }
+    #ai-chat-header svg { width:20px; height:20px; margin-right:8px }
+    #ai-chat-header > div { display:flex; align-items:center }
+    #ai-chat-header button {
+      background:none; border:none; color:#fff; cursor:pointer;
+      font-size:18px; opacity:.7; padding:2px 6px
+    }
+    #ai-chat-header button:hover { opacity:1 }
+    #ai-chat-messages {
+      flex:1; overflow-y:auto; padding:14px 16px;
+      display:flex; flex-direction:column; gap:10px;
+      background:#f8f6f3
+    }
+    .ai-msg {
+      max-width:85%; padding:10px 14px; border-radius:12px;
+      font-size:13px; line-height:1.5; animation:fadeIn .25s ease
+    }
+    .ai-msg.ai-user {
+      align-self:flex-end; background:var(--primary); color:#fff;
+      border-bottom-right-radius:4px
+    }
+    .ai-msg.ai-bot {
+      align-self:flex-start; background:#e8e4df; color:var(--text-body);
+      border-bottom-left-radius:4px
+    }
+    .ai-msg.ai-bot strong { color:var(--primary) }
+    #ai-chat-input-area {
+      display:flex; gap:8px; padding:10px 12px;
+      border-top:1px solid var(--border); background:#fff
+    }
+    #ai-chat-input {
+      flex:1; padding:10px 14px; border:1.5px solid var(--border);
+      border-radius:8px; font-size:13px; font-family:var(--font);
+      outline:none; transition:border .2s; color:var(--text-body)
+    }
+    #ai-chat-input:focus { border-color:var(--primary) }
+    #ai-chat-input-area button {
+      width:40px; height:40px; border-radius:50%;
+      background:var(--primary); color:#fff; border:none;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:all .2s; flex-shrink:0
+    }
+    #ai-chat-input-area button:hover { background:var(--primary-light) }
+    #ai-chat-input-area button svg { width:16px; height:16px }
+    .ai-quick-reply {
+      display:inline-block; padding:6px 14px; background:var(--primary-bg);
+      color:var(--primary); border-radius:16px; font-size:12px; font-weight:600;
+      cursor:pointer; margin:4px 4px 0 0; transition:all .2s; border:1px solid transparent
+    }
+    .ai-quick-reply:hover { background:var(--primary); color:#fff; border-color:var(--primary) }
+    @media (max-width:480px) {
+      #ai-chat-panel { width:calc(100vw - 32px); right:16px; bottom:84px; height:50vh }
+      #ai-chat-btn { bottom:16px; right:16px }
+    }
+  </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 </head>
@@ -59,7 +140,7 @@
       <li><a href="#testimonials">Reviews</a></li>
       <li class="nav-cta">
         <a href="/app/login.html" class="btn btn-ghost btn-sm">Sign In</a>
-        <a href="/app/login.html" class="btn btn-accent btn-sm">Free Trial</a>
+        <a href="/app/login.html" class="btn btn-sm" style="background:linear-gradient(135deg,#e05a48,#c44536);color:#fff;border:none;font-weight:700;box-shadow:0 2px 8px rgba(196,69,54,.3)">Free Trial</a>
       </li>
     </ul>
   </div>
@@ -855,6 +936,113 @@ function genWizard(type) {
   html += '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><span style="background:var(--success-bg);padding:2px 10px;border-radius:6px;font-size:11px;color:var(--success);font-weight:600">AI Confidence: 96%</span><span style="background:var(--primary-bg);padding:2px 10px;border-radius:6px;font-size:11px;color:var(--primary);font-weight:600">Timeline: ' + (type==='mobile'?'8':'4') + ' weeks</span></div>';
   r.innerHTML = html;
 }
+</script>
+
+<!-- AI Assistant Chatbot -->
+<div id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI Assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+</div>
+<div id="ai-chat-panel">
+  <div id="ai-chat-header">
+    <div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      QuoteFlow Guide
+    </div>
+    <button onclick="toggleChat()" aria-label="Close">&#x2715;</button>
+  </div>
+  <div id="ai-chat-messages">
+    <div class="ai-msg ai-bot">Hey there! 👋 I'm your QuoteFlow guide. I can help you get started. Try asking:</div>
+    <div class="ai-msg ai-bot" style="background:transparent;padding:4px 14px 8px">
+      <span class="ai-quick-reply" onclick="quickChat('how to create account')">How to create account</span>
+      <span class="ai-quick-reply" onclick="quickChat('features')">Features</span>
+      <span class="ai-quick-reply" onclick="quickChat('pricing')">Pricing</span>
+      <span class="ai-quick-reply" onclick="quickChat('how it works')">How it works</span>
+    </div>
+  </div>
+  <div id="ai-chat-input-area">
+    <input type="text" id="ai-chat-input" placeholder="Ask about QuoteFlow..." onkeydown="if(event.key==='Enter') sendChat()">
+    <button onclick="sendChat()" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+let chatOpen = false;
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('ai-chat-panel').classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    const m = document.getElementById('ai-chat-messages');
+    m.scrollTop = m.scrollHeight;
+    setTimeout(() => document.getElementById('ai-chat-input').focus(), 300);
+  }
+}
+function quickChat(msg) {
+  document.getElementById('ai-chat-input').value = msg;
+  sendChat();
+}
+function addMsg(text, role) {
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-' + role;
+  div.innerHTML = text;
+  document.getElementById('ai-chat-messages').appendChild(div);
+  const m = document.getElementById('ai-chat-messages');
+  m.scrollTop = m.scrollHeight;
+}
+function sendChat() {
+  const input = document.getElementById('ai-chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  addMsg(escapeHTML(q), 'user');
+  input.value = '';
+  setTimeout(() => {
+    const a = getAIGuideResponse(q.toLowerCase());
+    addMsg(a, 'bot');
+    if (!chatOpen) document.getElementById('ai-chat-panel').classList.add('open');
+  }, 400 + Math.random() * 600);
+}
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function getAIGuideResponse(q) {
+  if (q.includes('create account') || q.includes('sign up') || q.includes('register') || q.includes('registration')) {
+    return '<strong>Creating an account</strong><br><br>1. Click the <strong>"Start Free"</strong> or <strong>"Free Trial"</strong> button on this page<br>2. You\'ll go to the <strong>Register page</strong> at <strong>/app/register.html</strong><br>3. Fill in your name, phone, email, and password<br>4. Select your role (Business Owner / Freelancer / Accountant)<br>5. Click <strong>Create Account</strong><br><br>Already have an account? Use the <strong>demo credentials</strong> on this page to log in instantly!';
+  }
+  if (q.includes('pricing') || q.includes('price') || q.includes('cost') || q.includes('plan') || q.includes('free') || q.includes('premium')) {
+    return '<strong>QuoteFlow Pricing</strong><br><br>\u2022 <strong>Free (\u20B90/mo)</strong> \u2014 100 quotations, basic invoices, WhatsApp sharing<br>\u2022 <strong>Pro (\u20B9499/mo)</strong> \u2014 Unlimited quotations, AI generator, GST billing, CRM<br>\u2022 <strong>Business (\u20B9999/mo)</strong> \u2014 Everything in Pro + 10 users, campaigns, API<br>\u2022 <strong>Enterprise (\u20B94,999/mo)</strong> \u2014 Unlimited users, white label, dedicated manager<br><br>Scroll down to the <strong>Pricing section</strong> for full comparisons. Start free, no card needed!';
+  }
+  if (q.includes('feature') || q.includes('what can') || q.includes('capability') || q.includes('tool')) {
+    return '<strong>QuoteFlow Features</strong><br><br>\u2022 \ud83e\udd16 <strong>AI Quotation Generator</strong> \u2014 Generate in 30s from plain English<br>\u2022 \ud83d\udcb0 <strong>GST Billing</strong> \u2014 Auto CGST/SGST/IGST, all invoice types<br>\u2022 \ud83d\udc65 <strong>CRM & Lead Pipeline</strong> \u2014 Kanban, credit scoring, auto follow-ups<br>\u2022 \ud83d\udcf1 <strong>WhatsApp Sharing</strong> \u2014 One-click share to clients<br>\u2022 \ud83d\udcca <strong>Analytics</strong> \u2014 P&L, revenue, cash flow, conversion rates<br>\u2022 \ud83d\udcac <strong>Voice Quotations</strong> \u2014 Speak, AI converts to quotation<br>\u2022 \ud83d\udcdd <strong>E-Signature</strong> \u2014 Digital signatures with audit trail<br><br>All 12 modules work together seamlessly in one dashboard!';
+  }
+  if (q.includes('how it work') || q.includes('how does') || q.includes('workflow') || q.includes('step')) {
+    return '<strong>How QuoteFlow Works</strong><br><br><strong>Step 1:</strong> Describe your service naturally (e.g., "Website for a school with 5 pages")<br><strong>Step 2:</strong> AI generates a complete quotation with itemized pricing, scope, and timeline<br><strong>Step 3:</strong> Review, adjust, and send via WhatsApp in one click<br><strong>Step 4:</strong> Customer signs digitally, pay via UPI QR<br><br>Try the <strong>Live Demo</strong> section on this page to see it in action!';
+  }
+  if (q.includes('demo') || q.includes('try') || q.includes('test') || q.includes('credential') || q.includes('login')) {
+    return '<strong>Try QuoteFlow Right Now</strong><br><br>Use these test credentials to explore the full dashboard:<br><br>\u2022 <strong>URL:</strong> <code>http://localhost:8081/app/login.html</code><br>\u2022 <strong>Email:</strong> <code>demo@quoteflow.ai</code><br>\u2022 <strong>Password:</strong> <code>demo123</code><br><br>Click the <strong>"Launch Dashboard"</strong> button in the Test Credentials section below!';
+  }
+  if (q.includes('what is quoteflow') || q.includes('about') || q.includes('platform') || q.includes('what does')) {
+    return '<strong>What is QuoteFlow AI?</strong><br><br>QuoteFlow AI is an all-in-one business platform that replaces <strong>5 separate tools</strong>:<br><br>\u2022 Quotation software<br>\u2022 GST billing & invoicing<br>\u2022 CRM system<br>\u2022 WhatsApp marketing<br>\u2022 Project cost estimator<br><br>Trusted by <strong>12,000+ Indian businesses</strong>. Built with Spring Boot 4.0.6, Java 21, PostgreSQL, and dual AI (OpenAI + Gemini).';
+  }
+  if (q.includes('help') || q.includes('support') || q.includes('contact') || q.includes('guide')) {
+    return '<strong>Need Help?</strong><br><br>\u2022 Check the <strong>Test Credentials</strong> section on this page for login info<br>\u2022 Browse the <strong>Features</strong> section to learn about all tools<br>\u2022 Try the <strong>Live Demo</strong> to see AI in action<br>\u2022 Email us at <strong>support@quoteflow.ai</strong><br><br>Or just type your question here \u2014 I\'m here to help!';
+  }
+  if (q.includes('thank') || q.includes('thanks') || q.includes('great') || q.includes('nice') || q.includes('helpful')) {
+    return 'You\'re welcome! \ud83d\ude4c Feel free to ask anything else. You can also try the <strong>Live Demo</strong> or <strong>Test Credentials</strong> on this page to get hands-on!';
+  }
+  if (q.includes('hello') || q.includes('hi ') || q.includes('hey') || q.includes('start')) {
+    return 'Hello! \ud83d\udc4b I\'m your QuoteFlow guide. Ask me about:<br><br>\u2022 Creating an account<br>\u2022 Features & tools<br>\u2022 Pricing plans<br>\u2022 How QuoteFlow works<br>\u2022 Demo & test login<br><br>Or type any question you have!';
+  }
+  return 'Great question! Here\'s what I can help you with:<br><br>\u2022 <strong>Create account</strong> \u2014 How to sign up<br>\u2022 <strong>Features</strong> \u2014 What QuoteFlow can do<br>\u2022 <strong>Pricing</strong> \u2014 Plans and costs<br>\u2022 <strong>How it works</strong> \u2014 The workflow<br>\u2022 <strong>Demo</strong> \u2014 Try it right now<br><br>Or rephrase your question and I\'ll do my best to help!';
+}
+document.addEventListener('click', function(e) {
+  const p = document.getElementById('ai-chat-panel');
+  const b = document.getElementById('ai-chat-btn');
+  if (chatOpen && !p.contains(e.target) && !b.contains(e.target)) {
+    chatOpen = false;
+    p.classList.remove('open');
+  }
+});
 </script>
 
 </body>

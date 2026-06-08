@@ -1690,5 +1690,245 @@ function showEl(id) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeProductModal();
+    closeNotifDropdown();
+    closeUserDropdown();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    var searchInput = document.getElementById('globalSearch');
+    if (searchInput) searchInput.focus();
   }
 });
+
+// ============================================================
+// USER DROPDOWN
+// ============================================================
+
+function toggleUserDropdown() {
+  var menu = document.getElementById('userDropdownMenu');
+  if (menu) menu.classList.toggle('open');
+}
+
+function closeUserDropdown() {
+  var menu = document.getElementById('userDropdownMenu');
+  if (menu) menu.classList.remove('open');
+}
+
+document.addEventListener('click', function(e) {
+  var wrap = document.querySelector('.user-dropdown-wrap');
+  if (wrap && !wrap.contains(e.target)) closeUserDropdown();
+  var nw = document.querySelector('.notif-bell-wrap');
+  if (nw && !nw.contains(e.target)) closeNotifDropdown();
+});
+
+// ============================================================
+// NOTIFICATION DROPDOWN
+// ============================================================
+
+function toggleNotifDropdown() {
+  var dd = document.getElementById('notifDropdown');
+  if (dd) {
+    dd.classList.toggle('open');
+    if (dd.classList.contains('open')) renderNotifDropdown();
+  }
+  closeUserDropdown();
+}
+
+function closeNotifDropdown() {
+  var dd = document.getElementById('notifDropdown');
+  if (dd) dd.classList.remove('open');
+}
+
+function renderNotifDropdown() {
+  var list = document.getElementById('notifDropdownList');
+  if (!list) return;
+  var items = sampleNotifications.slice(0, 5);
+  list.innerHTML = items.map(function(n) {
+    var iconTypes = {
+      'info': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+      'success': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      'warning': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      'danger': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    };
+    return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" onclick="markNotifRead(' + n.id + ');event.stopPropagation()">' +
+      '<div class="notif-icon ' + n.icon + '" style="width:32px;height:32px">' + (iconTypes[n.type] || iconTypes.info) + '</div>' +
+      '<div class="notif-content"><div class="notif-title" style="font-size:13px">' + n.title + '</div><div class="notif-message" style="font-size:12px">' + n.message + '</div></div>' +
+      '<div class="notif-time" style="font-size:10px">' + n.time + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function updateNotifBadge() {
+  var badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  var count = sampleNotifications.filter(function(n) { return n.unread; }).length;
+  badge.textContent = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+// Patch renderNotifications to update badge
+var origRenderNotif = renderNotifications;
+renderNotifications = function() {
+  if (typeof origRenderNotif === 'function') origRenderNotif();
+  updateNotifBadge();
+};
+
+// ============================================================
+// CHATBOT AI ASSISTANT
+// ============================================================
+
+var chatHistory = [];
+
+function toggleChatbot() {
+  var panel = document.getElementById('chatbotPanel');
+  var btn = document.getElementById('chatbotToggle');
+  if (panel) {
+    panel.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+}
+
+function sendChatMessage() {
+  var input = document.getElementById('chatbotInput');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addChatMessage(text, 'user');
+  showTypingIndicator();
+  setTimeout(function() {
+    hideTypingIndicator();
+    var response = getAIResponse(text);
+    addChatMessage(response, 'ai');
+  }, 800 + Math.random() * 700);
+}
+
+function addChatMessage(text, sender) {
+  var container = document.getElementById('chatbotMessages');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + sender;
+  if (sender === 'ai') div.innerHTML = '<div class="msg-label">AI Assistant</div>' + text;
+  else div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  chatHistory.push({ text: text, sender: sender });
+}
+
+function showTypingIndicator() {
+  var container = document.getElementById('chatbotMessages');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  var el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function getAIResponse(input) {
+  var t = input.toLowerCase();
+  var acceptedQuotes = sampleQuotes.filter(function(q) { return q.status === 'Accepted'; });
+  var totalRevenue = acceptedQuotes.reduce(function(s, q) { return s + q.amount; }, 0);
+  var totalExpenses = sampleExpenses.reduce(function(s, e) { return s + e.amount; }, 0);
+  var netProfit = totalRevenue - totalExpenses;
+  var pendingInvoices = sampleInvoices.filter(function(i) { return i.status === 'Unpaid' || i.status === 'Overdue'; });
+  var pendingAmount = pendingInvoices.reduce(function(s, i) { return s + (i.amount - i.paid); }, 0);
+  var activeLeads = sampleLeads.filter(function(l) { return l.status === 'New' || l.status === 'Active'; });
+
+  if (/revenue|income|earn|total.*sale/i.test(t)) {
+    return 'Total revenue from accepted quotations is <strong>Rs ' + totalRevenue.toLocaleString() + '</strong>. Your net profit after expenses (Rs ' + totalExpenses.toLocaleString() + ') is <strong>Rs ' + netProfit.toLocaleString() + '</strong>.';
+  }
+  if (/expense|spend|cost|overhead/i.test(t)) {
+    var topCat = {};
+    sampleExpenses.forEach(function(e) { topCat[e.category] = (topCat[e.category] || 0) + e.amount; });
+    var sorted = Object.keys(topCat).sort(function(a,b) { return topCat[b] - topCat[a]; });
+    var top = sorted[0] || 'N/A';
+    return 'Total expenses: <strong>Rs ' + totalExpenses.toLocaleString() + '</strong>. Top expense category: <strong>' + top + '</strong> (Rs ' + (topCat[top] || 0).toLocaleString() + '). Consider reviewing ' + top + ' costs to optimize.';
+  }
+  if (/invoice|pending.*payment|outstanding|due/i.test(t)) {
+    if (pendingInvoices.length === 0) return 'All invoices are paid. Great job!';
+    return 'You have <strong>' + pendingInvoices.length + ' pending invoice(s)</strong> totalling <strong>Rs ' + pendingAmount.toLocaleString() + '</strong>. The oldest overdue is ' + pendingInvoices[0].id + ' for ' + pendingInvoices[0].customer + '.';
+  }
+  if (/customer|client|whos.*buy/i.test(t)) {
+    var topCust = sampleCustomers.slice().sort(function(a,b) { return b.spent - a.spent; });
+    return 'Top customer: <strong>' + topCust[0].name + '</strong> (Rs ' + topCust[0].spent.toLocaleString() + '). You have ' + sampleCustomers.length + ' active customers with average credit score of ' + Math.round(sampleCustomers.reduce(function(s,c){return s+c.credit;},0)/sampleCustomers.length) + '.';
+  }
+  if (/quote|quotation|estimate/i.test(t)) {
+    var totalQuotes = sampleQuotes.length;
+    var accepted = acceptedQuotes.length;
+    var rate = totalQuotes > 0 ? Math.round(accepted / totalQuotes * 100) : 0;
+    return 'You have <strong>' + totalQuotes + ' quotations</strong> with a <strong>' + rate + '% acceptance rate</strong>. ' + (rate < 40 ? 'Tip: Review your pricing or follow up faster.' : 'Good performance! Keep it up.') + ' Average quote value: Rs ' + Math.round(totalRevenue / (accepted || 1)).toLocaleString() + '.';
+  }
+  if (/lead|prospect|pipeline|deal/i.test(t)) {
+    var won = sampleDeals.filter(function(d) { return d.stage === 'Closed Won'; }).length;
+    var active = sampleDeals.filter(function(d) { return d.stage !== 'Closed Won' && d.stage !== 'Closed Lost'; }).length;
+    var pipelineValue = active.reduce(function(s, d) { return s + d.amount; }, 0);
+    return 'Deal pipeline: <strong>' + active + ' active deals</strong> worth <strong>Rs ' + pipelineValue.toLocaleString() + '</strong>. You have won ' + won + ' deals. ' + activeLeads.length + ' lead(s) need attention.';
+  }
+  if (/insight|recommend|suggest|advise|tip/i.test(t)) {
+    var insights = [];
+    if (pendingInvoices.length > 0) insights.push('Follow up on ' + pendingInvoices.length + ' pending invoices (Rs ' + pendingAmount.toLocaleString() + ')');
+    if (activeLeads.length > 0) insights.push('Contact ' + activeLeads.length + ' active leads to move them through pipeline');
+    var quoteRate = sampleQuotes.length > 0 ? Math.round(acceptedQuotes.length / sampleQuotes.length * 100) : 0;
+    if (quoteRate < 40) insights.push('Improve quotation acceptance rate (currently ' + quoteRate + '%) by adding personalized follow-ups');
+    insights.push('Review ' + sampleExpenses.length + ' expense entries — ' + (totalExpenses > totalRevenue * 0.6 ? 'expenses are high relative to revenue' : 'expenses are under control'));
+    if (insights.length === 0) insights.push('Your business is in good shape! Keep monitoring key metrics.');
+    return 'Here are my recommendations:<br>' + insights.map(function(ii, idx) { return (idx + 1) + '. ' + ii; }).join('<br>');
+  }
+  if (/hello|hi|hey|greeting/i.test(t)) {
+    return 'Hello! I am your QuoteFlow AI Assistant. I can help with quotations, invoices, customers, revenue, expenses, and business insights. What would you like to know?';
+  }
+  if (/thank|thanks/i.test(t)) {
+    return 'You\'re welcome! Let me know if you need anything else.';
+  }
+
+  // Default response
+  return 'I found <strong>' + sampleQuotes.length + ' quotations</strong>, <strong>' + sampleInvoices.length + ' invoices</strong>, and <strong>' + sampleCustomers.length + ' customers</strong> in your account. Try asking about revenue, expenses, pending invoices, or business recommendations!';
+}
+
+// ============================================================
+// INITIALIZE NEW FEATURES
+// ============================================================
+
+(function initEnhancements() {
+  // Wire up notification bell
+  var notifBell = document.getElementById('notifBell');
+  if (notifBell) {
+    notifBell.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleNotifDropdown();
+    });
+  }
+
+  // Wire up user dropdown
+  var userToggle = document.getElementById('userDropdownToggle');
+  if (userToggle) {
+    userToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleUserDropdown();
+    });
+  }
+
+  // Wire up global search
+  var searchInput = document.getElementById('globalSearch');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var v = this.value.trim().toLowerCase();
+        if (v) {
+          quoteSearchTerm = v;
+          renderQuotes();
+          navigate('quotations');
+        }
+      }
+    });
+  }
+
+  updateNotifBadge();
+})();

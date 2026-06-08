@@ -17,6 +17,85 @@
   <style>
     :root { --bg: #f8f9fc; --bg-card: #fff; --border: #e5e7eb; --text-light: #6b7280; --secondary: #06b6d4 }
     body { background: var(--bg) }
+
+    /* === Sidebar Collapse === */
+    .sidebar { transition: width 0.3s ease; overflow: hidden; white-space: nowrap }
+    .sidebar.collapsed { width: 60px !important }
+    .sidebar.collapsed .logo span { display: none }
+    .sidebar.collapsed .nav-item span { display: none }
+    .sidebar.collapsed .nav-item { justify-content: center; padding: 12px 0 }
+    .sidebar.collapsed .nav-item svg { margin: 0 }
+    .sidebar.collapsed .sidebar-user > div:last-child { display: none }
+    .sidebar.collapsed .sidebar-logout span { display: none }
+    .sidebar.collapsed .sidebar-footer { padding: 12px 8px }
+    .sidebar.collapsed .sidebar-user { justify-content: center }
+    .sidebar-collapse-btn { position: absolute; top: 14px; right: 10px; background: none; border: none; color: var(--gray-400); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; z-index: 5 }
+    .sidebar-collapse-btn:hover { color: var(--gray-700); background: var(--gray-100) }
+    .sidebar.collapsed .sidebar-collapse-btn { transform: rotate(180deg); right: auto; left: 14px }
+    .sidebar-header { position: relative }
+
+    /* === Topbar Enhancements === */
+    .topbar-actions { display: flex; align-items: center; gap: 8px }
+    .topbar-quick-actions { display: flex; gap: 4px; margin: 0 4px }
+    .topbar-quick-actions .btn { padding: 6px 10px; font-size: 12px; white-space: nowrap }
+    .search-hint { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text-light); background: var(--gray-100); padding: 2px 6px; border-radius: 4px; pointer-events: none; border: 1px solid var(--border) }
+
+    /* === User Dropdown === */
+    .user-dropdown-wrap { position: relative }
+    .user-dropdown-menu { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); min-width: 180px; z-index: 100; display: none; overflow: hidden }
+    .user-dropdown-menu.open { display: block }
+    .user-dropdown-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 13px; color: var(--gray-700); text-decoration: none; transition: background 0.15s }
+    .user-dropdown-menu a:hover { background: var(--gray-50); color: var(--gray-900) }
+    .user-dropdown-menu .divider { height: 1px; background: var(--border); margin: 4px 0 }
+    .user-dropdown-header { padding: 12px 16px; border-bottom: 1px solid var(--border) }
+    .user-dropdown-header strong { font-size: 14px }
+    .user-dropdown-header span { font-size: 12px; color: var(--text-light) }
+
+    /* === Notification Badge === */
+    .notif-bell-wrap { position: relative }
+    .notif-badge { position: absolute; top: -2px; right: -4px; background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-card) }
+    .notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); width: 360px; max-height: 400px; overflow-y: auto; z-index: 100; display: none }
+    .notif-dropdown.open { display: block }
+    .notif-dropdown-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center }
+    .notif-dropdown-header strong { font-size: 14px }
+    .notif-dropdown-header a { font-size: 12px; color: var(--primary); cursor: pointer }
+    .notif-dropdown .notif-card { padding: 10px 14px; cursor: pointer }
+    .notif-dropdown .notif-card:hover { background: var(--gray-50) }
+    .notif-dropdown-footer { padding: 10px 16px; text-align: center; border-top: 1px solid var(--border) }
+    .notif-dropdown-footer a { font-size: 13px; color: var(--primary); cursor: pointer }
+
+    /* === AI Chatbot === */
+    .chatbot-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; color: #fff; cursor: pointer; box-shadow: 0 4px 16px rgba(99,102,241,.35); display: flex; align-items: center; justify-content: center; z-index: 150; transition: all 0.3s ease }
+    .chatbot-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(99,102,241,.45) }
+    .chatbot-toggle.active { transform: scale(0.9); opacity: .8 }
+    .chatbot-panel { position: fixed; bottom: 92px; right: 24px; width: 340px; height: 460px; background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,.15); border: 1px solid var(--border); z-index: 150; display: none; flex-direction: column; overflow: hidden; animation: chatFadeIn 0.25s ease }
+    .chatbot-panel.open { display: flex }
+    @keyframes chatFadeIn { from { opacity: 0; transform: translateY(12px) scale(.96) } to { opacity: 1; transform: translateY(0) scale(1) } }
+    .chatbot-header { padding: 14px 16px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; display: flex; align-items: center; justify-content: space-between }
+    .chatbot-header h4 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px }
+    .chatbot-header button { background: none; border: none; color: rgba(255,255,255,.8); cursor: pointer; padding: 2px }
+    .chatbot-header button:hover { color: #fff }
+    .chatbot-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px }
+    .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: 16px; line-height: 1.5; animation: msgIn 0.2s ease }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+    .chat-msg.user { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px }
+    .chat-msg.ai { align-self: flex-start; background: var(--gray-100); color: var(--gray-800); border-bottom-left-radius: 4px }
+    .chat-msg.ai .msg-label { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 4px }
+    .chatbot-input-wrap { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg-card) }
+    .chatbot-input-wrap input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; outline: none; font-family: var(--font) }
+    .chatbot-input-wrap input:focus { border-color: var(--primary) }
+    .chatbot-input-wrap button { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s }
+    .chatbot-input-wrap button:hover { background: var(--primary-dark) }
+    .chatbot-input-wrap button:disabled { opacity: .5; cursor: default }
+    .typing-indicator { display: flex; gap: 4px; padding: 8px 0 }
+    .typing-indicator span { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-400); animation: typingBounce 1.2s infinite }
+    .typing-indicator span:nth-child(2) { animation-delay: .2s }
+    .typing-indicator span:nth-child(3) { animation-delay: .4s }
+    @keyframes typingBounce { 0%,60%,100% { transform: translateY(0) } 30% { transform: translateY(-4px) } }
+
+    /* === Fixed Dashboard Layout === */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px }
+
     .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 4px; overflow-x: auto }
     .tab { padding: 8px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--gray-500); white-space: nowrap; transition: all var(--transition) }
     .tab.active { background: var(--white); color: var(--gray-900); box-shadow: var(--shadow-sm) }
@@ -125,30 +204,29 @@
     <div class="sidebar-header">
       <a href="/" class="logo">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        QuoteFlow
+        <span>QuoteFlow</span>
       </a>
-      <button class="sidebar-close" id="sidebarClose">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button class="sidebar-collapse-btn" id="sidebarCollapse" title="Toggle sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
     </div>
     <nav class="sidebar-nav">
-      <a href="#" class="nav-item active" data-page="dashboard"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
-      <a href="#" class="nav-item" data-page="estimation"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10.01"/><line x1="12" y1="10" x2="12" y2="10.01"/><line x1="16" y1="10" x2="16" y2="10.01"/></svg> Estimation</a>
-      <a href="#" class="nav-item" data-page="quotations"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Quotations</a>
-      <a href="#" class="nav-item" data-page="products"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Products</a>
-      <a href="#" class="nav-item" data-page="invoices"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Invoices</a>
-      <a href="#" class="nav-item" data-page="receipts"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg> Receipts</a>
-      <a href="#" class="nav-item" data-page="customers"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Customers</a>
-      <a href="#" class="nav-item" data-page="crm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><circle cx="11" cy="11" r="3" fill="currentColor"/><circle cx="11" cy="11" r="8"/></svg> CRM</a>
-      <a href="#" class="nav-item" data-page="marketing"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 14.96A5 5 0 0 0 16 10H5a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1v4l4-4h6a5 5 0 0 0 5-4.96z"/><path d="M16 10V6a2 2 0 0 0-2-2H6"/></svg> Marketing</a>
-      <a href="#" class="nav-item" data-page="finance"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> Finance</a>
-      <a href="#" class="nav-item" data-page="documents"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Documents</a>
-      <a href="#" class="nav-item" data-page="notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications</a>
-      <a href="#" class="nav-item" data-page="admin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Admin</a>
+      <a href="#" class="nav-item active" data-page="dashboard"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></a>
+      <a href="#" class="nav-item" data-page="estimation"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10.01"/><line x1="12" y1="10" x2="12" y2="10.01"/><line x1="16" y1="10" x2="16" y2="10.01"/></svg><span>Estimation</span></a>
+      <a href="#" class="nav-item" data-page="quotations"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Quotations</span></a>
+      <a href="#" class="nav-item" data-page="products"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Products</span></a>
+      <a href="#" class="nav-item" data-page="invoices"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg><span>Invoices</span></a>
+      <a href="#" class="nav-item" data-page="receipts"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg><span>Receipts</span></a>
+      <a href="#" class="nav-item" data-page="customers"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Customers</span></a>
+      <a href="#" class="nav-item" data-page="crm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><circle cx="11" cy="11" r="3" fill="currentColor"/><circle cx="11" cy="11" r="8"/></svg><span>CRM</span></a>
+      <a href="#" class="nav-item" data-page="marketing"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 14.96A5 5 0 0 0 16 10H5a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1v4l4-4h6a5 5 0 0 0 5-4.96z"/><path d="M16 10V6a2 2 0 0 0-2-2H6"/></svg><span>Marketing</span></a>
+      <a href="#" class="nav-item" data-page="finance"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg><span>Documents</span></a>
+      <a href="#" class="nav-item" data-page="notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notifications</span></a>
+      <a href="#" class="nav-item" data-page="admin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Admin</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user"><div class="sidebar-avatar">RK</div><div><div class="sidebar-user-name">Rahul Kumar</div><div class="sidebar-user-plan">Pro Plan</div></div></div>
-      <a href="/" class="sidebar-logout">Logout</a>
+      <a href="/" class="sidebar-logout"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Logout</span></a>
     </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -162,12 +240,33 @@
       </button>
       <div class="topbar-search">
         <span class="topbar-search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-        <input type="text" placeholder="Search quotations, customers, invoices...">
+        <input type="text" placeholder="Search quotations, customers, invoices..." id="globalSearch">
+        <span class="search-hint">Ctrl+K</span>
+      </div>
+      <div class="topbar-quick-actions">
+        <button class="btn btn-primary btn-sm" onclick="navigate('estimation')" title="New Quote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Quote</button>
+        <button class="btn btn-outline btn-sm" onclick="navigate('invoices')" title="New Invoice"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> New Invoice</button>
       </div>
       <div class="topbar-actions">
         <span class="topbar-badge" id="syncStatus" title="Sync Status"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg> Synced</span>
-        <button class="topbar-notif" id="notifBell" onclick="navigate('notifications')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-        <div class="topbar-user"><div class="sidebar-avatar" style="width:36px;height:36px;font-size:13px">RK</div></div>
+        <div class="notif-bell-wrap">
+          <button class="topbar-notif" id="notifBell"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-badge" id="notifBadge">3</span></button>
+          <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-dropdown-header"><strong>Notifications</strong><a onclick="markAllNotifRead();event.stopPropagation()">Mark all read</a></div>
+            <div id="notifDropdownList"></div>
+            <div class="notif-dropdown-footer"><a onclick="closeNotifDropdown();navigate('notifications')">View All Notifications</a></div>
+          </div>
+        </div>
+        <div class="user-dropdown-wrap">
+          <div class="topbar-user" id="userDropdownToggle"><div class="sidebar-avatar" style="width:36px;height:36px;font-size:13px">RK</div></div>
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="user-dropdown-header"><strong>Rahul Kumar</strong><span>rahul@quoteflow.ai</span></div>
+            <a href="#" onclick="closeUserDropdown()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</a>
+            <a href="#" onclick="closeUserDropdown()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</a>
+            <div class="divider"></div>
+            <a href="/"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</a>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -503,17 +602,43 @@
     </div>
   </main>
 </div>
+<!-- Chatbot Widget -->
+<button class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()" aria-label="AI Assistant">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 2-2 4-4 6-2-2-4-4-4-6a4 4 0 0 1 4-4z"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>
+</button>
+<div class="chatbot-panel" id="chatbotPanel">
+  <div class="chatbot-header">
+    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> AI Assistant</h4>
+    <button onclick="toggleChatbot()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="chatbot-messages" id="chatbotMessages">
+    <div class="chat-msg ai">
+      <div class="msg-label">AI Assistant</div>
+      Hello! I can help you with quotations, invoices, customers, revenue, and business insights. What would you like to know?
+    </div>
+  </div>
+  <div class="chatbot-input-wrap">
+    <input type="text" id="chatbotInput" placeholder="Ask about your business..." onkeydown="if(event.key==='Enter')sendChatMessage()">
+    <button onclick="sendChatMessage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
+
 <script>
   // Minimal inline setup — all page logic handled by app.js
   document.getElementById("sidebarToggle").addEventListener("click", function() {
-    document.getElementById("sidebar").classList.toggle("open");
-    document.getElementById("sidebarOverlay").classList.toggle("open");
+    var s = document.getElementById("sidebar");
+    if (window.innerWidth <= 768) {
+      s.classList.toggle("open");
+      document.getElementById("sidebarOverlay").classList.toggle("open");
+    } else {
+      s.classList.toggle("collapsed");
+    }
+  });
+  document.getElementById("sidebarCollapse").addEventListener("click", function(e) {
+    e.stopPropagation();
+    document.getElementById("sidebar").classList.toggle("collapsed");
   });
   document.getElementById("sidebarOverlay").addEventListener("click", function() {
-    document.getElementById("sidebar").classList.remove("open");
-    document.getElementById("sidebarOverlay").classList.remove("open");
-  });
-  document.getElementById("sidebarClose").addEventListener("click", function() {
     document.getElementById("sidebar").classList.remove("open");
     document.getElementById("sidebarOverlay").classList.remove("open");
   });
@@ -524,7 +649,7 @@
     });
   });
   document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") { closeProductModal(); }
+    if (e.key === "Escape") { closeProductModal(); closeNotifDropdown(); closeUserDropdown(); }
   });
 </script>
 <script defer src="app.js"></script>
