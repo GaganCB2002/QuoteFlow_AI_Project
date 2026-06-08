@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Plus, MoreVertical, Mail, Phone } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Layout from './Layout';
 
 const CustomerList = () => {
   const [customers] = useState([
@@ -10,23 +10,8 @@ const CustomerList = () => {
   ]);
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
-      <main className="flex-1 overflow-auto p-8 max-w-6xl mx-auto w-full">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <div className="flex items-center space-x-4 mb-2">
-              <Link to="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors">
-                &larr; Back to Dashboard
-              </Link>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">Customers</h2>
-            <p className="text-gray-500 mt-1">Manage your clients and their details.</p>
-          </div>
-          <button className="flex items-center px-4 py-2.5 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors">
-            <Plus size={18} className="mr-2" />
-            Add Customer
-          </button>
-        </div>
+    <Layout title="Customers" subtitle="Manage your clients and their details.">
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">

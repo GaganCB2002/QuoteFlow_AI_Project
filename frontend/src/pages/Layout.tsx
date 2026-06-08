@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   { icon: Calculator, label: 'Estimation', to: '/estimation' },
-  { icon: FileText, label: 'Quotations', to: '/quotations' },
+  { icon: FileText, label: 'Quotations', to: '/quotations/new' },
   { icon: Package, label: 'Products', to: '/products' },
   { icon: Receipt, label: 'Invoices', to: '/invoices' },
   { icon: Receipt, label: 'Receipts', to: '/receipts' },
