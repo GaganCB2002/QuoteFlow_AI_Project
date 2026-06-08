@@ -1227,7 +1227,20 @@ function submitAILead(btn) {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({name: name, phone: phone, message: message, source: 'ai-bot'})
-  }).catch(function(){});
+  }).catch(function(){
+    try {
+      var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
+      leads.unshift({
+        id: 'L' + Date.now(),
+        name: name, email: '', phone: phone,
+        company: '', message: message,
+        timestamp: new Date().toISOString(),
+        contacted: false, source: 'ai-bot'
+      });
+      if (leads.length > 1000) leads = leads.slice(0, 1000);
+      localStorage.setItem('qf_leads', JSON.stringify(leads));
+    } catch(e) {}
+  });
   setTimeout(function() {
     addMsg('Thanks ' + escapeHTML(name) + '! We have received your request and will call you at ' + escapeHTML(phone) + ' shortly.', 'bot');
   }, 600);
