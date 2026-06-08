@@ -1,23 +1,34 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:quoteflowdb;DB_CLOSE_DELAY=-1
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
+    url: ${DB_URL:jdbc:h2:mem:quoteflowdb;DB_CLOSE_DELAY=-1}
+    driverClassName: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:password}
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
+    show-sql: false
   h2:
     console:
-      enabled: true
+      enabled: ${H2_CONSOLE_ENABLED:false}
   flyway:
     enabled: false
     baseline-on-migrate: true
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEYSTORE:}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:}
+    key-store-type: PKCS12
+    key-alias: quoteflow
 
 jwt:
-  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  expiration: 86400000 # 1 day in ms
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+encryption:
+  secret:
+    key: ${ENCRYPTION_SECRET_KEY:8f47e3a2b1c5d6e7f809a1b2c3d4e5f6}

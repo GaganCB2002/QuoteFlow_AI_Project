@@ -60,7 +60,7 @@ public class AuthControllerTest {
                 .name("John Doe")
                 .email("john@example.com")
                 .phone("1234567890")
-                .passwordHash(passwordEncoder.encode("password123"))
+                .passwordHash(passwordEncoder.encode("Test@1234"))
                 .role(Role.ROLE_SALES_EXECUTIVE)
                 .build();
         userRepository.save(testUser);
@@ -68,7 +68,7 @@ public class AuthControllerTest {
 
     @Test
     void testValidLogin_TC_AUTH_001() {
-        Map<String, String> loginBody = Map.of("phone", "1234567890", "password", "password123");
+        Map<String, String> loginBody = Map.of("phone", "1234567890", "password", "Test@1234");
         ResponseEntity<Map> response = restTemplate.postForEntity(baseUrl + "/login", loginBody, Map.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -77,7 +77,7 @@ public class AuthControllerTest {
 
     @Test
     void testInvalidLogin_TC_AUTH_002() {
-        Map<String, String> loginBody = Map.of("phone", "1234567890", "password", "wrongpassword");
+        Map<String, String> loginBody = Map.of("phone", "1234567890", "password", "Wrong@1234");
         ResponseEntity<String> response = restTemplate.postForEntity(baseUrl + "/login", loginBody, String.class);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
@@ -88,13 +88,13 @@ public class AuthControllerTest {
                 "name", "New User",
                 "email", "new@example.com",
                 "phone", "9876543210",
-                "password", "password123",
+                "password", "NewUser@123",
                 "role", "ROLE_SALES_EXECUTIVE"
         );
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(baseUrl + "/register", registerBody, String.class);
         assertEquals(HttpStatus.OK, registerResponse.getStatusCode());
 
-        Map<String, String> loginBody = Map.of("phone", "9876543210", "password", "password123");
+        Map<String, String> loginBody = Map.of("phone", "9876543210", "password", "NewUser@123");
         ResponseEntity<Map> loginResponse = restTemplate.postForEntity(baseUrl + "/login", loginBody, Map.class);
         assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
         assertNotNull(loginResponse.getBody().get("token"));
@@ -106,7 +106,7 @@ public class AuthControllerTest {
                 "name", "Duplicate User",
                 "email", "dup@example.com",
                 "phone", "1234567890",
-                "password", "password123",
+                "password", "Dup@1234",
                 "role", "ROLE_SALES_EXECUTIVE"
         );
         ResponseEntity<String> response = restTemplate.postForEntity(baseUrl + "/register", registerBody, String.class);

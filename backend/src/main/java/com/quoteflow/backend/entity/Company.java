@@ -1,5 +1,6 @@
 package com.quoteflow.backend.entity;
 
+import com.quoteflow.backend.security.EncryptedAttributeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,10 +42,12 @@ public class Company {
     @Column(name = "bank_name")
     private String bankName;
 
-    @Column(name = "bank_account")
+    @Column(name = "bank_account", columnDefinition = "TEXT")
+    @Convert(converter = EncryptedAttributeConverter.class)
     private String bankAccount;
 
-    @Column(name = "ifsc_code")
+    @Column(name = "ifsc_code", columnDefinition = "TEXT")
+    @Convert(converter = EncryptedAttributeConverter.class)
     private String ifscCode;
 
     @Column(nullable = false)

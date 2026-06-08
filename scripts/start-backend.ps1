@@ -14,5 +14,5 @@ if ($existing) {
     Start-Sleep -Seconds 2
 }
 
-Set-Location -LiteralPath "$PSScriptRoot\backend"
+Set-Location -LiteralPath "$PSScriptRoot\..\backend"
 & ".\mvnw.cmd" spring-boot:run

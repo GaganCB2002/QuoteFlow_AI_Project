@@ -1,5 +1,6 @@
 package com.quoteflow.backend.entity;
 
+import com.quoteflow.backend.security.EncryptedAttributeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,6 +47,7 @@ public class PaymentTransaction {
     private String transactionId;
 
     @Column(name = "gateway_response", columnDefinition = "TEXT")
+    @Convert(converter = EncryptedAttributeConverter.class)
     private String gatewayResponse;
 
     @Column(nullable = false)

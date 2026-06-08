@@ -12,3 +12,7 @@ spring:
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 86400000
+
+encryption:
+  secret:
+    key: 8f47e3a2b1c5d6e7f809a1b2c3d4e5f6

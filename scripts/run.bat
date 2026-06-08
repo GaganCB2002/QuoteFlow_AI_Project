@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0backend"
+cd /d "%~dp0..\backend"
 echo ========================================
 echo   QuoteFlow AI - Starting Application
 echo ========================================
