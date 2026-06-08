@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /app/dashboard
+Disallow: /api/
+
+Sitemap: https://quoteflow.ai/sitemap.xml
