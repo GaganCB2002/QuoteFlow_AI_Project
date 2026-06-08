@@ -244,13 +244,6 @@ function closeSidebar() {
   if (o) o.classList.remove('open');
 }
 
-function toggleSidebar() {
-  var s = document.getElementById('sidebar');
-  var o = document.getElementById('sidebarOverlay');
-  if (s) s.classList.toggle('open');
-  if (o) o.classList.toggle('open');
-}
-
 function initNavigation() {
   window.addEventListener('popstate', function(event) {
     var page = (event.state && event.state.page) ? event.state.page : getPageFromUrl();
@@ -1943,21 +1936,6 @@ function setText(id, val) {
   if (el) el.textContent = typeof val === 'number' ? val.toLocaleString() : val;
 }
 
-function show(id) {
-  var el = document.getElementById(id);
-  if (el) el.style.display = 'block';
-}
-
-function hide(id) {
-  var el = document.getElementById(id);
-  if (el) el.style.display = 'none';
-}
-
-function showEl(id) {
-  var el = document.getElementById(id);
-  if (el) el.style.display = 'flex';
-}
-
 // ============================================================
 // KEYBOARD SHORTCUT
 // ============================================================
@@ -2287,9 +2265,6 @@ function sendChat() {
     if (!chatOpen) document.getElementById('ai-chat-panel').classList.add('open');
   }, 400 + Math.random() * 600);
 }
-function escapeHTML(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
 function getAIGuideResponse(q) {
   if (q.includes('callback') || q.includes('contact') || q.includes('call me')) {
     return '<strong>Get a Callback</strong><br>Leave your details and our team will reach out to you.<br><br>' +
@@ -2328,15 +2303,15 @@ function getAIGuideResponse(q) {
   return 'Great question! Here\'s what I can help you with:<br><br>\u2022 <strong>Create account</strong> \u2014 How to sign up<br>\u2022 <strong>Features</strong> \u2014 What QuoteFlow can do<br>\u2022 <strong>Pricing</strong> \u2014 Plans and costs<br>\u2022 <strong>How it works</strong> \u2014 The workflow<br>\u2022 <strong>Demo</strong> \u2014 Try it right now<br><br>Or rephrase your question and I\'ll do my best to help!';
 }
 document.addEventListener('click', function(e) {
-  const p = document.getElementById('ai-chat-panel');
-  const b = document.getElementById('ai-chat-btn');
-  if (chatOpen && !p.contains(e.target) && !b.contains(e.target)) {
+  var p = document.getElementById('ai-chat-panel');
+  var b = document.getElementById('ai-chat-btn');
+  if (chatOpen && p && b && !p.contains(e.target) && !b.contains(e.target)) {
     chatOpen = false;
     p.classList.remove('open');
   }
-  const lp = document.getElementById('lead-panel');
-  const lb = document.getElementById('lead-btn');
-  if (leadOpen && !lp.contains(e.target) && !lb.contains(e.target)) {
+  var lp = document.getElementById('lead-panel');
+  var lb = document.getElementById('lead-btn');
+  if (leadOpen && lp && lb && !lp.contains(e.target) && !lb.contains(e.target)) {
     leadOpen = false;
     lp.classList.remove('open');
   }

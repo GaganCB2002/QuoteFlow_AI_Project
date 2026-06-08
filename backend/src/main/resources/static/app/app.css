@@ -270,3 +270,8 @@
   .finance-summary { grid-template-columns: 1fr }
   .gst-summary { grid-template-columns: 1fr }
 }
+.btn-lg { padding: 12px 28px; font-size: 15px }
+.ai-msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; margin-bottom: 8px; max-width: 85%; word-wrap: break-word }
+.ai-bot { background: var(--gray-100); color: var(--gray-700); align-self: flex-start; border-bottom-left-radius: 4px }
+.ai-quick-reply { display: inline-block; padding: 5px 12px; background: var(--primary-bg); color: var(--primary); border: 1px solid var(--primary); border-radius: 16px; font-size: 12px; cursor: pointer; margin: 3px; transition: all 0.15s }
+.ai-quick-reply:hover { background: var(--primary); color: #fff }

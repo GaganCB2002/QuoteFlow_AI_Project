@@ -282,7 +282,6 @@
       <div class="topbar-search">
         <span class="topbar-search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <input type="text" placeholder="Search quotations, customers, invoices..." id="globalSearch">
-        <span class="search-hint">Ctrl+K</span>
       </div>
       <div class="topbar-quick-actions">
         <button class="btn btn-primary btn-sm" onclick="navigate('estimation')" title="New Quote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Quote</button>
@@ -638,7 +637,7 @@
           el.classList.add('active');
           document.getElementById('visitorTable').style.display = tab === 'visitors' ? 'block' : 'none';
           document.getElementById('leadTable').style.display = tab === 'leads' ? 'block' : 'none';
-          if (tab === 'visitors') renderVisitors(); else renderLeads();
+          if (tab === 'visitors') renderVisitors(); else renderVisitorLeads();
         }
         function formatTS(ts) {
           var d = new Date(ts);
@@ -683,7 +682,7 @@
             } catch(e) {}
           });
         }
-        function renderLeads() {
+        function renderVisitorLeads() {
           fetch('/api/landing-leads').then(function(r) { return r.json(); }).then(function(leads) {
             var tbody = document.getElementById('visitorLeadList');
             if (!tbody) return;
@@ -694,13 +693,12 @@
               var d = new Date(l.createdAt);
               var dateStr = d.toLocaleDateString();
               var status = l.contacted ? '<span class="status-badge status-paid">Contacted</span>' : '<span class="status-badge status-pending">New</span>';
-              html += '<tr><td>' + dateStr + '</td><td>' + escapeHTML(l.name) + '</td><td>' + escapeHTML(l.email) + '</td><td>' + escapeHTML(l.phone) + '</td><td>' + escapeHTML(l.company || '-') + '</td><td>' + escapeHTML((l.message||'').substring(0,30)) + '</td><td>' + status + '</td><td>' + (l.contacted ? '' : '<button class="btn btn-sm btn-success" onclick="markLeadContacted(\'' + l.id + '\')" style="padding:4px 10px;font-size:11px">Mark Contacted</button>') + '</td></tr>';
+              html += '<tr><td>' + dateStr + '</td><td>' + escapeHTML(l.name) + '</td><td>' + escapeHTML(l.email) + '</td><td>' + escapeHTML(l.phone) + '</td><td>' + escapeHTML(l.company || '-') + '</td><td>' + escapeHTML((l.message||'').substring(0,30)) + '</td><td>' + status + '</td><td>' + (l.contacted ? '' : '<button class="btn btn-sm btn-success" onclick="markVisitorLeadContacted(\'' + l.id + '\')" style="padding:4px 10px;font-size:11px">Mark Contacted</button>') + '</td></tr>';
             }
             tbody.innerHTML = html;
             var el = document.getElementById('leadCountLabel');
             if (el) el.textContent = leads.length + ' total';
           }).catch(function() {
-            // Fallback to localStorage
             try {
               var fb = JSON.parse(localStorage.getItem('qf_leads') || '[]');
               var tbody = document.getElementById('visitorLeadList');
@@ -712,7 +710,7 @@
                 var d = new Date(l.timestamp);
                 var dateStr = d.toLocaleDateString();
                 var status = l.contacted ? '<span class="status-badge status-paid">Contacted</span>' : '<span class="status-badge status-pending">New</span>';
-                html += '<tr><td>' + dateStr + '</td><td>' + escapeHTML(l.name) + '</td><td>' + escapeHTML(l.email) + '</td><td>' + escapeHTML(l.phone) + '</td><td>' + escapeHTML(l.company || '-') + '</td><td>' + escapeHTML((l.message||'').substring(0,30)) + '</td><td>' + status + '</td><td>' + (l.contacted ? '' : '<button class="btn btn-sm btn-success" onclick="markLeadContacted(\'' + l.id + '\')" style="padding:4px 10px;font-size:11px">Mark Contacted</button>') + '</td></tr>';
+                html += '<tr><td>' + dateStr + '</td><td>' + escapeHTML(l.name) + '</td><td>' + escapeHTML(l.email) + '</td><td>' + escapeHTML(l.phone) + '</td><td>' + escapeHTML(l.company || '-') + '</td><td>' + escapeHTML((l.message||'').substring(0,30)) + '</td><td>' + status + '</td><td>' + (l.contacted ? '' : '<button class="btn btn-sm btn-success" onclick="markVisitorLeadContacted(\'' + l.id + '\')" style="padding:4px 10px;font-size:11px">Mark Contacted</button>') + '</td></tr>';
               }
               tbody.innerHTML = html;
               var el = document.getElementById('leadCountLabel');
@@ -720,19 +718,18 @@
             } catch(e) {}
           });
         }
-        function markLeadContacted(id) {
+        function markVisitorLeadContacted(id) {
           fetch('/api/landing-leads/' + id + '/contacted', { method: 'PUT' }).then(function() {
-            renderLeads();
+            renderVisitorLeads();
             updateVisitorStats();
           }).catch(function() {
-            // Fallback to localStorage
             try {
               var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
               for (var i = 0; i < leads.length; i++) {
                 if (leads[i].id === id) { leads[i].contacted = true; break; }
               }
               localStorage.setItem('qf_leads', JSON.stringify(leads));
-              renderLeads();
+              renderVisitorLeads();
               updateVisitorStats();
             } catch(e) {}
           });
@@ -760,7 +757,7 @@
         // Poll visitors data every 5s for live updates
         setInterval(function() {
           renderVisitors();
-          renderLeads();
+          renderVisitorLeads();
           updateVisitorStats();
         }, 5000);
         </script>
@@ -878,35 +875,6 @@
   </div>
 </div>
 
-<script>
-  // Minimal inline setup — all page logic handled by app.js
-  document.getElementById("sidebarToggle").addEventListener("click", function() {
-    var s = document.getElementById("sidebar");
-    if (window.innerWidth <= 768) {
-      s.classList.toggle("open");
-      document.getElementById("sidebarOverlay").classList.toggle("open");
-    } else {
-      s.classList.toggle("collapsed");
-    }
-  });
-  document.getElementById("sidebarCollapse").addEventListener("click", function(e) {
-    e.stopPropagation();
-    document.getElementById("sidebar").classList.toggle("collapsed");
-  });
-  document.getElementById("sidebarOverlay").addEventListener("click", function() {
-    document.getElementById("sidebar").classList.remove("open");
-    document.getElementById("sidebarOverlay").classList.remove("open");
-  });
-  document.querySelectorAll(".nav-item").forEach(function(item) {
-    item.addEventListener("click", function(e) {
-      e.preventDefault();
-      navigate(this.getAttribute("data-page"));
-    });
-  });
-  document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") { closeProductModal(); closeNotifDropdown(); closeUserDropdown(); closeNotifDetail(); closeViewQuote(); }
-  });
-</script>
 <script defer src="/app/app.js"></script>
 
 
