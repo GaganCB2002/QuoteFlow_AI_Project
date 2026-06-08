@@ -214,7 +214,27 @@
     .est-loading { display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--text-light) }
     .est-spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:estSpin .8s linear infinite }
     @keyframes estSpin { to { transform:rotate(360deg) } }
-  </style>
+  
+    #ai-chat-btn {
+      position:fixed; bottom:24px; right:24px; z-index:9999;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,#1e3a5f,#2d5a8a);
+      color:#fff; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(30,58,95,.35);
+      transition:all .25s ease
+    }
+    #ai-chat-btn:hover { transform:scale(1.08); box-shadow:0 6px 24px rgba(30,58,95,.45) }
+    #ai-chat-btn svg { width:26px; height:26px }
+    #ai-chat-panel {
+      position:fixed; bottom:92px; right:24px; z-index:9998;
+      width:340px; height:460px; background:#fff;
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.15);
+      display:none; flex-direction:column; overflow:hidden;
+      border:1px solid var(--border); animation:slideUp .3s ease
+    }
+    #ai-chat-panel.open { display:flex }
+</style>
 </head>
 <body>
 <div class="app-layout">
@@ -888,5 +908,39 @@
   });
 </script>
 <script defer src="/app/app.js"></script>
+
+
+
+<!-- AI Assistant Chatbot -->
+<div id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI Assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+</div>
+<div id="ai-chat-panel">
+  <div id="ai-chat-header">
+    <div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      QuoteFlow Guide
+    </div>
+    <button onclick="toggleChat()" aria-label="Close">&#x2715;</button>
+  </div>
+  <div id="ai-chat-messages">
+    <div class="ai-msg ai-bot">Hey there! 👋 I'm your QuoteFlow guide. I can help you get started. Try asking:</div>
+    <div class="ai-msg ai-bot" style="background:transparent;padding:4px 14px 8px">
+      <span class="ai-quick-reply" onclick="quickChat('how to create account')">How to create account</span>
+      <span class="ai-quick-reply" onclick="quickChat('features')">Features</span>
+      <span class="ai-quick-reply" onclick="quickChat('pricing')">Pricing</span>
+      <span class="ai-quick-reply" onclick="quickChat('how it works')">How it works</span>
+      <span class="ai-quick-reply" onclick="quickChat('get a callback')">Get a callback</span>
+    </div>
+  </div>
+  <div id="ai-chat-input-area">
+    <input type="text" id="ai-chat-input" placeholder="Ask about QuoteFlow..." onkeydown="if(event.key==='Enter') sendChat()">
+    <button onclick="sendChat()" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+
 </body>
 </html>

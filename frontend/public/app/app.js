@@ -2250,3 +2250,240 @@ function markLeadContacted(id) {
     .then(function() { fetchAndRenderLeads(); })
     .catch(function(e) { alert("Failed to update status"); console.error(e); });
 }
+
+
+// AI Chatbot Logic
+let chatOpen = false;
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('ai-chat-panel').classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    const m = document.getElementById('ai-chat-messages');
+    m.scrollTop = m.scrollHeight;
+    setTimeout(() => document.getElementById('ai-chat-input').focus(), 300);
+  }
+}
+function quickChat(msg) {
+  document.getElementById('ai-chat-input').value = msg;
+  sendChat();
+}
+function addMsg(text, role) {
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-' + role;
+  div.innerHTML = text;
+  document.getElementById('ai-chat-messages').appendChild(div);
+  const m = document.getElementById('ai-chat-messages');
+  m.scrollTop = m.scrollHeight;
+}
+function sendChat() {
+  const input = document.getElementById('ai-chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  addMsg(escapeHTML(q), 'user');
+  input.value = '';
+  setTimeout(() => {
+    const a = getAIGuideResponse(q.toLowerCase());
+    addMsg(a, 'bot');
+    if (!chatOpen) document.getElementById('ai-chat-panel').classList.add('open');
+  }, 400 + Math.random() * 600);
+}
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function getAIGuideResponse(q) {
+  if (q.includes('callback') || q.includes('contact') || q.includes('call me')) {
+    return '<strong>Get a Callback</strong><br>Leave your details and our team will reach out to you.<br><br>' +
+           '<div style="margin-bottom:8px"><input type="text" id="aiLeadName" placeholder="Your full name" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
+           '<div style="margin-bottom:8px"><input type="tel" id="aiLeadPhone" placeholder="10-digit mobile number" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
+           '<div style="margin-bottom:8px"><textarea id="aiLeadMessage" placeholder="Your requirements or message" rows="2" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font);resize:none"></textarea></div>' +
+           '<button style="width:100%;padding:8px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px" onclick="submitAILead(this)">Submit Details &rarr;</button>';
+  }
+  if (q.includes('create account') || q.includes('sign up') || q.includes('register') || q.includes('registration')) {
+    return '<strong>Creating an account</strong><br><br>1. Click the <strong>"Start Free"</strong> or <strong>"Free Trial"</strong> button on this page<br>2. You\'ll go to the <strong>Register page</strong> at <strong>/app/register.html</strong><br>3. Fill in your name, phone, email, and password<br>4. Select your role (Business Owner / Freelancer / Accountant)<br>5. Click <strong>Create Account</strong><br><br>Already have an account? Use the <strong>demo credentials</strong> on this page to log in instantly!';
+  }
+  if (q.includes('pricing') || q.includes('price') || q.includes('cost') || q.includes('plan') || q.includes('free') || q.includes('premium')) {
+    return '<strong>QuoteFlow Pricing</strong><br><br>\u2022 <strong>Free (\u20B90/mo)</strong> \u2014 100 quotations, basic invoices, WhatsApp sharing<br>\u2022 <strong>Pro (\u20B9499/mo)</strong> \u2014 Unlimited quotations, AI generator, GST billing, CRM<br>\u2022 <strong>Business (\u20B9999/mo)</strong> \u2014 Everything in Pro + 10 users, campaigns, API<br>\u2022 <strong>Enterprise (\u20B94,999/mo)</strong> \u2014 Unlimited users, white label, dedicated manager<br><br>Scroll down to the <strong>Pricing section</strong> for full comparisons. Start free, no card needed!';
+  }
+  if (q.includes('feature') || q.includes('what can') || q.includes('capability') || q.includes('tool')) {
+    return '<strong>QuoteFlow Features</strong><br><br>\u2022 \ud83e\udd16 <strong>AI Quotation Generator</strong> \u2014 Generate in 30s from plain English<br>\u2022 \ud83d\udcb0 <strong>GST Billing</strong> \u2014 Auto CGST/SGST/IGST, all invoice types<br>\u2022 \ud83d\udc65 <strong>CRM & Lead Pipeline</strong> \u2014 Kanban, credit scoring, auto follow-ups<br>\u2022 \ud83d\udcf1 <strong>WhatsApp Sharing</strong> \u2014 One-click share to clients<br>\u2022 \ud83d\udcca <strong>Analytics</strong> \u2014 P&L, revenue, cash flow, conversion rates<br>\u2022 \ud83d\udcac <strong>Voice Quotations</strong> \u2014 Speak, AI converts to quotation<br>\u2022 \ud83d\udcdd <strong>E-Signature</strong> \u2014 Digital signatures with audit trail<br><br>All 12 modules work together seamlessly in one dashboard!';
+  }
+  if (q.includes('how it work') || q.includes('how does') || q.includes('workflow') || q.includes('step')) {
+    return '<strong>How QuoteFlow Works</strong><br><br><strong>Step 1:</strong> Describe your service naturally (e.g., "Website for a school with 5 pages")<br><strong>Step 2:</strong> AI generates a complete quotation with itemized pricing, scope, and timeline<br><strong>Step 3:</strong> Review, adjust, and send via WhatsApp in one click<br><strong>Step 4:</strong> Customer signs digitally, pay via UPI QR<br><br>Try the <strong>Live Demo</strong> section on this page to see it in action!';
+  }
+  if (q.includes('demo') || q.includes('try') || q.includes('test') || q.includes('credential') || q.includes('login')) {
+    return '<strong>Try QuoteFlow Right Now</strong><br><br>Use these test credentials to explore the full dashboard:<br><br>\u2022 <strong>URL:</strong> <code>http://localhost:8081/app/login.html</code><br>\u2022 <strong>Email:</strong> <code>demo@quoteflow.ai</code><br>\u2022 <strong>Password:</strong> <code>demo123</code><br><br>Click the <strong>"Launch Dashboard"</strong> button in the Test Credentials section below!';
+  }
+  if (q.includes('what is quoteflow') || q.includes('about') || q.includes('platform') || q.includes('what does')) {
+    return '<strong>What is QuoteFlow AI?</strong><br><br>QuoteFlow AI is an all-in-one business platform that replaces <strong>5 separate tools</strong>:<br><br>\u2022 Quotation software<br>\u2022 GST billing & invoicing<br>\u2022 CRM system<br>\u2022 WhatsApp marketing<br>\u2022 Project cost estimator<br><br>Trusted by <strong>12,000+ Indian businesses</strong>. Built with Spring Boot 4.0.6, Java 21, PostgreSQL, and dual AI (OpenAI + Gemini).';
+  }
+  if (q.includes('help') || q.includes('support') || q.includes('contact') || q.includes('guide')) {
+    return '<strong>Need Help?</strong><br><br>\u2022 Check the <strong>Test Credentials</strong> section on this page for login info<br>\u2022 Browse the <strong>Features</strong> section to learn about all tools<br>\u2022 Try the <strong>Live Demo</strong> to see AI in action<br>\u2022 Email us at <strong>support@quoteflow.ai</strong><br><br>Or just type your question here \u2014 I\'m here to help!';
+  }
+  if (q.includes('thank') || q.includes('thanks') || q.includes('great') || q.includes('nice') || q.includes('helpful')) {
+    return 'You\'re welcome! \ud83d\ude4c Feel free to ask anything else. You can also try the <strong>Live Demo</strong> or <strong>Test Credentials</strong> on this page to get hands-on!';
+  }
+  if (q.includes('hello') || q.includes('hi ') || q.includes('hey') || q.includes('start')) {
+    return 'Hello! \ud83d\udc4b I\'m your QuoteFlow guide. Ask me about:<br><br>\u2022 Creating an account<br>\u2022 Features & tools<br>\u2022 Pricing plans<br>\u2022 How QuoteFlow works<br>\u2022 Demo & test login<br><br>Or type any question you have!';
+  }
+  return 'Great question! Here\'s what I can help you with:<br><br>\u2022 <strong>Create account</strong> \u2014 How to sign up<br>\u2022 <strong>Features</strong> \u2014 What QuoteFlow can do<br>\u2022 <strong>Pricing</strong> \u2014 Plans and costs<br>\u2022 <strong>How it works</strong> \u2014 The workflow<br>\u2022 <strong>Demo</strong> \u2014 Try it right now<br><br>Or rephrase your question and I\'ll do my best to help!';
+}
+document.addEventListener('click', function(e) {
+  const p = document.getElementById('ai-chat-panel');
+  const b = document.getElementById('ai-chat-btn');
+  if (chatOpen && !p.contains(e.target) && !b.contains(e.target)) {
+    chatOpen = false;
+    p.classList.remove('open');
+  }
+  const lp = document.getElementById('lead-panel');
+  const lb = document.getElementById('lead-btn');
+  if (leadOpen && !lp.contains(e.target) && !lb.contains(e.target)) {
+    leadOpen = false;
+    lp.classList.remove('open');
+  }
+});
+
+// === VISITOR TRACKING ===
+(function trackVisitor() {
+  try {
+    var visitor = {
+      page: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      screen: screen.width + 'x' + screen.height
+    };
+    // POST to API for persistent storage
+    fetch('/api/public/visitors', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(visitor)
+    }).catch(function() {
+      // Fallback: save to localStorage if API unavailable
+      var visits = JSON.parse(localStorage.getItem('qf_visitors') || '[]');
+      var today = new Date().toDateString();
+      var v = {
+        id: 'V' + Date.now() + Math.random().toString(36).substr(2,4),
+        page: visitor.page,
+        referrer: visitor.referrer,
+        timestamp: visitor.timestamp,
+        userAgent: visitor.userAgent,
+        language: visitor.language,
+        screen: visitor.screen,
+        today: today,
+        name: '', email: '', phone: '', company: ''
+      };
+      visits.push(v);
+      if (visits.length > 500) visits = visits.slice(-500);
+      localStorage.setItem('qf_visitors', JSON.stringify(visits));
+    });
+    updateLiveCount();
+  } catch(e) { console.log('track:', e); }
+})();
+
+function updateLiveCount() {
+  var el = document.getElementById('liveCount');
+  if (!el) return;
+  // Try API first
+  fetch('/api/visitors/stats')
+    .then(function(r) { return r.json(); })
+    .then(function(stats) {
+      el.textContent = stats.today || 0;
+    })
+    .catch(function() {
+      // Fallback to localStorage
+      try {
+        var visits = JSON.parse(localStorage.getItem('qf_visitors') || '[]');
+        var today = new Date().toDateString();
+        var count = visits.filter(function(v) { return v.today === today; }).length;
+        el.textContent = count;
+      } catch(e) {}
+    });
+}
+setInterval(updateLiveCount, 5000);
+
+// === LEAD CAPTURE ===
+var leadOpen = false;
+function toggleLeadForm() {
+  leadOpen = !leadOpen;
+  var p = document.getElementById('lead-panel');
+  p.classList.toggle('open', leadOpen);
+  if (leadOpen) {
+    document.getElementById('leadSuccess').style.display = 'none';
+    document.querySelectorAll('#lead-body input, #lead-body textarea').forEach(function(i) { i.value = ''; });
+    document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = ''; });
+  }
+}
+function submitLead() {
+  var name = document.getElementById('leadName').value.trim();
+  var email = document.getElementById('leadEmail').value.trim();
+  var phone = document.getElementById('leadPhone').value.trim();
+  if (!name || !email || !phone) { alert('Please fill in name, email and phone'); return; }
+  if (phone.length < 10) { alert('Please enter a valid 10-digit phone number'); return; }
+  var leadData = {
+    name: name, email: email, phone: phone,
+    company: document.getElementById('leadCompany').value.trim(),
+    message: document.getElementById('leadMessage').value.trim(),
+    source: window.location.pathname
+  };
+  // POST to API
+  fetch('/api/public/leads', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(leadData)
+  }).then(function() {
+    document.getElementById('leadSuccess').style.display = 'block';
+    document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = 'none'; });
+  }).catch(function() {
+    // Fallback to localStorage
+    try {
+      var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
+      var lead = {
+        id: 'L' + Date.now(),
+        name: name, email: email, phone: phone,
+        company: leadData.company,
+        message: leadData.message,
+        timestamp: new Date().toISOString(),
+        contacted: false,
+        source: leadData.source
+      };
+      leads.unshift(lead);
+      if (leads.length > 1000) leads = leads.slice(0, 1000);
+      localStorage.setItem('qf_leads', JSON.stringify(leads));
+      document.getElementById('leadSuccess').style.display = 'block';
+      document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = 'none'; });
+    } catch(e) { alert('Could not save. Please try again.'); }
+  });
+}
+
+function submitAILead(btn) {
+  const name = document.getElementById('aiLeadName').value.trim();
+  const phone = document.getElementById('aiLeadPhone').value.trim();
+  const message = document.getElementById('aiLeadMessage').value.trim();
+  if (!name || !phone) { alert('Please enter name and phone number'); return; }
+  if (phone.length < 10) { alert('Please enter a valid 10-digit phone number'); return; }
+  btn.innerText = 'Submitted!';
+  btn.style.opacity = '0.5';
+  btn.disabled = true;
+  fetch('/api/public/leads', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name, phone: phone, message: message, source: 'ai-bot'})
+  }).catch(function(){
+    try {
+      var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
+      leads.unshift({
+        id: 'L' + Date.now(),
+        name: name, email: '', phone: phone,
+        company: '', message: message,
+        timestamp: new Date().toISOString(),
+        contacted: false, source: 'ai-bot'
+      });
+      if (leads.length > 1000) leads = leads.slice(0, 1000);
+      localStorage.setItem('qf_leads', JSON.stringify(leads));
+    } catch(e) {}
+  });
+  setTimeout(function() {
+    addMsg('Thanks ' + escapeHTML(name) + '! We have received your request and will call you at ' + escapeHTML(phone) + ' shortly.', 'bot');
+  }, 600);
+}
