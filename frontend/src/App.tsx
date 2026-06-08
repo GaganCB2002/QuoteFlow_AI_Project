@@ -1,7 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import CompanyProfile from './pages/CompanyProfile';
 import CustomerList from './pages/CustomerList';
 import QuotationBuilder from './pages/QuotationBuilder';
@@ -21,7 +23,9 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/estimation" element={<Estimation />} />
         <Route path="/quotations" element={<QuotationBuilder />} />
@@ -38,7 +42,7 @@ const App = () => {
         <Route path="/visitors" element={<Visitors />} />
         <Route path="/company" element={<CompanyProfile />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
