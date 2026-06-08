@@ -1,0 +1,15 @@
+package com.quoteflow.backend.repository;
+
+import com.quoteflow.backend.entity.VisitorTracking;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface VisitorTrackingRepository extends JpaRepository<VisitorTracking, UUID> {
+    long countByTimestampAfter(LocalDateTime since);
+    List<VisitorTracking> findAllByOrderByTimestampDesc();
+}

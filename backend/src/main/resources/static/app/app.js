@@ -32,6 +32,14 @@ window.addEventListener('error', function(e) {
 });
 
 // ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+
+function escapeHTML(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
 // SAMPLE DATA
 // ============================================================
 
@@ -214,7 +222,7 @@ const pipelineStages = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed 
 // NAVIGATION
 // ============================================================
 
-function navigate(page) {
+function navigate(page, skipHistory) {
   document.querySelectorAll('.page').forEach(function(p) { p.style.display = 'none'; });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var target = document.getElementById('page-' + page);
@@ -222,6 +230,11 @@ function navigate(page) {
   var navItem = document.querySelector('.nav-item[data-page="' + page + '"]');
   if (navItem) navItem.classList.add('active');
   closeSidebar();
+  
+  if (!skipHistory) {
+    var newUrl = '/' + page;
+    window.history.pushState({page: page}, '', newUrl);
+  }
 }
 
 function closeSidebar() {
@@ -239,9 +252,22 @@ function toggleSidebar() {
 }
 
 function initNavigation() {
-  // Sidebar/nav listeners are already attached by the HTML inline script.
-  // Our `navigate` function overrides the inline one due to deferred load order.
-  // This avoids duplicate toggle issues.
+  window.addEventListener('popstate', function(event) {
+    var page = (event.state && event.state.page) ? event.state.page : getPageFromUrl();
+    navigate(page, true);
+  });
+  var initialPage = getPageFromUrl();
+  if (initialPage !== 'dashboard') {
+    navigate(initialPage, true);
+  }
+}
+
+function getPageFromUrl() {
+  var path = window.location.pathname.replace(/^\//, '').replace(/\.html$/, '');
+  if (path.startsWith('app/')) path = path.replace('app/', '');
+  var validPages = ['dashboard', 'estimation', 'quotations', 'products', 'invoices', 'receipts', 'customers', 'crm', 'marketing', 'finance', 'notifications', 'visitors', 'admin'];
+  if (validPages.includes(path)) return path;
+  return 'dashboard';
 }
 
 // ============================================================
@@ -1601,6 +1627,10 @@ function loadDashboard() {
 
     // AI Assessment summary
     updateDashboardAssessment();
+    // Live visitor stats refresh
+    if (!window._visitorPollInterval) {
+      window._visitorPollInterval = setInterval(updateDashboardAssessment, 10000);
+    }
   } catch (e) { console.error('loadDashboard error:', e); }
 }
 
@@ -1612,7 +1642,18 @@ function updateDashboardAssessment() {
   var conversionRate = total > 0 ? Math.round(accepted / total * 100) : 0;
   var revenue = sampleQuotes.filter(function(q) { return q.status === 'Accepted'; }).reduce(function(s, q) { return s + q.amount; }, 0);
   var pendingInvoices = sampleInvoices.filter(function(i) { return i.status === 'Unpaid' || i.status === 'Overdue'; }).length;
-  var leads = sampleLeads.filter(function(l) { return l.status === 'New' || l.status === 'Active'; }).length;
+  var crmLeads = sampleLeads.filter(function(l) { return l.status === 'New' || l.status === 'Active'; }).length;
+
+  // Visitor stats from localStorage
+  var allVisits = [];
+  var allLeads = [];
+  try { allVisits = JSON.parse(localStorage.getItem('qf_visitors') || '[]'); } catch(e) {}
+  try { allLeads = JSON.parse(localStorage.getItem('qf_leads') || '[]'); } catch(e) {}
+  var today = new Date().toDateString();
+  var todayVisits = allVisits.filter(function(v) { return v.today === today; }).length;
+  var totalVisits = allVisits.length;
+  var totalLeads = allLeads.length;
+  var newLeads = allLeads.filter(function(l) { return !l.contacted; }).length;
 
   var insight = '';
   if (conversionRate < 30) insight = 'Your quotation conversion rate is ' + conversionRate + '%. Try following up within 24 hours to improve it.';
@@ -1620,7 +1661,9 @@ function updateDashboardAssessment() {
   else insight = 'Excellent ' + conversionRate + '% conversion rate! Your quoting strategy is working well.';
 
   if (pendingInvoices > 0) insight += ' You have ' + pendingInvoices + ' pending invoice(s) to collect.';
-  if (leads > 0) insight += ' ' + leads + ' lead(s) need attention.';
+  if (crmLeads > 0) insight += ' ' + crmLeads + ' lead(s) need attention.';
+  if (newLeads > 0) insight += ' ' + newLeads + ' new website lead(s) waiting for follow-up.';
+  if (todayVisits > 0) insight += ' ' + todayVisits + ' visitor(s) on your website today.';
 
   var html =
     '<div style="padding:20px;display:flex;gap:16px;align-items:flex-start">' +
@@ -1628,11 +1671,13 @@ function updateDashboardAssessment() {
       '<div>' +
         '<strong style="font-size:15px">AI Business Assessment</strong>' +
         '<p style="font-size:13px;color:var(--text-light);margin-top:4px">' + insight + '</p>' +
-        '<div style="display:flex;gap:16px;margin-top:10px;font-size:12px">' +
+        '<div style="display:flex;gap:16px;margin-top:10px;font-size:12px;flex-wrap:wrap">' +
           '<span><strong>' + conversionRate + '%</strong> Conv. Rate</span>' +
           '<span><strong>Rs ' + revenue.toLocaleString() + '</strong> Revenue</span>' +
           '<span><strong>' + pendingInvoices + '</strong> Pending Inv.</span>' +
-          '<span><strong>' + leads + '</strong> Active Leads</span>' +
+          '<span><strong>' + crmLeads + '</strong> Active Leads</span>' +
+          '<span><strong>' + todayVisits + '</strong> Visitors Today</span>' +
+          '<span><strong>' + newLeads + '</strong> New Leads</span>' +
         '</div>' +
       '</div>' +
     '</div>';

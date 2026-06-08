@@ -118,9 +118,45 @@
       cursor:pointer; margin:4px 4px 0 0; transition:all .2s; border:1px solid transparent
     }
     .ai-quick-reply:hover { background:var(--primary); color:#fff; border-color:var(--primary) }
+    /* Lead Capture */
+    #lead-btn {
+      position:fixed; bottom:90px; right:24px; z-index:9997;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,#2d6a4f,#10b981);
+      color:#fff; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(45,106,79,.35);
+      transition:all .25s ease
+    }
+    #lead-btn:hover { transform:scale(1.08); box-shadow:0 6px 24px rgba(45,106,79,.45) }
+    #lead-btn svg { width:24px; height:24px }
+    #lead-panel {
+      position:fixed; bottom:156px; right:24px; z-index:9996;
+      width:340px; max-height:520px; background:#fff;
+      border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.15);
+      display:none; flex-direction:column; overflow:hidden;
+      border:1px solid var(--border); animation:slideUp .3s ease
+    }
+    #lead-panel.open { display:flex }
+    #lead-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px; background:linear-gradient(135deg,#2d6a4f,#10b981); color:#fff;
+      font-weight:600; font-size:14px
+    }
+    #lead-header svg { width:20px; height:20px; margin-right:8px }
+    #lead-header > div { display:flex; align-items:center }
+    #lead-header button { background:none; border:none; color:#fff; cursor:pointer; font-size:18px; opacity:.7; padding:2px 6px }
+    #lead-header button:hover { opacity:1 }
+    #lead-body { padding:16px; overflow-y:auto }
+    #lead-body .form-group { margin-bottom:12px }
+    #lead-body .form-group label { display:block;font-size:12px;font-weight:600;color:var(--text-heading);margin-bottom:4px }
+    #lead-body .form-group input,#lead-body .form-group textarea { width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:var(--font);transition:border .2s;color:var(--text-body) }
+    #lead-body .form-group input:focus,#lead-body .form-group textarea:focus { border-color:#10b981 }
     @media (max-width:480px) {
       #ai-chat-panel { width:calc(100vw - 32px); right:16px; bottom:84px; height:50vh }
       #ai-chat-btn { bottom:16px; right:16px }
+      #lead-btn { bottom:82px; right:16px }
+      #lead-panel { width:calc(100vw - 32px); right:16px; bottom:146px }
     }
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -148,7 +184,7 @@
 
 <div class="banner">
   <div class="container">
-    <p><strong>QuoteFlow AI v2.0</strong> &mdash; Trusted by 12,000+ Indian businesses. Built with Spring Boot 4.0.6 + Java 21 + AI.</p>
+    <p style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap"><strong>QuoteFlow AI v2.0</strong> &mdash; Trusted by 12,000+ Indian businesses. <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);padding:2px 12px;border-radius:12px;font-size:12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg> <strong id="liveCount">0</strong> visitors today</span></p>
   </div>
 </div>
 
@@ -860,14 +896,18 @@ window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
 });
 function copyMe(el, text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => {
-      const orig = el.textContent;
-      el.textContent = 'Copied!';
-      el.style.color = 'var(--success)';
-      setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1500);
-    }).catch(() => { fallbackCopy(text, el); });
-  } else {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        const orig = el.textContent;
+        el.textContent = 'Copied!';
+        el.style.color = 'var(--success)';
+        setTimeout(function() { el.textContent = orig; el.style.color = ''; }, 1500);
+      }).catch(function() { fallbackCopy(text, el); });
+    } else {
+      fallbackCopy(text, el);
+    }
+  } catch (e) {
     fallbackCopy(text, el);
   }
 }
@@ -937,6 +977,30 @@ function genWizard(type) {
   r.innerHTML = html;
 }
 </script>
+
+<!-- Lead Capture Form -->
+<div id="lead-btn" onclick="toggleLeadForm()" aria-label="Get a Callback">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</div>
+<div id="lead-panel">
+  <div id="lead-header">
+    <div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Get a Callback
+    </div>
+    <button onclick="toggleLeadForm()" aria-label="Close">&#x2715;</button>
+  </div>
+  <div id="lead-body">
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Leave your details and our team will reach out to you.</p>
+    <div class="form-group"><label>Full Name</label><input type="text" id="leadName" placeholder="Your full name"></div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="leadEmail" placeholder="your@email.com"></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="leadPhone" placeholder="10-digit mobile number"></div>
+    <div class="form-group"><label>Company (optional)</label><input type="text" id="leadCompany" placeholder="Your business name"></div>
+    <div class="form-group"><label>Message</label><textarea id="leadMessage" rows="3" placeholder="How can we help you?" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);outline:none;resize:none"></textarea></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitLead()">Submit &rarr;</button>
+    <div id="leadSuccess" style="display:none;text-align:center;padding:20px;color:var(--success);font-weight:600">Thank you! We'll contact you shortly.</div>
+  </div>
+</div>
 
 <!-- AI Assistant Chatbot -->
 <div id="ai-chat-btn" onclick="toggleChat()" aria-label="Open AI Assistant">
@@ -1042,7 +1106,127 @@ document.addEventListener('click', function(e) {
     chatOpen = false;
     p.classList.remove('open');
   }
+  const lp = document.getElementById('lead-panel');
+  const lb = document.getElementById('lead-btn');
+  if (leadOpen && !lp.contains(e.target) && !lb.contains(e.target)) {
+    leadOpen = false;
+    lp.classList.remove('open');
+  }
 });
+
+// === VISITOR TRACKING ===
+(function trackVisitor() {
+  try {
+    var visitor = {
+      page: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      screen: screen.width + 'x' + screen.height
+    };
+    // POST to API for persistent storage
+    fetch('/api/public/visitors', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(visitor)
+    }).catch(function() {
+      // Fallback: save to localStorage if API unavailable
+      var visits = JSON.parse(localStorage.getItem('qf_visitors') || '[]');
+      var today = new Date().toDateString();
+      var v = {
+        id: 'V' + Date.now() + Math.random().toString(36).substr(2,4),
+        page: visitor.page,
+        referrer: visitor.referrer,
+        timestamp: visitor.timestamp,
+        userAgent: visitor.userAgent,
+        language: visitor.language,
+        screen: visitor.screen,
+        today: today,
+        name: '', email: '', phone: '', company: ''
+      };
+      visits.push(v);
+      if (visits.length > 500) visits = visits.slice(-500);
+      localStorage.setItem('qf_visitors', JSON.stringify(visits));
+    });
+    updateLiveCount();
+  } catch(e) { console.log('track:', e); }
+})();
+
+function updateLiveCount() {
+  var el = document.getElementById('liveCount');
+  if (!el) return;
+  // Try API first
+  fetch('/api/visitors/stats')
+    .then(function(r) { return r.json(); })
+    .then(function(stats) {
+      el.textContent = stats.today || 0;
+    })
+    .catch(function() {
+      // Fallback to localStorage
+      try {
+        var visits = JSON.parse(localStorage.getItem('qf_visitors') || '[]');
+        var today = new Date().toDateString();
+        var count = visits.filter(function(v) { return v.today === today; }).length;
+        el.textContent = count;
+      } catch(e) {}
+    });
+}
+setInterval(updateLiveCount, 5000);
+
+// === LEAD CAPTURE ===
+var leadOpen = false;
+function toggleLeadForm() {
+  leadOpen = !leadOpen;
+  var p = document.getElementById('lead-panel');
+  p.classList.toggle('open', leadOpen);
+  if (leadOpen) {
+    document.getElementById('leadSuccess').style.display = 'none';
+    document.querySelectorAll('#lead-body input, #lead-body textarea').forEach(function(i) { i.value = ''; });
+    document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = ''; });
+  }
+}
+function submitLead() {
+  var name = document.getElementById('leadName').value.trim();
+  var email = document.getElementById('leadEmail').value.trim();
+  var phone = document.getElementById('leadPhone').value.trim();
+  if (!name || !email || !phone) { alert('Please fill in name, email and phone'); return; }
+  if (phone.length < 10) { alert('Please enter a valid 10-digit phone number'); return; }
+  var leadData = {
+    name: name, email: email, phone: phone,
+    company: document.getElementById('leadCompany').value.trim(),
+    message: document.getElementById('leadMessage').value.trim(),
+    source: window.location.pathname
+  };
+  // POST to API
+  fetch('/api/public/leads', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(leadData)
+  }).then(function() {
+    document.getElementById('leadSuccess').style.display = 'block';
+    document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = 'none'; });
+  }).catch(function() {
+    // Fallback to localStorage
+    try {
+      var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
+      var lead = {
+        id: 'L' + Date.now(),
+        name: name, email: email, phone: phone,
+        company: leadData.company,
+        message: leadData.message,
+        timestamp: new Date().toISOString(),
+        contacted: false,
+        source: leadData.source
+      };
+      leads.unshift(lead);
+      if (leads.length > 1000) leads = leads.slice(0, 1000);
+      localStorage.setItem('qf_leads', JSON.stringify(leads));
+      document.getElementById('leadSuccess').style.display = 'block';
+      document.querySelectorAll('#lead-body .btn').forEach(function(b) { b.style.display = 'none'; });
+    } catch(e) { alert('Could not save. Please try again.'); }
+  });
+}
 </script>
 
 </body>
