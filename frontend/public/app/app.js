@@ -2280,6 +2280,11 @@ function markLeadContacted(id) {
 
 // AI Chatbot Logic
 let chatOpen = false;
+let chatState = 'IDLE';
+let leadName = '';
+let leadPhone = '';
+let leadReq = '';
+
 function toggleChat() {
   chatOpen = !chatOpen;
   document.getElementById('ai-chat-panel').classList.toggle('open', chatOpen);
@@ -2307,19 +2312,84 @@ function sendChat() {
   if (!q) return;
   addMsg(escapeHTML(q), 'user');
   input.value = '';
+
+  if (chatState === 'AWAITING_NAME') {
+    if (q.split(/\s+/).filter(function(n) { return n.length > 0; }).length < 2) {
+      setTimeout(() => addMsg('Please enter both your first and last name.', 'bot'), 400);
+      return;
+    }
+    leadName = q;
+    chatState = 'AWAITING_PHONE';
+    setTimeout(() => addMsg('Thanks ' + escapeHTML(leadName.split(' ')[0]) + '! Now, please enter your 10-digit mobile number.', 'bot'), 400);
+    return;
+  }
+  
+  if (chatState === 'AWAITING_PHONE') {
+    if (!/^\d{10}$/.test(q.replace(/\D/g,''))) {
+      setTimeout(() => addMsg('Please enter a valid exactly 10-digit phone number.', 'bot'), 400);
+      return;
+    }
+    leadPhone = q.replace(/\D/g,'');
+    chatState = 'AWAITING_REQ';
+    setTimeout(() => addMsg('Got it. Finally, what are your requirements or message?', 'bot'), 400);
+    return;
+  }
+  
+  if (chatState === 'AWAITING_REQ') {
+    leadReq = q;
+    chatState = 'IDLE';
+    setTimeout(() => {
+      addMsg('Submitting your details...', 'bot');
+      submitStatefulLead(leadName, leadPhone, leadReq);
+    }, 400);
+    return;
+  }
+
   setTimeout(() => {
     const a = getAIGuideResponse(q.toLowerCase());
     addMsg(a, 'bot');
     if (!chatOpen) document.getElementById('ai-chat-panel').classList.add('open');
   }, 400 + Math.random() * 600);
 }
+
+function submitStatefulLead(name, phone, message) {
+  fetch('/api/public/leads', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name, phone: phone, message: message, source: 'ai-bot'})
+  })
+  .then(function() {
+    try {
+      var notifs = JSON.parse(localStorage.getItem('qf_new_notifications') || '[]');
+      notifs.push({ id: Date.now(), type: 'info', icon: 'info', title: 'New Callback Request', message: 'Lead received from ' + escapeHTML(name) + ' via AI Bot.', time: 'Just now', unread: true });
+      localStorage.setItem('qf_new_notifications', JSON.stringify(notifs));
+    } catch(e) {}
+  })
+  .catch(function(){
+    try {
+      var leads = JSON.parse(localStorage.getItem('qf_leads') || '[]');
+      leads.unshift({ id: 'L' + Date.now(), name: name, email: '', phone: phone, company: '', message: message, timestamp: new Date().toISOString(), contacted: false, source: 'ai-bot' });
+      if (leads.length > 1000) leads = leads.slice(0, 1000);
+      localStorage.setItem('qf_leads', JSON.stringify(leads));
+      
+      var notifs = JSON.parse(localStorage.getItem('qf_new_notifications') || '[]');
+      notifs.push({ id: Date.now(), type: 'info', icon: 'info', title: 'New Callback Request', message: 'Lead received from ' + escapeHTML(name) + ' via AI Bot.', time: 'Just now', unread: true });
+      localStorage.setItem('qf_new_notifications', JSON.stringify(notifs));
+    } catch(e) {}
+  });
+  setTimeout(function() {
+    addMsg('Thanks ' + escapeHTML(name) + '! We have received your request and will call you at ' + escapeHTML(phone) + ' shortly.', 'bot');
+  }, 600);
+}
+
+function escapeHTML(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function getAIGuideResponse(q) {
   if (q.includes('callback') || q.includes('contact') || q.includes('call me')) {
-    return '<strong>Get a Callback</strong><br>Leave your details and our team will reach out to you.<br><br>' +
-           '<div style="margin-bottom:8px"><input type="text" id="aiLeadName" placeholder="Your full name" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
-           '<div style="margin-bottom:8px"><input type="tel" id="aiLeadPhone" placeholder="10-digit mobile number" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font)"></div>' +
-           '<div style="margin-bottom:8px"><textarea id="aiLeadMessage" placeholder="Your requirements or message" rows="2" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--font);resize:none"></textarea></div>' +
-           '<button style="width:100%;padding:8px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px" onclick="submitAILead(this)">Submit Details &rarr;</button>';
+    chatState = 'AWAITING_NAME';
+    return '<strong>Get a Callback</strong><br>Sure! I can help with that. To get started, please type your <strong>First and Last Name</strong>.';
   }
   if (q.includes('create account') || q.includes('sign up') || q.includes('register') || q.includes('registration')) {
     return '<strong>Creating an account</strong><br><br>1. Click the <strong>"Start Free"</strong> or <strong>"Free Trial"</strong> button on this page<br>2. You\'ll go to the <strong>Register page</strong> at <strong>/register</strong><br>3. Fill in your name, phone, email, and password<br>4. Select your role (Business Owner / Freelancer / Accountant)<br>5. Click <strong>Create Account</strong><br><br>Already have an account? Use the <strong>demo credentials</strong> on this page to log in instantly!';
