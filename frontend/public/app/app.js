@@ -2221,7 +2221,7 @@ function fetchAndRenderLeads() {
         var contactStr = (l.phone || '') + (l.email ? '<br><span style="opacity:.6;font-size:12px">'+l.email+'</span>' : '');
         var source = l.source || 'Direct';
         var message = l.message ? '<div style="max-width:250px;white-space:normal;font-size:12px;opacity:.8">' + l.message + '</div>' : '-';
-        var contactedBadge = l.contacted ? '<span class="status-badge status-accepted">Yes</span>' : '<span class="status-badge status-draft" onclick="markLeadContacted(''+l.id+'')" style="cursor:pointer" title="Click to mark as contacted">No</span>';
+        var contactedBadge = l.contacted ? '<span class="status-badge status-accepted">Yes</span>' : '<span class="status-badge status-draft" onclick="markLeadContacted(\''+l.id+'\')" style="cursor:pointer" title="Click to mark as contacted">No</span>';
         
         return '<tr>' +
           '<td>' + date + '</td>' +
