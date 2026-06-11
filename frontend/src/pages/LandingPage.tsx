@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import TechStackSection from '../components/TechStackSection';
 import {
   Star, Menu, X, BarChart3, Users, FileText, Bell,
   TrendingUp, Target, ShoppingBag, CreditCard, Receipt,
@@ -630,6 +631,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Tech Stack Section */}
+      <TechStackSection />
 
       {/* Pricing */}
       <section className="py-[72px] md:py-[72px] relative z-10 bg-[#f0ede8]" id="pricing">

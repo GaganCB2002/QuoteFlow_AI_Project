@@ -7,21 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class SpaForwardingController {
 
     @GetMapping({ "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers",
-            "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile"
+            "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile",
+            "/login", "/register"
     })
-
     public String forwardSpaRoutes() {
-        // Forward these routes to the static dashboard.html file
-        return "forward:/app/dashboard.html";
-    }
-
-    @GetMapping({"/login"})
-    public String forwardLoginRoute() {
-        return "forward:/app/login.html";
-    }
-
-    @GetMapping({"/register"})
-    public String forwardRegisterRoute() {
-        return "forward:/app/register.html";
+        // Forward these routes to the static index.html file so React Router can handle them
+        return "forward:/index.html";
     }
 }

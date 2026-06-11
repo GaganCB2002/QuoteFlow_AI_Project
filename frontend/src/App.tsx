@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import Dashboard from './pages/Dashboard';
 import LandingPage from './pages/LandingPage';
 import CompanyProfile from './pages/CompanyProfile';
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/estimation" element={<Estimation />} />
         <Route path="/quotations" element={<QuotationBuilder />} />
@@ -34,6 +36,7 @@ const App = () => {
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/receipts" element={<Receipts />} />
         <Route path="/customers" element={<CustomerList />} />
+        <Route path="/crm" element={<Sierra />} />
         <Route path="/sierra" element={<Sierra />} />
         <Route path="/marketing" element={<Marketing />} />
         <Route path="/finance" element={<Finance />} />

@@ -6,7 +6,7 @@ echo ========================================
 :: Step 1: Start the Database via Docker
 echo [1/3] Starting Database services (PostgreSQL ^& Redis)...
 cd database
-docker-compose up -d
+docker compose up -d
 cd ..
 
 :: Wait briefly for the database to accept connections

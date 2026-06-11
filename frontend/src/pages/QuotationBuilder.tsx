@@ -1,143 +1,274 @@
 import React, { useState } from 'react';
-import { FileText, Plus, Trash2, Send, Save, Download } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { FileText, Plus, Trash2, Send, Save, Download, User, Building2, Mail, Phone, MapPin, Hash, IndianRupee, X } from 'lucide-react';
+import Layout from './Layout';
+
+const formatINR = (amount: number) =>
+  '₹' + amount.toLocaleString('en-IN');
+
+interface LineItem {
+  id: number;
+  desc: string;
+  hsn: string;
+  qty: number;
+  unit: string;
+  price: number;
+  discount: number;
+}
+
+const defaultUnit = 'Nos';
 
 const QuotationBuilder = () => {
-  const [items, setItems] = useState([
-    { id: 1, desc: 'Web Development', qty: 1, price: 45000 },
+  const [step, setStep] = useState(1);
+  const [customer, setCustomer] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    address: '',
+    gst: '',
+  });
+  const [items, setItems] = useState<LineItem[]>([
+    { id: 1, desc: '', hsn: '', qty: 1, unit: defaultUnit, price: 0, discount: 0 },
   ]);
+  const [quoteNo] = useState('QT-' + Date.now().toString().slice(-8));
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const [validTill, setValidTill] = useState('');
+
+  const updateItem = (id: number, field: keyof LineItem, value: any) =>
+    setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+
+  const addItem = () =>
+    setItems([...items, { id: Date.now(), desc: '', hsn: '', qty: 1, unit: defaultUnit, price: 0, discount: 0 }]);
+
+  const removeItem = (id: number) =>
+    setItems(items.filter(item => item.id !== id));
+
+  const updateCustomer = (field: string, value: string) =>
+    setCustomer(prev => ({ ...prev, [field]: value }));
 
   const subtotal = items.reduce((acc, item) => acc + (item.qty * item.price), 0);
-  const tax = subtotal * 0.18;
-  const total = subtotal + tax;
+  const totalDiscount = items.reduce((acc, item) => acc + ((item.qty * item.price) * item.discount / 100), 0);
+  const taxableAmount = subtotal - totalDiscount;
+  const tax = taxableAmount * 0.18;
+  const total = taxableAmount + tax;
 
-  const addItem = () => {
-    setItems([...items, { id: Date.now(), desc: '', qty: 1, price: 0 }]);
-  };
-
-  const removeItem = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
-  };
+  const canNextStep1 = () => customer.name && customer.email;
+  const canNextStep2 = () => items.some(item => item.desc && item.price > 0);
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
-      <main className="flex-1 overflow-auto p-8 max-w-5xl mx-auto w-full">
+    <Layout>
+      <div className="p-8 max-w-6xl mx-auto">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors">
-              &larr; Back
-            </Link>
-            <h2 className="text-2xl font-bold text-gray-900">New Quotation</h2>
+          <div>
+            <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight">New Quotation</h2>
+            <p className="text-[14px] text-gray-500 font-medium mt-1">Create a professional quotation with all details.</p>
           </div>
-          <div className="flex space-x-3">
-            <button className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
-              <Save size={18} className="mr-2" /> Save Draft
-            </button>
-            <button className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors shadow-sm font-medium">
-              <Download size={18} className="mr-2" /> PDF
-            </button>
-            <button className="flex items-center px-4 py-2 bg-gray-900 text-white rounded-xl shadow-lg hover:bg-gray-800 transition-colors">
-              <Send size={18} className="mr-2" /> Send to Client
-            </button>
+          <div className="flex items-center gap-2 text-[13px] text-gray-400 font-medium">
+            <span>Step {step} of 2</span>
+            <div className="flex gap-1">
+              <div className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
+              <div className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-          <div className="flex justify-between items-start mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-8">
+          {/* Step 1: Customer Details */}
+          {step === 1 && (
             <div>
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-200">
-                <span className="text-white font-bold text-xl">QF</span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900">QuoteFlow AI</h3>
-              <p className="text-gray-500 text-sm">contact@quoteflow.ai</p>
-              <p className="text-gray-500 text-sm">+91 9876543210</p>
-            </div>
-            <div className="text-right">
-              <h1 className="text-4xl font-black text-gray-100 tracking-tighter uppercase">Quotation</h1>
-              <div className="mt-4 flex flex-col items-end space-y-2">
-                <div className="flex items-center text-sm">
-                  <span className="text-gray-500 w-24 text-right mr-4">Quote No:</span>
-                  <span className="font-medium text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">QT-171810500</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-brand-gold-500/10 flex items-center justify-center">
+                  <User size={20} className="text-brand-gold-600" />
                 </div>
-                <div className="flex items-center text-sm">
-                  <span className="text-gray-500 w-24 text-right mr-4">Date:</span>
-                  <span className="font-medium text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">12 Jun 2024</span>
-                </div>
+                <h3 className="text-[18px] font-extrabold text-gray-900">Customer Details</h3>
               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-12 mb-12">
-            <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-              <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-4">Billed To</h4>
-              <select className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all font-medium">
-                <option>Acme Corp</option>
-                <option>TechFlow Inc</option>
-              </select>
-              <div className="mt-4 space-y-1 text-sm text-gray-500">
-                <p>123 Business Avenue, Tech Park</p>
-                <p>Mumbai, 400001</p>
-                <p>GST: 22AAAAA0000A1Z5</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Line Items */}
-          <div className="mb-8">
-            <div className="grid grid-cols-12 gap-4 pb-3 border-b border-gray-100 text-sm font-semibold text-gray-500 uppercase tracking-wider px-2">
-              <div className="col-span-6">Description</div>
-              <div className="col-span-2 text-center">Qty</div>
-              <div className="col-span-2 text-right">Price</div>
-              <div className="col-span-2 text-right">Total</div>
-            </div>
-            
-            <div className="py-2 space-y-3">
-              {items.map((item, i) => (
-                <div key={item.id} className="grid grid-cols-12 gap-4 items-center group">
-                  <div className="col-span-6">
-                    <input type="text" value={item.desc} placeholder="Item description" className="w-full px-3 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg transition-all" />
-                  </div>
-                  <div className="col-span-2">
-                    <input type="number" value={item.qty} className="w-full px-3 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg transition-all text-center" />
-                  </div>
-                  <div className="col-span-2">
-                    <input type="number" value={item.price} className="w-full px-3 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-lg transition-all text-right" />
-                  </div>
-                  <div className="col-span-2 flex items-center justify-end space-x-2">
-                    <span className="font-medium text-gray-900 w-full text-right">₹{(item.qty * item.price).toLocaleString()}</span>
-                    <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                      <Trash2 size={16} />
-                    </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Customer Name *</label>
+                  <div className="relative">
+                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={customer.name} onChange={e => updateCustomer('name', e.target.value)} placeholder="Full name" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
                   </div>
                 </div>
-              ))}
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Company / Organization</label>
+                  <div className="relative">
+                    <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={customer.company} onChange={e => updateCustomer('company', e.target.value)} placeholder="Company name" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Email Address *</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="email" value={customer.email} onChange={e => updateCustomer('email', e.target.value)} placeholder="client@example.com" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Phone Number</label>
+                  <div className="relative">
+                    <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="tel" value={customer.phone} onChange={e => updateCustomer('phone', e.target.value)} placeholder="+91 98765 43210" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Address</label>
+                  <div className="relative">
+                    <MapPin size={16} className="absolute left-3.5 top-4 text-gray-400" />
+                    <textarea value={customer.address} onChange={e => updateCustomer('address', e.target.value)} rows={2} placeholder="Street, city, state, pincode" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all resize-none" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">GST Number</label>
+                  <div className="relative">
+                    <Hash size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={customer.gst} onChange={e => updateCustomer('gst', e.target.value)} placeholder="22AAAAA0000A1Z5" className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[13px] font-bold text-gray-700 mb-1.5 block">Valid Till</label>
+                  <input type="date" value={validTill} onChange={e => setValidTill(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 outline-none transition-all" />
+                </div>
+              </div>
+              <div className="flex justify-end mt-8 pt-6 border-t border-[#e8e2d8]">
+                <button onClick={() => setStep(2)} disabled={!canNextStep1()} className="flex items-center gap-2 px-6 py-3 bg-brand-gold-600 text-white font-bold text-[13px] rounded-xl hover:bg-brand-gold-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                  Next: Line Items
+                </button>
+              </div>
             </div>
-            
-            <button onClick={addItem} className="mt-4 flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-              <Plus size={16} className="mr-1" /> Add Item
-            </button>
-          </div>
+          )}
 
-          <div className="flex justify-end">
-            <div className="w-72 bg-gray-50 rounded-2xl p-6 border border-gray-100">
-              <div className="flex justify-between items-center mb-3 text-sm">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-medium text-gray-900">₹{subtotal.toLocaleString()}</span>
+          {/* Step 2: Line Items */}
+          {step === 2 && (
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-brand-gold-500/10 flex items-center justify-center">
+                  <FileText size={20} className="text-brand-gold-600" />
+                </div>
+                <h3 className="text-[18px] font-extrabold text-gray-900">Line Items</h3>
               </div>
-              <div className="flex justify-between items-center mb-4 text-sm">
-                <span className="text-gray-500">GST (18%)</span>
-                <span className="font-medium text-gray-900">₹{tax.toLocaleString()}</span>
+
+              {/* Customer Summary */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-[#e8e2d8] mb-6 flex flex-wrap gap-x-8 gap-y-1 text-[13px]">
+                <span><span className="text-gray-500">Customer:</span> <strong className="text-gray-900">{customer.name}</strong></span>
+                {customer.company && <span><span className="text-gray-500">Company:</span> <strong className="text-gray-900">{customer.company}</strong></span>}
+                <span><span className="text-gray-500">Email:</span> <strong className="text-gray-900">{customer.email}</strong></span>
+                <span><span className="text-gray-500">Quote No:</span> <strong className="text-gray-900">{quoteNo}</strong></span>
+                <span><span className="text-gray-500">Date:</span> <strong className="text-gray-900">{today}</strong></span>
               </div>
-              <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
-                <span className="font-bold text-gray-900">Total</span>
-                <span className="text-2xl font-black text-indigo-600">₹{total.toLocaleString()}</span>
+
+              {/* Items Table */}
+              <div className="overflow-x-auto mb-6">
+                <table className="w-full text-left text-[13px]">
+                  <thead>
+                    <tr className="text-gray-400 font-bold uppercase tracking-wider border-b border-[#e8e2d8]">
+                      <th className="pb-3 w-8"></th>
+                      <th className="pb-3 min-w-[180px]">Description</th>
+                      <th className="pb-3 w-24">HSN/SAC</th>
+                      <th className="pb-3 w-16 text-center">Qty</th>
+                      <th className="pb-3 w-20">Unit</th>
+                      <th className="pb-3 w-28 text-right">Rate (₹)</th>
+                      <th className="pb-3 w-20 text-right">Disc %</th>
+                      <th className="pb-3 w-28 text-right">Amount (₹)</th>
+                      <th className="pb-3 w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => {
+                      const lineTotal = item.qty * item.price;
+                      const lineDiscount = lineTotal * item.discount / 100;
+                      const lineNet = lineTotal - lineDiscount;
+                      return (
+                        <tr key={item.id} className="border-b border-[#e8e2d8]/60 group">
+                          <td className="py-2">
+                            <span className="text-gray-300 text-[11px] font-mono">{item.id.toString().padStart(2, '0')}</span>
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="text" value={item.desc} onChange={e => updateItem(item.id, 'desc', e.target.value)} placeholder="Item description" className="w-full px-3 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white" />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="text" value={item.hsn} onChange={e => updateItem(item.id, 'hsn', e.target.value)} placeholder="HSN" className="w-full px-2 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white text-center" />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="number" value={item.qty} onChange={e => updateItem(item.id, 'qty', Math.max(1, parseInt(e.target.value) || 1))} min="1" className="w-full px-2 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white text-center" />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="text" value={item.unit} onChange={e => updateItem(item.id, 'unit', e.target.value)} className="w-full px-2 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white text-center" />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="number" value={item.price} onChange={e => updateItem(item.id, 'price', Math.max(0, parseInt(e.target.value) || 0))} min="0" className="w-full px-2 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white text-right" />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input type="number" value={item.discount} onChange={e => updateItem(item.id, 'discount', Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))} min="0" max="100" className="w-full px-2 py-2 border border-transparent hover:border-[#e8e2d8] focus:border-brand-gold-500 rounded-lg text-[13px] outline-none transition-all bg-transparent focus:bg-white text-right" />
+                          </td>
+                          <td className="py-2 text-right font-semibold text-gray-900">
+                            {formatINR(lineNet)}
+                          </td>
+                          <td className="py-2">
+                            <button onClick={() => removeItem(item.id)} className="text-red-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                              <X size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <button onClick={addItem} className="flex items-center gap-2 text-[13px] font-bold text-brand-gold-600 hover:text-brand-gold-700 transition-colors mb-8">
+                <Plus size={16} /> Add Line Item
+              </button>
+
+              {/* Summary */}
+              <div className="flex justify-end">
+                <div className="w-80 bg-gray-50 rounded-xl p-6 border border-[#e8e2d8]">
+                  <div className="flex justify-between items-center mb-2.5 text-[13px]">
+                    <span className="text-gray-500">Subtotal</span>
+                    <span className="font-medium text-gray-900">{formatINR(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2.5 text-[13px]">
+                    <span className="text-gray-500">Discount</span>
+                    <span className="font-medium text-red-600">- {formatINR(totalDiscount)}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2.5 text-[13px]">
+                    <span className="text-gray-500">Taxable Amount</span>
+                    <span className="font-medium text-gray-900">{formatINR(taxableAmount)}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-4 text-[13px]">
+                    <span className="text-gray-500">GST (18%)</span>
+                    <span className="font-medium text-gray-900">{formatINR(tax)}</span>
+                  </div>
+                  <div className="pt-4 border-t border-[#e8e2d8] flex justify-between items-center">
+                    <span className="font-bold text-gray-900 text-[15px]">Grand Total</span>
+                    <span className="text-2xl font-black text-brand-gold-600">{formatINR(total)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-between mt-8 pt-6 border-t border-[#e8e2d8]">
+                <button onClick={() => setStep(1)} className="flex items-center gap-2 px-6 py-3 text-gray-600 font-bold text-[13px] rounded-xl border border-[#e8e2d8] hover:bg-gray-50 transition-all">
+                  Back: Customer
+                </button>
+                <div className="flex gap-3">
+                  <button disabled={!canNextStep2()} className="flex items-center gap-2 px-5 py-3 text-gray-700 font-bold text-[13px] rounded-xl border border-[#e8e2d8] hover:bg-gray-50 transition-all disabled:opacity-40">
+                    <Save size={16} /> Save Draft
+                  </button>
+                  <button disabled={!canNextStep2()} className="flex items-center gap-2 px-5 py-3 bg-white text-indigo-700 font-bold text-[13px] rounded-xl border-2 border-indigo-200 hover:bg-indigo-50 transition-all disabled:opacity-40">
+                    <Download size={16} /> PDF
+                  </button>
+                  <button disabled={!canNextStep2()} className="flex items-center gap-2 px-6 py-3 bg-brand-gold-600 text-white font-bold text-[13px] rounded-xl hover:bg-brand-gold-700 shadow-lg transition-all disabled:opacity-40">
+                    <Send size={16} /> Send to Client
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </Layout>
   );
 };
 

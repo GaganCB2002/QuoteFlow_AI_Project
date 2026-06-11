@@ -1,6 +1,6 @@
-import React from 'react';
-import { LayoutDashboard, Users, Building2, FileText, Bell, Search, Plus, Calculator, Package, Receipt, BarChart3, Megaphone, DollarSign, FolderOpen, BellRing, Eye, Wrench } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { LayoutDashboard, Users, FileText, Bell, Search, Plus, Calculator, Package, Receipt, BarChart3, Megaphone, DollarSign, FolderOpen, BellRing, Eye, Layers, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -10,29 +10,37 @@ const navItems = [
   { icon: Receipt, label: 'Invoices', to: '/invoices' },
   { icon: Receipt, label: 'Receipts', to: '/receipts' },
   { icon: Users, label: 'Customers', to: '/customers' },
-  { icon: BarChart3, label: 'Sierra', to: '/sierra' },
+  { icon: BarChart3, label: 'CRM', to: '/crm' },
   { icon: Megaphone, label: 'Marketing', to: '/marketing' },
   { icon: DollarSign, label: 'Finance', to: '/finance' },
   { icon: FolderOpen, label: 'Documents', to: '/documents' },
   { icon: BellRing, label: 'Notifications', to: '/notifications' },
   { icon: Eye, label: 'Visitors', to: '/visitors' },
-  { icon: Building2, label: 'Company', to: '/company' },
-  { icon: Wrench, label: 'Admin', to: '/admin' },
 ];
 
-const Layout = ({ children, title, subtitle }: { children: React.ReactNode, title: string, subtitle?: string }) => {
+const Layout = ({ children, title, subtitle }: { children: React.ReactNode; title?: string; subtitle?: string }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm relative z-10">
-        <div className="h-20 flex items-center px-8 border-b border-gray-50">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center mr-3 shadow-md">
-            <span className="text-white font-bold text-sm">QF</span>
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 to-purple-900">QuoteFlow</h1>
+    <div className="flex h-screen bg-[#f7f5f0] font-sans text-gray-900">
+      {/* Sidebar */}
+      <aside className={`${collapsed ? 'w-[72px]' : 'w-[260px]'} bg-brand-navy flex flex-col relative z-20 transition-all duration-300`}>
+        <div className={`h-20 flex items-center px-6 border-b border-white/5 ${collapsed ? 'justify-center px-0' : ''}`}>
+          <Link to="/" className={`flex items-center gap-3 decoration-transparent ${collapsed ? 'justify-center' : ''}`}>
+            <Layers className="text-brand-gold-300 w-7 h-7 shrink-0" />
+            {!collapsed && <h1 className="text-xl font-bold text-white tracking-wide">QuoteFlow</h1>}
+          </Link>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={`text-white/30 hover:text-white transition-colors ${collapsed ? 'absolute -right-3 top-7 bg-brand-navy border border-white/10 rounded-full p-1 shadow-md' : 'ml-auto'}`}
+          >
+            {collapsed ? <ChevronRight size={collapsed ? 16 : 18} /> : <ChevronLeft size={18} />}
+          </button>
         </div>
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+
+        <nav className="flex-1 p-3 overflow-y-auto space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + '/');
@@ -40,50 +48,95 @@ const Layout = ({ children, title, subtitle }: { children: React.ReactNode, titl
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex items-center px-4 py-3 rounded-xl transition-all group ${isActive ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                title={collapsed ? item.label : undefined}
+                className={`flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-[10px] transition-all group decoration-transparent ${
+                  isActive
+                    ? 'bg-brand-gold-500/20 text-brand-gold-300 font-bold'
+                    : 'text-white/50 hover:bg-brand-gold-500/10 hover:text-brand-gold-200 font-medium'
+                }`}
               >
-                <span className={`mr-3 ${isActive ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                  <Icon size={20} />
+                <span className={`w-5 flex justify-center ${collapsed ? '' : 'mr-3'} ${isActive ? 'text-brand-gold-300' : 'text-white/50 group-hover:text-brand-gold-200'}`}>
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 </span>
-                {item.label}
+                {!collapsed && <span className="text-[14px]">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
+
+        {/* User Profile in Sidebar */}
+        <div className="p-4 border-t border-white/5">
+          <div className={`flex items-center gap-3 cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-colors ${collapsed ? 'justify-center p-2' : ''}`}>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 flex items-center justify-center text-white font-bold shadow-md shrink-0">
+              RK
+            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">Rahul Kumar</p>
+                <p className="text-xs text-white/40 truncate">Pro Plan</p>
+              </div>
+            )}
+          </div>
+        </div>
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-20">
-          <div className="relative w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input 
-              type="text" 
-              placeholder="Search quotations, customers..." 
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-100 transition-shadow text-sm"
-            />
+        {/* Topbar */}
+        <header className="h-[72px] bg-white border-b border-[#e8e2d8] flex items-center justify-between px-8 sticky top-0 z-10 shrink-0">
+          <div className="flex items-center gap-8 flex-1 min-w-0">
+            {title && (
+              <div className="hidden md:block min-w-0">
+                <h2 className="text-[16px] font-extrabold text-gray-900 truncate">{title}</h2>
+                {subtitle && <p className="text-[12px] text-gray-400 truncate">{subtitle}</p>}
+              </div>
+            )}
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search quotations, customers, invoices..."
+                className="w-full pl-10 pr-16 py-2.5 bg-[#f7f5f0] border border-transparent rounded-[8px] focus:ring-2 focus:ring-brand-gold-500/20 focus:border-brand-gold-500 transition-all text-[13px] text-gray-700 placeholder-gray-400 outline-none"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <kbd className="text-[10px] font-semibold text-gray-400">Ctrl+K</kbd>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-gray-400 hover:text-indigo-600 transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+
+          <div className="flex items-center space-x-3 ml-4 shrink-0">
+            {/* Quick Actions in Topbar */}
+            <Link to="/estimation" className="flex items-center px-4 py-2 bg-brand-gold-500 text-white rounded-lg shadow-sm hover:bg-brand-gold-600 transition-colors text-[13px] font-bold">
+              <FileText size={14} className="mr-2" />
+              New Quote
+            </Link>
+            <Link to="/invoices/new" className="flex items-center px-4 py-2 bg-white border border-[#e8e2d8] text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-[13px] font-bold">
+              <Receipt size={14} className="mr-2" />
+              New Invoice
+            </Link>
+
+            <div className="w-px h-6 bg-[#e8e2d8] mx-2"></div>
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-[12px] font-bold">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+              Synced
+            </div>
+
+            <button onClick={() => navigate('/login')} className="flex items-center gap-2 px-3 py-1.5 text-gray-600 hover:text-gray-900 border border-[#e8e2d8] rounded-lg text-[13px] font-bold transition-colors bg-white hover:bg-gray-50">
+              <LogOut size={14} />
+              Logout
             </button>
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-purple-100 to-indigo-100 border border-white shadow-sm flex items-center justify-center">
-              <span className="text-indigo-700 font-medium">RK</span>
+
+            <button className="relative p-2 text-gray-400 hover:text-brand-gold-600 transition-colors">
+              <Bell size={20} />
+              <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border border-white">3</span>
+            </button>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 border border-white shadow-sm flex items-center justify-center cursor-pointer ml-2">
+              <span className="text-white text-xs font-bold">RK</span>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto p-8">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-              {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
-            </div>
-            <Link to="/estimation" className="flex items-center px-4 py-2.5 bg-gray-900 text-white rounded-xl shadow-lg hover:bg-gray-800 transition-colors">
-              <Plus size={18} className="mr-2" />
-              New Quotation
-            </Link>
-          </div>
+        <div className="flex-1 overflow-auto bg-[#f7f5f0]">
           {children}
         </div>
       </main>

@@ -26,6 +26,7 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
     private final RateLimitingFilter rateLimitingFilter;
     private final UserDetailsServiceImpl userDetailsService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,10 +41,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/health/**", "/api/public/**",
                                 "/api/visitors/**", "/api/landing-leads/**",
                                 "/", "/index.html", "/css/**", "/app/**", "/landing/**",
-                                "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers", "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile", "/login", "/register",
-                                "/favicon.ico").permitAll()
+                                "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers", "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile", "/login", "/register", "/oauth2/**", "/login/oauth2/**",
+                                "/favicon.ico", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

@@ -1,1 +1,61 @@
 @import "tailwindcss";
+
+@theme {
+  --animate-fade-in-up: fade-in-up 0.8s ease-out forwards;
+  --animate-draw-line: draw-line 2s ease-out forwards;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes draw-line {
+    from {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+    }
+    to {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  --color-primary-50: #f1f4f8;
+  --color-primary-100: #e2e8f0;
+  --color-primary-200: #cbd5e1;
+  --color-primary-300: #94a3b8;
+  --color-primary-400: #64748b;
+  --color-primary-500: #2d5a8a;
+  --color-primary-600: #1e3a5f;
+  --color-primary-700: #152b47;
+  --color-primary-800: #0f1f33;
+  --color-primary-900: #0a1422;
+
+  --color-accent-50: #fdf4f3;
+  --color-accent-100: #fbe8e6;
+  --color-accent-200: #f7ccc7;
+  --color-accent-300: #f2aba4;
+  --color-accent-400: #ea7a6f;
+  --color-accent-500: #e05a48;
+  --color-accent-600: #c44536;
+  --color-accent-700: #a3382c;
+  --color-accent-800: #853026;
+  --color-accent-900: #6e2a22;
+
+  --color-brand-navy: #0f172a;
+  
+  --color-brand-gold-50: #fbf6e6;
+  --color-brand-gold-100: #f6e8c0;
+  --color-brand-gold-200: #f0d68a;
+  --color-brand-gold-300: #e8bd4d;
+  --color-brand-gold-400: #df9f20;
+  --color-brand-gold-500: #b8860b;
+  --color-brand-gold-600: #a17609;
+  --color-brand-gold-700: #854d0e;
+}

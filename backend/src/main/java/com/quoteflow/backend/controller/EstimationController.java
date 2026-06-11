@@ -27,6 +27,7 @@ public class EstimationController {
     }
 
     @PostMapping("/templates")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<CostTemplate> createTemplate(@AuthenticationPrincipal User user, @RequestBody Map<String, Object> body) {
         return ResponseEntity.ok(estimationService.createTemplate(
                 user.getCompany().getId(),
@@ -75,6 +76,7 @@ public class EstimationController {
     }
 
     @PostMapping("/generate-proposal")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<Map<String, Object>> generateProposal(@RequestBody Map<String, Object> body) {
         String projectType = (String) body.getOrDefault("projectType", "CUSTOM_SOFTWARE");
         String clientName = (String) body.getOrDefault("clientName", "Client");
@@ -88,6 +90,7 @@ public class EstimationController {
     }
 
     @GetMapping("/types")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<List<String>> getProjectTypes() {
         return ResponseEntity.ok(estimationService.getProjectParams("WEBSITE").containsKey("availableTypes")
                 ? (List<String>) estimationService.getProjectParams("WEBSITE").get("availableTypes")
