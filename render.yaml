@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: quoteflow-backend
+    runtime: java
+    repo: https://github.com/GaganCB2002/QuoteFlow_AI_Project
+    rootDir: backend
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: quoteflow-db
+          property: connectionString
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: DB_USERNAME
+        fromDatabase:
+          name: quoteflow-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quoteflow-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENCRYPTION_SECRET_KEY
+        generateValue: true
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
+
+  - type: static
+    name: quoteflow-frontend
+    runtime: static
+    repo: https://github.com/GaganCB2002/QuoteFlow_AI_Project
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: quoteflow-backend
+          type: web
+          property: url
+
+databases:
+  - name: quoteflow-db
+    plan: free
+    databaseName: quoteflow
+    ipAllowList: []

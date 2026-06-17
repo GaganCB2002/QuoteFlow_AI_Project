@@ -2,5 +2,5 @@
 .idea/
 *.log
 .env
-.env.*
 .env.local
+.env.*.local
