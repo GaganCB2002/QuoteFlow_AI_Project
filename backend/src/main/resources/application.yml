@@ -1,20 +1,18 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:quoteflowdb;DB_CLOSE_DELAY=-1}
-    driverClassName: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:password}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/quoteflow}
+    driverClassName: ${DB_DRIVER:org.postgresql.Driver}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
-  h2:
-    console:
-      enabled: ${H2_CONSOLE_ENABLED:false}
   flyway:
-    enabled: false
+    enabled: true
     baseline-on-migrate: true
+    locations: classpath:db/migration
   security:
     oauth2:
       client:
