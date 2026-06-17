@@ -1,11 +1,10 @@
 services:
   - type: web
     name: quoteflow-backend
-    runtime: java
+    runtime: docker
     repo: https://github.com/GaganCB2002/QuoteFlow_AI_Project
     rootDir: backend
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DB_URL
         fromDatabase:
@@ -29,6 +28,10 @@ services:
         sync: false
       - key: GOOGLE_OAUTH_CLIENT_SECRET
         sync: false
+      - key: SERVER_PORT
+        value: "8081"
+      - key: PORT
+        value: "8081"
 
   - type: static
     name: quoteflow-frontend
