@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/quoteflow}
-    driverClassName: ${DB_DRIVER:org.postgresql.Driver}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:root}
+    url: ${DB_URL}
+    driverClassName: ${DB_DRIVER}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -18,8 +18,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_OAUTH_CLIENT_ID:placeholder-client-id}
-            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:placeholder-client-secret}
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
             scope:
               - email
               - profile
@@ -34,9 +34,9 @@ server:
     key-alias: quoteflow
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
 
 encryption:
   secret:
-    key: ${ENCRYPTION_SECRET_KEY:8f47e3a2b1c5d6e7f809a1b2c3d4e5f6}
+    key: ${ENCRYPTION_SECRET_KEY}
