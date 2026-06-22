@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Receipt, DollarSign, Target, Users, ShieldAlert, Plus, UserPlus, FilePlus2, ChevronRight, TrendingUp, TrendingDown, IndianRupee } from 'lucide-react';
+import { FileText, Receipt, DollarSign, Target, Users, ShieldAlert, Plus, UserPlus, FilePlus2, ChevronRight, TrendingUp, TrendingDown, IndianRupee, Gift, Clock, AlertTriangle } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) =>
@@ -39,6 +39,22 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="p-8 max-w-7xl mx-auto">
+        {/* Trial Status Banner */}
+        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-4 sm:p-5 mb-8 text-white shadow-lg animate-fade-in">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <Gift size={24} className="text-indigo-200" />
+              <div>
+                <p className="font-bold text-sm sm:text-base">Free Trial Active</p>
+                <p className="text-xs text-indigo-200 mt-0.5">6 days remaining in your 7-day free trial</p>
+              </div>
+            </div>
+            <button className="px-4 py-2 bg-white text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-sm">
+              Upgrade Now
+            </button>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="flex justify-between items-end mb-8">
           <div>

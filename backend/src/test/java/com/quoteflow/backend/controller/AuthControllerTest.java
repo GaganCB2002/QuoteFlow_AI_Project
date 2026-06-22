@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
+import com.quoteflow.backend.security.HashUtil;
 
 import java.net.URI;
 import java.util.Map;
@@ -60,6 +61,8 @@ public class AuthControllerTest {
                 .name("John Doe")
                 .email("john@example.com")
                 .phone("1234567890")
+                .phoneHash(HashUtil.sha256("1234567890"))
+                .emailHash(HashUtil.sha256("john@example.com"))
                 .passwordHash(passwordEncoder.encode("Test@1234"))
                 .role(Role.ROLE_SALES_EXECUTIVE)
                 .build();

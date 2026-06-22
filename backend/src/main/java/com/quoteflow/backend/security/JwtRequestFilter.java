@@ -15,12 +15,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import com.quoteflow.backend.entity.User;
+import com.quoteflow.backend.repository.UserRepository;
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest request,
@@ -46,6 +51,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
+                if (userDetails instanceof User) {
+                    User user = (User) userDetails;
+                    if ("TRIAL".equals(user.getSubscriptionStatus()) && user.getTrialEndDate() != null && user.getTrialEndDate().isBefore(LocalDateTime.now())) {
+                        user.setSubscriptionStatus("EXPIRED");
+                        userRepository.save(user);
+                    }
+                    if ("EXPIRED".equals(user.getSubscriptionStatus())) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\": \"Free trial expired. Please complete the payment to enable all features.\"}");
+                        return;
+                    }
+                }
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

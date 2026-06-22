@@ -5,7 +5,8 @@ import {
   Star, Menu, X, BarChart3, Users, FileText, Bell,
   TrendingUp, Target, ShoppingBag, CreditCard, Receipt,
   Smartphone, Shield, Sparkles, Circle,
-  LayoutDashboard, ArrowRight, Check, MessageCircle, Lock
+  LayoutDashboard, ArrowRight, Check, MessageCircle, Lock,
+  Calendar, CalendarDays, IndianRupee, Clock, Gift, Zap
 } from 'lucide-react';
 
 const featuresData = [
@@ -103,6 +104,7 @@ const LandingPage = () => {
   const [aiResult, setAiResult] = useState('');
   const [generating, setGenerating] = useState(false);
   const [demoTab, setDemoTab] = useState<'ai' | 'wizard'>('ai');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -538,7 +540,7 @@ const LandingPage = () => {
             </h3>
             <div className="grid gap-2.5">
               {[
-                { label: 'Application URL', value: 'http://localhost:8081', highlight: false },
+                { label: 'Application URL', value: 'http://localhost:5173', highlight: false },
                 { label: 'Login Page', value: '/login', isLink: true },
                 { label: 'Dashboard', value: '/dashboard', isLink: true },
                 { label: 'Email', value: 'demo@quoteflow.ai', highlight: true },
@@ -635,6 +637,106 @@ const LandingPage = () => {
       {/* Tech Stack Section */}
       <TechStackSection />
 
+      {/* Cost Projection Calculator */}
+      <section className="py-[72px] md:py-[72px] relative z-10" id="projection">
+        <div className="max-w-[1120px] mx-auto px-5">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-indigo-50 rounded text-xs font-semibold text-indigo-600 mb-3.5">Cost Projection</div>
+            <h2 className="text-[clamp(24px,3vw,34px)] font-extrabold leading-tight tracking-tight text-gray-900">Month & Year <span className="text-red-500">Cost Projection</span></h2>
+            <p className="text-sm sm:text-base text-gray-500 max-w-[540px] mx-auto mt-2.5 leading-relaxed">Estimate your costs and savings with monthly and annual projections. See how much you save by choosing yearly billing.</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 sm:p-9 border border-gray-200 max-w-[800px] mx-auto shadow-sm animate-fade-in">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Monthly Projection */}
+              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl p-6 border border-indigo-100">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Calendar size={20} className="text-indigo-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Monthly Projection</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-indigo-200/50">
+                    <span className="text-sm text-gray-600">Starter Plan</span>
+                    <span className="font-bold text-gray-900">₹0</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-indigo-200/50">
+                    <span className="text-sm text-gray-600">Professional Plan</span>
+                    <span className="font-bold text-indigo-600">₹499</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-indigo-200/50">
+                    <span className="text-sm text-gray-600">Business Plan</span>
+                    <span className="font-bold text-indigo-600">₹999</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm text-gray-600">Enterprise Plan</span>
+                    <span className="font-bold text-indigo-600">₹4,999</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-indigo-200">
+                  <p className="text-xs text-gray-500">* All plans include 7-day free trial</p>
+                </div>
+              </div>
+
+              {/* Yearly Projection */}
+              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl p-6 border border-emerald-100">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <CalendarDays size={20} className="text-emerald-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Yearly Projection</h3>
+                  <span className="px-2 py-0.5 bg-emerald-500 text-white rounded text-[10px] font-bold uppercase tracking-wider ml-auto">Save 20%</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-emerald-200/50">
+                    <span className="text-sm text-gray-600">Starter Plan</span>
+                    <span className="font-bold text-gray-900">₹0</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-emerald-200/50">
+                    <div>
+                      <span className="text-sm text-gray-600">Professional Plan</span>
+                      <span className="block text-[11px] text-emerald-600 font-medium">₹4,790/yr (was ₹5,988)</span>
+                    </div>
+                    <span className="font-bold text-emerald-600">₹399/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-emerald-200/50">
+                    <div>
+                      <span className="text-sm text-gray-600">Business Plan</span>
+                      <span className="block text-[11px] text-emerald-600 font-medium">₹9,590/yr (was ₹11,988)</span>
+                    </div>
+                    <span className="font-bold text-emerald-600">₹799/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <div>
+                      <span className="text-sm text-gray-600">Enterprise Plan</span>
+                      <span className="block text-[11px] text-emerald-600 font-medium">₹47,990/yr (was ₹59,988)</span>
+                    </div>
+                    <span className="font-bold text-emerald-600">₹3,999/mo</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-emerald-200">
+                  <p className="text-xs text-gray-500">* Save up to ₹11,998/year with annual billing</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Savings Summary */}
+            <div className="mt-6 bg-indigo-600 rounded-xl p-5 text-white">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-2.5">
+                  <IndianRupee size={22} className="text-indigo-200" />
+                  <div>
+                    <p className="text-sm font-bold">Yearly Savings Estimate</p>
+                    <p className="text-xs text-indigo-200">Based on Professional plan with 20% annual discount</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-black">₹1,198</p>
+                  <p className="text-xs text-indigo-200">saved per year</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section className="py-[72px] md:py-[72px] relative z-10 bg-[#f0ede8]" id="pricing">
         <div className="max-w-[1120px] mx-auto px-5">
@@ -642,29 +744,58 @@ const LandingPage = () => {
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-indigo-50 rounded text-xs font-semibold text-indigo-600 mb-3.5">Pricing</div>
             <h2 className="text-[clamp(24px,3vw,34px)] font-extrabold leading-tight tracking-tight text-gray-900">Fair pricing for <span className="text-red-500">every business</span></h2>
             <p className="text-sm sm:text-base text-gray-500 max-w-[540px] mx-auto mt-2.5 leading-relaxed">Start free. Upgrade as you grow. No hidden fees, no contracts, cancel anytime.</p>
+            
+            {/* Billing Cycle Toggle */}
+            <div className="flex items-center justify-center gap-4.5 mb-2 mt-8">
+              <span className={`text-sm font-semibold transition-colors ${billingCycle === 'monthly' ? 'text-gray-900' : 'text-gray-400'}`}>Monthly Billing</span>
+              <button
+                onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+                className="w-13 h-7 bg-indigo-600 rounded-full relative transition-colors duration-200 outline-none flex items-center px-1"
+                aria-label="Toggle billing cycle"
+              >
+                <span className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 shadow-sm ${billingCycle === 'yearly' ? 'translate-x-6' : 'translate-x-0'}`} />
+              </button>
+              <span className={`text-sm font-semibold transition-colors flex items-center gap-1.5 ${billingCycle === 'yearly' ? 'text-gray-900' : 'text-gray-400'}`}>
+                Yearly Billing
+                <span className="px-2 py-0.5 bg-emerald-500 text-white rounded text-[10px] font-bold uppercase tracking-wider">Save 20%</span>
+              </span>
+            </div>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-[360px] sm:max-w-none mx-auto">
-            {pricingPlans.map((plan, i) => (
-              <div key={i} className={`bg-white rounded-2xl p-8 border relative transition-all hover:shadow-md hover:border-indigo-600 animate-fade-in-up ${plan.featured ? 'border-indigo-600 shadow-[0_0_0_2px_#4f46e5,0_4px_12px_rgba(0,0,0,0.08)]' : 'border-gray-200'}`} style={{ animationDelay: `${i * 80}ms` }}>
-                {plan.badge && (
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-4 py-0.5 bg-indigo-600 text-white rounded-full text-xs font-semibold whitespace-nowrap">{plan.badge}</div>
-                )}
-                <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">{plan.name}</div>
-                <div className="text-[30px] font-extrabold text-gray-900 leading-tight mb-0.5">{plan.price}<span className="text-sm font-normal text-gray-400">{plan.period}</span></div>
-                <p className="text-sm text-gray-500 mb-4.5">{plan.desc}</p>
-                <ul className="list-none mb-5">
-                  {plan.features.map((f, fi) => (
-                    <li key={fi} className={`flex items-center gap-2 py-1.5 text-sm border-b border-gray-100 last:border-none ${f.included ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {f.included ? <Check size={14} className="text-emerald-600 shrink-0 font-bold" /> : <span className="text-gray-300 shrink-0 text-sm">✗</span>}
-                      {f.text}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => navigate('/login')} className={`w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded transition-all ${plan.featured ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white text-gray-900 border-2 border-gray-200 hover:border-indigo-600 hover:text-indigo-600'}`}>
-                  {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
-                </button>
-              </div>
-            ))}
+            {pricingPlans.map((plan, i) => {
+              const basePriceStr = plan.price.replace(/[₹,]/g, '');
+              const basePrice = parseInt(basePriceStr, 10);
+              let displayPrice = plan.price;
+              let displayPeriod = plan.period;
+              if (billingCycle === 'yearly' && basePrice > 0) {
+                const discountedPrice = Math.round(basePrice * 0.8);
+                displayPrice = '₹' + discountedPrice.toLocaleString('en-IN');
+                displayPeriod = '/month (billed yearly)';
+              }
+              return (
+                <div key={i} className={`bg-white rounded-2xl p-8 border relative transition-all hover:shadow-md hover:border-indigo-600 animate-fade-in-up ${plan.featured ? 'border-indigo-600 shadow-[0_0_0_2px_#4f46e5,0_4px_12px_rgba(0,0,0,0.08)]' : 'border-gray-200'}`} style={{ animationDelay: `${i * 80}ms` }}>
+                  {plan.badge ? (
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-4 py-0.5 bg-indigo-600 text-white rounded-full text-xs font-semibold whitespace-nowrap">{plan.badge}</div>
+                  ) : (
+                    i < 3 && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-emerald-500 text-white rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">7-day trial</div>
+                  )}
+                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">{plan.name}</div>
+                  <div className="text-[30px] font-extrabold text-gray-900 leading-tight mb-0.5">{displayPrice}<span className="text-sm font-normal text-gray-400">{displayPeriod}</span></div>
+                  <p className="text-sm text-gray-500 mb-4.5">{plan.desc}</p>
+                  <ul className="list-none mb-5">
+                    {plan.features.map((f, fi) => (
+                      <li key={fi} className={`flex items-center gap-2 py-1.5 text-sm border-b border-gray-100 last:border-none ${f.included ? 'text-gray-500' : 'text-gray-400'}`}>
+                        {f.included ? <Check size={14} className="text-emerald-600 shrink-0 font-bold" /> : <span className="text-gray-300 shrink-0 text-sm">✗</span>}
+                        {f.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={() => navigate('/register')} className={`w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded transition-all ${plan.featured ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-white text-gray-900 border-2 border-gray-200 hover:border-indigo-600 hover:text-indigo-600'}`}>
+                    {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

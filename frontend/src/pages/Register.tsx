@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, ArrowLeft, Eye, EyeOff, Zap, Smartphone, BarChart3, CloudOff } from 'lucide-react';
+import { UserPlus, ArrowLeft, Eye, EyeOff, Zap, Smartphone, BarChart3, CloudOff, Gift } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -70,6 +70,13 @@ const Register = () => {
 
           <h2 className="text-2xl font-extrabold text-gray-900 mb-1 tracking-tight">Create your account</h2>
           <p className="text-sm text-gray-500 mb-7">Free forever. No credit card needed.</p>
+
+          <div className="flex items-center gap-2.5 bg-gradient-to-r from-indigo-50 to-emerald-50 border border-indigo-100 rounded-xl p-3.5 mb-6">
+            <Gift size={18} className="text-indigo-600 shrink-0" />
+            <p className="text-[13px] font-semibold text-gray-700 leading-snug">
+              <span className="text-indigo-700">7-day free trial</span> on all plans. No credit card required. Cancel anytime.
+            </p>
+          </div>
 
           <form onSubmit={handleRegister} className="space-y-4.5">
             <div className="grid grid-cols-2 gap-4">

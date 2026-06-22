@@ -19,6 +19,7 @@ public class PaymentService {
     private final CompanyRepository companyRepository;
     private final InvoiceRepository invoiceRepository;
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
 
     public PaymentTransaction createPayment(UUID companyId, UUID invoiceId, UUID customerId,
                                              BigDecimal amount, String paymentMode, String transactionId) {
@@ -37,7 +38,17 @@ public class PaymentService {
                 .status("COMPLETED")
                 .paymentDate(LocalDateTime.now())
                 .build();
-        return paymentTransactionRepository.save(payment);
+        PaymentTransaction saved = paymentTransactionRepository.save(payment);
+
+        try {
+            List<User> companyUsers = userRepository.findByCompanyId(companyId);
+            for (User u : companyUsers) {
+                u.setSubscriptionStatus("ACTIVE");
+                userRepository.save(u);
+            }
+        } catch (Exception ignored) {}
+
+        return saved;
     }
 
     public List<PaymentTransaction> getCompanyPayments(UUID companyId) {

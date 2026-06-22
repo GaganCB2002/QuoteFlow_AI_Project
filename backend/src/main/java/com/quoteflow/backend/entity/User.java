@@ -1,5 +1,6 @@
 package com.quoteflow.backend.entity;
 
+import com.quoteflow.backend.security.EncryptedAttributeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,10 +32,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String name;
 
-    @Column(unique = true)
+    @Column(name = "email")
+    @Convert(converter = EncryptedAttributeConverter.class)
     private String email;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "phone", nullable = false)
+    @Convert(converter = EncryptedAttributeConverter.class)
     private String phone;
 
     @Column(name = "google_id", unique = true)
@@ -42,6 +45,27 @@ public class User implements UserDetails {
 
     @Column(name = "password_hash")
     private String passwordHash;
+
+    @Column(name = "phone_hash", unique = true)
+    private String phoneHash;
+
+    @Column(name = "email_hash")
+    private String emailHash;
+
+    @Column(name = "registration_ip")
+    private String registrationIp;
+
+    @Column(name = "registration_user_agent", columnDefinition = "TEXT")
+    private String registrationUserAgent;
+
+    @Column(name = "trial_start_date")
+    private LocalDateTime trialStartDate;
+
+    @Column(name = "trial_end_date")
+    private LocalDateTime trialEndDate;
+
+    @Column(name = "subscription_status")
+    private String subscriptionStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -64,6 +88,9 @@ public class User implements UserDetails {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (isActive == null) isActive = true;
+        if (subscriptionStatus == null) subscriptionStatus = "TRIAL";
+        if (trialStartDate == null) trialStartDate = LocalDateTime.now();
+        if (trialEndDate == null) trialEndDate = LocalDateTime.now().plusDays(7);
     }
 
     @PreUpdate

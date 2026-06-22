@@ -15,7 +15,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByPhone(username)
+        String phoneHash = HashUtil.sha256(username);
+        return userRepository.findByPhoneHash(phoneHash)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with phone: " + username));
     }
 }

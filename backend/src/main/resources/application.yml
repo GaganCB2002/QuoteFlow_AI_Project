@@ -1,4 +1,12 @@
 spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
   datasource:
     url: ${DB_URL}
     driverClassName: ${DB_DRIVER}

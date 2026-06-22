@@ -7,6 +7,7 @@ import com.quoteflow.backend.entity.Role;
 import com.quoteflow.backend.entity.User;
 import com.quoteflow.backend.repository.UserRepository;
 import com.quoteflow.backend.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.quoteflow.backend.security.HashUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,7 +37,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody AuthRequest authRequest, HttpServletRequest request) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword())
@@ -47,12 +49,28 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getPhone());
         final String jwt = jwtUtil.generateToken(userDetails);
 
+        if (userDetails instanceof User user) {
+            try {
+                String ipAddress = request.getHeader("X-Forwarded-For");
+                if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+                    ipAddress = request.getRemoteAddr();
+                }
+                user.setRegistrationIp(ipAddress);
+                user.setRegistrationUserAgent(request.getHeader("User-Agent"));
+                userRepository.save(user);
+            } catch (Exception ignored) {
+            }
+        }
+
         return ResponseEntity.ok(new AuthResponse(jwt));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
-        if (userRepository.existsByPhone(registerRequest.getPhone())) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest request) {
+        String phoneHash = HashUtil.sha256(registerRequest.getPhone());
+        String emailHash = HashUtil.sha256(registerRequest.getEmail());
+
+        if (userRepository.existsByPhoneHash(phoneHash)) {
             return ResponseEntity.badRequest().body("Phone number is already registered.");
         }
 
@@ -70,12 +88,26 @@ public class AuthController {
             role = Role.ROLE_USER;
         }
 
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+        String userAgent = request.getHeader("User-Agent");
+
         User user = User.builder()
                 .name(registerRequest.getName())
                 .email(registerRequest.getEmail())
                 .phone(registerRequest.getPhone())
+                .phoneHash(phoneHash)
+                .emailHash(emailHash)
                 .passwordHash(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(role)
+                .registrationIp(ipAddress)
+                .registrationUserAgent(userAgent)
+                .trialStartDate(java.time.LocalDateTime.now())
+                .trialEndDate(java.time.LocalDateTime.now().plusDays(7))
+                .subscriptionStatus("TRIAL")
+                .isActive(true)
                 .build();
 
         userRepository.save(user);
