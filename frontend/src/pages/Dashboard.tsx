@@ -1,5 +1,6 @@
-import React from 'react';
-import { FileText, Receipt, DollarSign, Target, Users, ShieldAlert, Plus, UserPlus, FilePlus2, ChevronRight, TrendingUp, TrendingDown, IndianRupee, Gift, Clock, AlertTriangle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { FileText, Receipt, Target, Users, ShieldAlert, Plus, UserPlus, FilePlus2, ChevronRight, TrendingUp, TrendingDown, IndianRupee, Gift } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
 
 const formatINR = (amount: number) =>
@@ -36,6 +37,12 @@ const statusBadge = (status: string) => {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Dashboard | QuoteFlow AI';
+  }, []);
+
   return (
     <Layout>
       <div className="p-8 max-w-7xl mx-auto">
@@ -49,7 +56,10 @@ const Dashboard = () => {
                 <p className="text-xs text-indigo-200 mt-0.5">6 days remaining in your 7-day free trial</p>
               </div>
             </div>
-            <button className="px-4 py-2 bg-white text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-sm">
+            <button
+              onClick={() => navigate('/settings')}
+              className="px-4 py-2 bg-white text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-sm"
+            >
               Upgrade Now
             </button>
           </div>
@@ -106,7 +116,10 @@ const Dashboard = () => {
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-[16px] font-extrabold text-gray-900">Recent Quotations</h3>
-              <button className="text-[13px] font-bold text-brand-gold-600 hover:text-brand-gold-700 flex items-center">
+              <button
+                onClick={() => navigate('/my-quotations')}
+                className="text-[13px] font-bold text-brand-gold-600 hover:text-brand-gold-700 flex items-center"
+              >
                 View All <ChevronRight size={14} className="ml-0.5" />
               </button>
             </div>
@@ -148,15 +161,24 @@ const Dashboard = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-6">
             <h3 className="text-[16px] font-extrabold text-gray-900 mb-6">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-bold bg-brand-gold-600 hover:bg-brand-gold-700 shadow-sm transition-all text-[13px]">
+              <button
+                onClick={() => navigate('/estimation')}
+                className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-bold bg-brand-gold-600 hover:bg-brand-gold-700 shadow-sm transition-all text-[13px]"
+              >
                 <Plus size={16} className="mr-2" strokeWidth={3} />
                 New Estimation
               </button>
-              <button className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-gray-700 font-bold bg-white border border-[#e8e2d8] hover:bg-gray-50 transition-all text-[13px]">
+              <button
+                onClick={() => navigate('/customers')}
+                className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-gray-700 font-bold bg-white border border-[#e8e2d8] hover:bg-gray-50 transition-all text-[13px]"
+              >
                 <UserPlus size={16} className="mr-2" strokeWidth={2.5} />
                 Add Customer
               </button>
-              <button className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-gray-700 font-bold bg-white border border-[#e8e2d8] hover:bg-gray-50 transition-all text-[13px]">
+              <button
+                onClick={() => navigate('/invoices/new')}
+                className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-gray-700 font-bold bg-white border border-[#e8e2d8] hover:bg-gray-50 transition-all text-[13px]"
+              >
                 <FilePlus2 size={16} className="mr-2" strokeWidth={2.5} />
                 New Invoice
               </button>

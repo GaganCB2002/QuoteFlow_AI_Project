@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { DollarSign, IndianRupee, TrendingUp, TrendingDown, BarChart3, PieChart, ArrowUpRight, ArrowDownRight, Calendar, Download, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { IndianRupee, TrendingUp, TrendingDown, PieChart, ArrowUpRight, ArrowDownRight, Calendar, Download, MoreHorizontal } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -18,6 +18,9 @@ const transactionsData = [
 ];
 
 const Finance = () => {
+  useEffect(() => {
+    document.title = 'Finance & Analytics | QuoteFlow AI';
+  }, []);
   const [filter, setFilter] = useState<'All' | 'Income' | 'Expense'>('All');
 
   const filtered = filter === 'All' ? transactionsData : transactionsData.filter(t => t.type === filter);

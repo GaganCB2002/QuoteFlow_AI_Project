@@ -1,12 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   FileText, Send, Check, IndianRupee, Globe, Server, Database,
-  Smartphone, ShoppingCart, Users, Lock, Bell, MessageCircle,
-  BarChart3, Monitor, LayoutDashboard, Mail, Zap, Shield,
-  Cloud, Wifi, ChevronRight, Sparkles, ArrowRight, RefreshCw,
-  Key, CreditCard, Download
+  Smartphone, ShoppingCart, Lock, Bell,
+  BarChart3, Monitor, LayoutDashboard, Zap, Shield,
+  Cloud, RefreshCw,
+  CreditCard, Download, AlertCircle, Sparkles, Edit3, Share2
 } from 'lucide-react';
+import ShareDialog from '../components/ShareDialog';
+import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
+import { aiApi, agentApi } from '../api';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
 
@@ -92,6 +95,25 @@ const defaultModules = [
   { id: 'delivery', label: 'Delivery Tracking', cost: 12000 },
 ];
 
+interface AgentResult {
+  quoteNo: string;
+  projectType: string;
+  projectName: string;
+  summary: string;
+  confidenceScore: number;
+  marketResearch: any;
+  costBreakdown: any;
+  tieredPricing: any;
+  featureSuggestions: any;
+  lineItems: any[];
+  deliverables: string[];
+  competitorComparison: any[];
+  marketInsights: Record<string, string>;
+  storage: { folderPath: string; files: string[]; quoteNo: string };
+  timeline: any[];
+  paymentTerms: any[];
+}
+
 interface ProjectForm {
   description: string;
   projectType: string;
@@ -137,10 +159,18 @@ const initialForm: ProjectForm = {
 };
 
 const Estimation = () => {
-  const [mode, setMode] = useState<'chat' | 'wizard'>('chat');
+  const navigate = useNavigate();
+  useEffect(() => {
+    document.title = 'AI Project Estimation | QuoteFlow AI';
+  }, []);
+  const [mode, setMode] = useState<'chat' | 'wizard' | 'agent'>('chat');
   const [form, setForm] = useState<ProjectForm>(initialForm);
   const [showQuotation, setShowQuotation] = useState(false);
   const [aiProcessing, setAiProcessing] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiConfidence, setAiConfidence] = useState<number | null>(null);
+  const [agentResult, setAgentResult] = useState<AgentResult | null>(null);
+  const [showShare, setShowShare] = useState(false);
 
   const update = (field: keyof ProjectForm, value: any) =>
     setForm(prev => ({ ...prev, [field]: value }));
@@ -194,10 +224,99 @@ const Estimation = () => {
     };
   }, [form]);
 
-  const simulateAI = () => {
+  const mapAiResultToForm = (result: any) => {
+    const projectTypeMap: Record<string, string> = {
+      WEBSITE: 'website', MOBILE_APP: 'mobile', ERP: 'erp',
+      CRM: 'erp', E_COMMERCE: 'ecommerce', BILLING_SOFTWARE: 'saas',
+      CUSTOM_SOFTWARE: 'custom',
+    };
+
+    const pt = result.projectType || '';
+    update('projectType', projectTypeMap[pt] || 'website');
+
+    if (result.infrastructure) {
+      update('needDomain', result.infrastructure.domain || false);
+      if (result.infrastructure.domainName) update('domain', result.infrastructure.domainName);
+      update('needHosting', result.infrastructure.hosting || false);
+      if (result.infrastructure.hostingType) {
+        const ht = result.infrastructure.hostingType.toLowerCase();
+        update('hostingType', ['shared','vps','cloud','dedicated'].includes(ht) ? ht : 'cloud');
+      }
+      update('needDatabase', result.infrastructure.database || false);
+      if (result.infrastructure.databaseType) {
+        update('databaseType', result.infrastructure.databaseType.toLowerCase());
+      }
+      update('needSSL', result.infrastructure.ssl || false);
+    }
+
+    const feat = result.detectedFeatures || [];
+    const mods = result.detectedModules || [];
+
+    const moduleMap: Record<string, string> = {
+      'Student Management': 'studentPortal', 'Fee Management': 'paymentGateway',
+      'Attendance': 'login', 'Exam Management': 'seo',
+      'Result Management': 'seo', 'Teacher Management': 'adminPanel',
+      'Inventory': 'inventory', 'HR': 'adminPanel', 'Accounts': 'gst',
+      'Lead Management': 'crm', 'Contact Management': 'crm',
+    };
+
+    const mappedModules = new Set<string>();
+    mods.forEach((m: string) => {
+      const key = Object.keys(moduleMap).find(k => m.toLowerCase().includes(k.toLowerCase()));
+      if (key && moduleMap[key]) mappedModules.add(moduleMap[key]);
+    });
+    feat.forEach((f: string) => {
+      if (f === 'adminPanel') mappedModules.add('adminPanel');
+      if (f === 'paymentGateway') mappedModules.add('paymentGateway');
+      if (f === 'inventory') mappedModules.add('inventory');
+      if (f === 'gstSupport' || f === 'gst') mappedModules.add('gst');
+      if (f === 'crm' || f === 'leadManagement') mappedModules.add('crm');
+      if (f === 'chat') mappedModules.add('chat');
+      if (f === 'maps') mappedModules.add('maps');
+      if (f === 'multiLanguage') mappedModules.add('multiLanguage');
+      if (f === 'blog') mappedModules.add('blog');
+      if (f === 'seo') mappedModules.add('seo');
+    });
+
+    if (mappedModules.size === 0) {
+      mappedModules.add('login');
+      mappedModules.add('adminPanel');
+    }
+
+    update('modules', Array.from(mappedModules));
+
+    if (feat.includes('adminPanel')) update('adminFeatures', ['dashboard', 'users', 'reports']);
+    if (feat.includes('paymentGateway') || feat.includes('razorpay')) {
+      update('paymentGateways', ['razorpay', 'upi']);
+    }
+    if (feat.includes('emailIntegration') || feat.includes('google')) {
+      const methods = ['email'];
+      if (feat.includes('google')) methods.push('google');
+      if (feat.includes('mobile') || feat.includes('sms')) methods.push('mobile');
+      update('authMethods', methods);
+    } else if (feat.includes('mobile') || feat.includes('sms')) {
+      update('authMethods', ['email', 'mobile']);
+    }
+    if (feat.includes('pushNotifications')) update('notifications', ['push', 'email']);
+    if (feat.includes('analytics')) update('aiFeatures', ['analytics']);
+    if (feat.includes('chatbot')) update('aiFeatures', ['chatbot']);
+  };
+
+  const simulateAI = async () => {
     if (!form.description.trim()) return;
     setAiProcessing(true);
-    setTimeout(() => {
+    setAiError(null);
+    setAiConfidence(null);
+
+    try {
+      const result = await aiApi.analyze({ description: form.description });
+      mapAiResultToForm(result);
+      if (result.confidence) setAiConfidence(result.confidence);
+    } catch (err: any) {
+      console.warn('AI API unavailable, using rule-based estimation:', err.message);
+      setAiError('AI service unavailable. Using rule-based estimation.');
+      setTimeout(() => setAiError(null), 5000);
+
       const desc = form.description.toLowerCase();
       if (desc.includes('school') || desc.includes('college') || desc.includes('education')) {
         update('projectType', 'website');
@@ -238,13 +357,39 @@ const Estimation = () => {
         update('needDatabase', true);
         update('authMethods', ['email']);
       }
-      setAiProcessing(false);
-    }, 1500);
+    }
+    setAiProcessing(false);
+  };
+
+  const analyzeWithAgent = async () => {
+    if (!form.description.trim()) return;
+    setAiProcessing(true);
+    setAgentResult(null);
+    setAiError(null);
+
+    try {
+      const result = await agentApi.analyze({
+        description: form.description,
+        customerName: localStorage.getItem('userName') || 'Client',
+        customerCompany: localStorage.getItem('companyName') || localStorage.getItem('userCompany') || 'Client Company'
+      });
+      setAgentResult(result);
+      setAiConfidence(result.confidenceScore);
+      setShowQuotation(true);
+    } catch (err: any) {
+      console.error('Agent analysis error:', err);
+      setAiError('Agent analysis failed. Using local estimation instead.');
+      setTimeout(() => setAiError(null), 6000);
+    }
+    setAiProcessing(false);
   };
 
   const resetForm = () => {
     setForm(initialForm);
     setShowQuotation(false);
+    setAiError(null);
+    setAiConfidence(null);
+    setAgentResult(null);
   };
 
   return (
@@ -268,6 +413,12 @@ const Estimation = () => {
               className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${mode === 'wizard' ? 'bg-brand-gold-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-[#e8e2d8]'}`}
             >
               <Monitor size={14} className="inline mr-1.5" />Wizard
+            </button>
+            <button
+              onClick={() => { setMode('agent'); resetForm(); }}
+              className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${mode === 'agent' ? 'bg-purple-600 text-white shadow-sm' : 'bg-white text-purple-600 border border-purple-300'}`}
+            >
+              <Zap size={14} className="inline mr-1.5" />AI Agent
             </button>
           </div>
         </div>
@@ -295,9 +446,25 @@ const Estimation = () => {
                   {aiProcessing ? (
                     <><RefreshCw size={16} className="animate-spin" /> Analyzing...</>
                   ) : (
-                    <><Zap size={16} /> Analyze & Auto-Fill</>
+                    <><Zap size={16} /> Analyze with AI</>
                   )}
                 </button>
+
+                {aiConfidence !== null && (
+                  <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-[12px]">
+                    <Check size={14} className="text-emerald-600" />
+                    <span className="text-emerald-700 font-semibold">AI Analysis Complete</span>
+                    <span className="text-emerald-500">·</span>
+                    <span className="text-emerald-600 font-bold">{aiConfidence}% confidence</span>
+                  </div>
+                )}
+
+                {aiError && (
+                  <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-[12px]">
+                    <AlertCircle size={14} className="text-amber-600" />
+                    <span className="text-amber-700">{aiError}</span>
+                  </div>
+                )}
 
                 {/* Quick Examples */}
                 <div className="mt-5 pt-5 border-t border-[#e8e2d8]">
@@ -319,6 +486,40 @@ const Estimation = () => {
                     ))}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Agent Mode */}
+            {mode === 'agent' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Zap size={20} className="text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-extrabold text-gray-900">AI Agent Analysis</h3>
+                    <p className="text-[13px] text-gray-500">Comprehensive market research + intelligent quotation generation</p>
+                  </div>
+                </div>
+                <textarea
+                  value={form.description}
+                  onChange={e => update('description', e.target.value)}
+                  rows={5}
+                  placeholder='e.g. "I need a complete school ERP system with student management, fee tracking, attendance, exam management, teacher portal, SMS notifications, and mobile app access"'
+                  className="w-full px-4 py-3.5 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all resize-none"
+                />
+                <button
+                  onClick={analyzeWithAgent}
+                  disabled={aiProcessing || !form.description.trim()}
+                  className="mt-4 w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-purple-600 text-white font-bold text-[14px] rounded-xl hover:bg-purple-700 transition-all disabled:opacity-40 shadow-sm"
+                >
+                  {aiProcessing ? (
+                    <><RefreshCw size={18} className="animate-spin" /> AI Agent is Researching & Analyzing...</>
+                  ) : (
+                    <><Zap size={18} /> Launch AI Agent</>
+                  )}
+                </button>
+                <p className="mt-3 text-[12px] text-gray-400 text-center">Agent will research market pricing, analyze competitors, and generate a complete quotation with all details saved locally.</p>
               </div>
             )}
 
@@ -650,7 +851,14 @@ const Estimation = () => {
             {/* Chat mode: Generate Quotation button */}
             {mode === 'chat' && form.projectType && (
               <button
-                onClick={() => setShowQuotation(true)}
+                onClick={async () => {
+                  setShowQuotation(true);
+                  try {
+                    await aiApi.generateQuotation({ description: form.description });
+                  } catch (e) {
+                    console.warn('Could not save quotation to server, showing locally:', e);
+                  }
+                }}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-brand-gold-600 text-white font-bold text-[14px] rounded-xl hover:bg-brand-gold-700 shadow-lg transition-all"
               >
                 <FileText size={18} /> Generate Quotation
@@ -707,12 +915,259 @@ const Estimation = () => {
                   <FileText size={16} /> Generate Quotation
                 </button>
               )}
+              {mode === 'agent' && (
+                <div className="mt-5 p-3 bg-purple-50 border border-purple-200 rounded-xl text-center">
+                  <p className="text-[12px] text-purple-700 font-semibold">Use the Agent panel above to generate a comprehensive quotation with market research.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Quotation Result */}
-        {showQuotation && (
+        {/* Agent Result */}
+        {agentResult && (
+          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                  <Check size={24} className="text-purple-600" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-[20px] font-extrabold text-gray-900">AI Agent Complete</h3>
+                  <p className="text-[13px] text-gray-500">
+                    {agentResult.projectName} &middot; {agentResult.quoteNo} &middot;
+                    <span className="text-purple-600 font-bold ml-1">{agentResult.confidenceScore}% confidence</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={resetForm} className="px-4 py-2 text-[13px] font-bold text-gray-600 border border-[#e8e2d8] rounded-xl hover:bg-gray-50 transition-all">
+                  <RefreshCw size={14} className="inline mr-1.5" /> New
+                </button>
+                <button onClick={() => setShowShare(true)} className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
+                  <Share2 size={14} /> Share
+                </button>
+                <button onClick={() => agentApi.downloadAll(agentResult.quoteNo)} className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 shadow-sm transition-all">
+                  <Download size={14} /> Download All
+                </button>
+                <button onClick={() => navigate(`/my-quotations/${agentResult.quoteNo}/edit`)}
+                  className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-purple-700 bg-white border-2 border-purple-300 rounded-xl hover:bg-purple-50 shadow-sm transition-all">
+                  <Edit3 size={14} /> Edit Quotation
+                </button>
+              </div>
+            </div>
+
+            {/* Market Research Banner */}
+            <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-8 text-white mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-[12px] opacity-80 mb-1">Market Demand</p>
+                  <p className="text-[14px] font-black">{agentResult.marketResearch?.marketDemand?.split(' - ')[0] || 'HIGH'}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] opacity-80 mb-1">Complexity</p>
+                  <p className="text-[14px] font-black">{agentResult.marketResearch?.complexity || 'MODERATE'}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] opacity-80 mb-1">Market Range</p>
+                  <p className="text-[14px] font-black">{agentResult.marketResearch?.marketPriceRange || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-[12px] opacity-80 mb-1">Timeline</p>
+                  <p className="text-[14px] font-black">{agentResult.marketResearch?.timelineEstimate || '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 text-center">
+                <p className="text-[12px] text-emerald-700 font-bold mb-1">Total Project Cost</p>
+                <p className="text-[24px] font-black text-emerald-700">{formatINR(agentResult.costBreakdown?.totalProjectCost || 0)}</p>
+              </div>
+              <div className="bg-amber-50 rounded-xl p-5 border border-amber-200 text-center">
+                <p className="text-[12px] text-amber-700 font-bold mb-1">Final Quote (excl. GST)</p>
+                <p className="text-[24px] font-black text-amber-700">{formatINR(agentResult.costBreakdown?.finalQuote || 0)}</p>
+              </div>
+              <div className="bg-brand-gold-50 rounded-xl p-5 border border-brand-gold-300 text-center">
+                <p className="text-[12px] text-brand-gold-700 font-bold mb-1">Grand Total (incl. GST)</p>
+                <p className="text-[28px] font-black text-brand-gold-700">{formatINR(agentResult.costBreakdown?.grandTotal || 0)}</p>
+              </div>
+            </div>
+
+            {/* Tiered Pricing */}
+            {agentResult.tieredPricing?.basic && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                {['basic', 'standard', 'premium'].map(tierKey => {
+                  const t = agentResult.tieredPricing[tierKey];
+                  if (!t) return null;
+                  const isRec = tierKey === 'standard';
+                  return (
+                    <div key={tierKey}
+                      className={`rounded-xl border-2 p-4 ${isRec ? 'border-purple-400 bg-purple-50' : 'border-[#e8e2d8] bg-white'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-[14px] font-extrabold text-gray-900">{t.name}</h4>
+                        {isRec && <span className="px-2 py-0.5 bg-purple-200 text-purple-800 text-[10px] font-bold rounded-full">Best Value</span>}
+                      </div>
+                      <p className="text-[11px] text-gray-500 mb-2">{t.description}</p>
+                      <p className="text-[22px] font-black text-gray-900">{formatINR(t.grandTotal)}</p>
+                      <div className="mt-2 space-y-1 text-[12px]">
+                        <div className="flex justify-between"><span className="text-gray-500">Admin earns</span><span className="font-bold text-emerald-600">+{formatINR(t.adminRevenuePerSale)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Customer pays</span><span className="font-bold">{formatINR(t.grandTotal)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500">Margin</span><span className="font-bold">{t.marginPct?.toFixed(0)}%</span></div>
+                        {t.customerSavings > 0 && (
+                          <div className="flex justify-between"><span className="text-gray-500">Saves customer</span><span className="font-bold text-emerald-600">{formatINR(t.customerSavings)}</span></div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Feature Suggestions */}
+            {agentResult.featureSuggestions?.highPriorityFeatures?.length > 0 && (
+              <div className="bg-white rounded-xl border border-purple-200 p-5 mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[14px] font-extrabold text-gray-900 flex items-center gap-2">
+                    <Zap size={16} className="text-purple-600" /> AI-Recommended Add-Ons
+                  </h4>
+                  <div className="flex gap-3 text-[12px]">
+                    <span className="text-purple-700 font-bold">+{formatINR(agentResult.featureSuggestions.totalPotentialRevenue)} revenue</span>
+                    <span className="text-emerald-600 font-bold">+{formatINR(agentResult.featureSuggestions.totalPotentialProfit)} profit</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {agentResult.featureSuggestions.highPriorityFeatures.map((s: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold text-gray-900">{s.name}</p>
+                        <p className="text-[12px] text-gray-500">{s.recommendationReason}</p>
+                      </div>
+                      <div className="text-right text-[12px] shrink-0 ml-3">
+                        <p className="font-bold text-gray-900">{formatINR(s.sellingPrice)}</p>
+                        <p className="text-emerald-600 font-bold">+{formatINR(s.adminProfit)} admin</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Modules & Items */}
+              <div className="bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Detected Modules & Pricing</h4>
+                <div className="space-y-2 text-[13px]">
+                  {agentResult.marketResearch?.detectedModules?.map((m: string, i: number) => {
+                    const mp = agentResult.marketResearch?.modulePrices?.find((p: any) => p.name === m);
+                    return (
+                      <div key={i} className="flex justify-between items-center py-1.5 border-b border-[#e8e2d8]/50 last:border-0">
+                        <span className="text-gray-700">{m}</span>
+                        <span className="font-semibold text-gray-900">{mp ? formatINR(mp.price) : '-'}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Competitor Comparison */}
+              <div className="bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Market Competitor Comparison</h4>
+                <div className="space-y-2 text-[13px]">
+                  {agentResult.competitorComparison?.map((c: any, i: number) => (
+                    <div key={i} className={`flex justify-between items-center py-1.5 border-b border-[#e8e2d8]/50 last:border-0 ${c.isRecommended ? 'bg-purple-50 -mx-3 px-3 rounded-lg' : ''}`}>
+                      <span className={`${c.isRecommended ? 'text-purple-700 font-bold' : 'text-gray-600'}`}>
+                        {c.isRecommended ? '★ ' : ''}{c.provider}
+                      </span>
+                      <span className={`font-semibold ${c.isRecommended ? 'text-purple-700' : 'text-gray-900'}`}>{c.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Deliverables */}
+            {agentResult.deliverables?.length > 0 && (
+              <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Deliverables</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {agentResult.deliverables.map((d: string, i: number) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-[#e8e2d8] text-[12px]">
+                      <Check size={12} className="text-emerald-600 shrink-0" />
+                      <span className="text-gray-700">{d}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Payment Terms */}
+            {agentResult.paymentTerms?.length > 0 && (
+              <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Payment Milestones</h4>
+                <div className="space-y-2 text-[13px]">
+                  {agentResult.paymentTerms.map((pt: any, i: number) => (
+                    <div key={i} className="flex items-center gap-4 py-2 border-b border-[#e8e2d8]/50 last:border-0">
+                      <div className="w-20 text-center">
+                        <span className="px-2 py-1 bg-brand-gold-100 text-brand-gold-700 font-bold text-[12px] rounded-md">{pt.percentage}%</span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900">{pt.milestone}</p>
+                        <p className="text-gray-500 text-[12px]">{pt.condition}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Timeline */}
+            {agentResult.timeline?.length > 0 && (
+              <div className="mt-6 bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Project Timeline</h4>
+                <div className="space-y-2 text-[13px]">
+                  {agentResult.timeline.map((t: any, i: number) => (
+                    <div key={i} className="flex items-start gap-3 py-2 border-b border-[#e8e2d8]/50 last:border-0">
+                      <div className="w-2 h-2 rounded-full bg-brand-gold-500 mt-1.5 shrink-0" />
+                      <div>
+                        <p className="font-bold text-gray-900">{t.phase}</p>
+                        <p className="text-gray-500 text-[12px]">{t.duration} - {t.details}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Market Insights */}
+            {agentResult.marketInsights && Object.keys(agentResult.marketInsights).length > 0 && (
+              <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-[13px] text-amber-800">
+                <p className="font-bold mb-2">Market Insights</p>
+                {Object.entries(agentResult.marketInsights).map(([key, value]) => (
+                  <p key={key} className="text-[12px] mb-1"><span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span> {value}</p>
+                ))}
+              </div>
+            )}
+
+            {/* Storage Info */}
+            {agentResult.storage && (
+              <div className="mt-4 p-4 bg-gray-50 border border-[#e8e2d8] rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[13px] font-bold text-gray-900 mb-1">Saved Locally</p>
+                    <p className="text-[11px] text-gray-500 font-mono break-all">{agentResult.storage.folderPath}</p>
+                  </div>
+                  <button onClick={() => agentApi.downloadAll(agentResult.quoteNo)} className="flex items-center gap-2 px-3 py-2 text-[12px] font-bold text-purple-600 border border-purple-300 rounded-lg hover:bg-purple-50 transition-all shrink-0 ml-4">
+                    <Download size={13} /> Download Files
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quotation Result (non-agent mode) */}
+        {showQuotation && !agentResult && (
           <div className="mt-8 bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-8">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -725,16 +1180,15 @@ const Estimation = () => {
                 </div>
               </div>
               <div className="flex gap-2">
+                <button onClick={() => setShowShare(true)} className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
+                  <Share2 size={14} /> Share
+                </button>
                 <button onClick={resetForm} className="px-4 py-2 text-[13px] font-bold text-gray-600 border border-[#e8e2d8] rounded-xl hover:bg-gray-50 transition-all">
                   <RefreshCw size={14} className="inline mr-1.5" /> New Quote
-                </button>
-                <button className="px-4 py-2 text-[13px] font-bold text-white bg-brand-gold-600 rounded-xl hover:bg-brand-gold-700 shadow-sm transition-all">
-                  <Download size={14} className="inline mr-1.5" /> Download PDF
                 </button>
               </div>
             </div>
 
-            {/* Cost Breakdown */}
             <div className="bg-gradient-to-br from-brand-gold-500 to-brand-gold-700 rounded-2xl p-8 text-white mb-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
@@ -753,7 +1207,6 @@ const Estimation = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Detailed Breakdown */}
               <div className="bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
                 <h4 className="text-[13px] font-bold text-gray-900 mb-3 flex items-center gap-1.5">
                   <BarChart3 size={16} className="text-brand-gold-600" /> Cost Breakdown
@@ -779,7 +1232,6 @@ const Estimation = () => {
                 </div>
               </div>
 
-              {/* Included Features */}
               <div className="bg-gray-50 rounded-xl p-5 border border-[#e8e2d8]">
                 <h4 className="text-[13px] font-bold text-gray-900 mb-3 flex items-center gap-1.5">
                   <Check size={16} className="text-emerald-600" /> Included Deliverables
@@ -819,21 +1271,26 @@ const Estimation = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="mt-8 pt-6 border-t border-[#e8e2d8] flex flex-wrap gap-3 justify-end">
-              <button className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-gray-700 bg-white border border-[#e8e2d8] rounded-xl hover:bg-gray-50 transition-all">
+              <button onClick={() => navigate('/my-quotations')} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-gray-700 bg-white border border-[#e8e2d8] rounded-xl hover:bg-gray-50 transition-all">
                 <FileText size={16} /> View Proposal
               </button>
-              <button className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-brand-gold-600 rounded-xl hover:bg-brand-gold-700 shadow-sm transition-all">
+              <button onClick={() => navigate('/quotations/new')} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-brand-gold-600 rounded-xl hover:bg-brand-gold-700 shadow-sm transition-all">
                 <Send size={16} /> Send to Client
               </button>
-              <button className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
+              <button onClick={() => { const blob = new Blob([JSON.stringify({ description: form.description, costs }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `quotation-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); }} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
                 <Download size={16} /> Download Quotation
               </button>
             </div>
           </div>
         )}
       </div>
+
+      <ShareDialog
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        quotationText={`Project Estimation from QuoteFlow AI - ${form.projectType || 'Custom'} - Total: ${formatINR(costs.finalTotal)}`}
+      />
     </Layout>
   );
 };

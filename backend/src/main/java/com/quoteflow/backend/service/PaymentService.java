@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -66,6 +67,15 @@ public class PaymentService {
     public PaymentTransaction getPaymentById(UUID id) {
         return paymentTransactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
+    }
+
+    @Transactional
+    public PaymentTransaction updatePayment(UUID id, Map<String, Object> body) {
+        PaymentTransaction payment = paymentTransactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        if (body.containsKey("status")) payment.setStatus((String) body.get("status"));
+        if (body.containsKey("paymentMode")) payment.setPaymentMode((String) body.get("paymentMode"));
+        return paymentTransactionRepository.save(payment);
     }
 
     public String generatePaymentLink(UUID paymentId) {

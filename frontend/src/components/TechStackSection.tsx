@@ -1,6 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Code2, Database, Layout, Server, Layers, Smartphone, Globe, Cpu } from 'lucide-react';
 
+function ZapIcon(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
 const techStack = [
   { name: 'React.js', icon: Globe, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
   { name: 'TypeScript', icon: Code2, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
@@ -11,14 +19,6 @@ const techStack = [
   { name: 'Vite', icon: ZapIcon, color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
   { name: 'Docker', icon: Layers, color: 'text-blue-600', bg: 'bg-blue-600/10', border: 'border-blue-600/20' }
 ];
-
-function ZapIcon(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
 
 const TechStackSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);

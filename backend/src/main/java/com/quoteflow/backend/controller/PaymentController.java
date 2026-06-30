@@ -45,10 +45,7 @@ public class PaymentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PaymentTransaction> updatePayment(@PathVariable UUID id, @RequestBody Map<String, Object> body) {
-        PaymentTransaction payment = paymentService.getPaymentById(id);
-        if (body.containsKey("status")) payment.setStatus((String) body.get("status"));
-        if (body.containsKey("paymentMode")) payment.setPaymentMode((String) body.get("paymentMode"));
-        return ResponseEntity.ok(payment);
+        return ResponseEntity.ok(paymentService.updatePayment(id, body));
     }
 
     @DeleteMapping("/{id}")

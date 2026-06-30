@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Plus, MoreVertical, Mail, Phone, IndianRupee, Building2, Star, TrendingUp, Users, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, MoreVertical, Mail, Phone, IndianRupee, Star, Users, UserCheck } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -14,6 +14,9 @@ const customersData = [
 ];
 
 const CustomerList = () => {
+  useEffect(() => {
+    document.title = 'Customers | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
 

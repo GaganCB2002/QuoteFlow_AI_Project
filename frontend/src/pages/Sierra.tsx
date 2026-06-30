@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BarChart3, Search, Plus, UserPlus, Phone, Mail, Calendar, ChevronRight, MoreHorizontal, IndianRupee, TrendingUp, Users, Target } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, Search, Plus, Phone, Mail, MoreHorizontal, IndianRupee, TrendingUp, Users, Target } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -26,6 +26,9 @@ const stageColors: Record<string, string> = {
 };
 
 const Sierra = () => {
+  useEffect(() => {
+    document.title = 'Sierra CRM | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'pipeline' | 'table'>('pipeline');
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Eye, Search, TrendingUp, TrendingDown, Globe, Smartphone, Monitor, MapPin, Clock, ArrowUpRight, Users, BarChart3, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, Search, TrendingUp, Smartphone, Monitor, Clock, Users, BarChart3 } from 'lucide-react';
 import Layout from './Layout';
 
 const visitorsData = [
@@ -18,6 +18,9 @@ const totalVisits = visitorsData.reduce((s, v) => s + v.visits, 0);
 const totalUnique = visitorsData.reduce((s, v) => s + v.uniqueVisitors, 0);
 
 const Visitors = () => {
+  useEffect(() => {
+    document.title = 'Visitor Tracking | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
 
   const filtered = visitorsData.filter(v =>

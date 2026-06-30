@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Package, Plus, Search, Edit3, Trash2, IndianRupee, Tag, Grid3X3, List, Box, Layers } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, Plus, Search, Edit3, Trash2, IndianRupee, Grid3X3, List } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -16,6 +16,9 @@ const initialProducts = [
 ];
 
 const Products = () => {
+  useEffect(() => {
+    document.title = 'Products & Services | QuoteFlow AI';
+  }, []);
   const [products, setProducts] = useState(initialProducts);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');

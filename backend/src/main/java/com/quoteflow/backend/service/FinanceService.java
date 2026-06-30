@@ -19,6 +19,7 @@ public class FinanceService {
     private final IncomeRepository incomeRepository;
     private final ExpenseRepository expenseRepository;
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
 
     public Income createIncome(UUID companyId, UUID invoiceId, UUID customerId, String description,
                                 BigDecimal amount, LocalDate incomeDate, String paymentMode, String reference) {
@@ -42,10 +43,7 @@ public class FinanceService {
                                   String paymentMode, String reference) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new RuntimeException("Company not found"));
-        User createdBy = createdById != null ? new User() : null;
-        if (createdById != null) {
-            createdBy.setId(createdById);
-        }
+        User createdBy = createdById != null ? userRepository.getReferenceById(createdById) : null;
         BigDecimal totalAmount = amount.add(taxAmount != null ? taxAmount : BigDecimal.ZERO);
         Expense expense = Expense.builder()
                 .company(company)

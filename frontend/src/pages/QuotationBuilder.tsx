@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { FileText, Plus, Trash2, Send, Save, Download, User, Building2, Mail, Phone, MapPin, Hash, IndianRupee, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Plus, Send, Save, Download, User, Building2, Mail, Phone, MapPin, Hash, IndianRupee, X, Sparkles, Zap, RefreshCw, Share2 } from 'lucide-react';
+import ShareDialog from '../components/ShareDialog';
 import Layout from './Layout';
+import { aiApi } from '../api';
 
 const formatINR = (amount: number) =>
   '₹' + amount.toLocaleString('en-IN');
@@ -18,6 +20,9 @@ interface LineItem {
 const defaultUnit = 'Nos';
 
 const QuotationBuilder = () => {
+  useEffect(() => {
+    document.title = 'Quotation Builder | QuoteFlow AI';
+  }, []);
   const [step, setStep] = useState(1);
   const [customer, setCustomer] = useState({
     name: '',
@@ -33,6 +38,10 @@ const QuotationBuilder = () => {
   const [quoteNo] = useState('QT-' + Date.now().toString().slice(-8));
   const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const [validTill, setValidTill] = useState('');
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiProcessing, setAiProcessing] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   const updateItem = (id: number, field: keyof LineItem, value: any) =>
     setItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -64,14 +73,120 @@ const QuotationBuilder = () => {
             <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight">New Quotation</h2>
             <p className="text-[14px] text-gray-500 font-medium mt-1">Create a professional quotation with all details.</p>
           </div>
-          <div className="flex items-center gap-2 text-[13px] text-gray-400 font-medium">
-            <span>Step {step} of 2</span>
-            <div className="flex gap-1">
-              <div className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
-              <div className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAiAssistant(true)}
+              className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl hover:bg-purple-100 transition-all"
+            >
+              <Sparkles size={15} /> AI Assistant
+            </button>
+            <div className="flex items-center gap-2 text-[13px] text-gray-400 font-medium">
+              <span>Step {step} of 2</span>
+              <div className="flex gap-1">
+                <div className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
+                <div className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-brand-gold-500' : 'bg-gray-200'}`} />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* AI Assistant Modal */}
+        {showAiAssistant && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl border border-[#e8e2d8] p-6 w-full max-w-lg mx-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[16px] font-extrabold text-gray-900 flex items-center gap-2">
+                  <Sparkles size={18} className="text-purple-600" /> AI Quotation Assistant
+                </h3>
+                <button onClick={() => { setShowAiAssistant(false); setAiPrompt(''); }} className="text-gray-400 hover:text-gray-600 p-1">
+                  <X size={18} />
+                </button>
+              </div>
+              <p className="text-[13px] text-gray-500 mb-3">Describe what you need and AI will auto-fill the line items.</p>
+              <textarea
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                rows={4}
+                placeholder='e.g. "School ERP system with student management, fee tracking, attendance, exam management, and teacher portal"'
+                className="w-full px-4 py-3 rounded-xl border border-[#e8e2d8] text-[13px] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all resize-none"
+              />
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => setShowAiAssistant(false)}
+                  className="px-4 py-2.5 text-[13px] font-bold text-gray-600 border border-[#e8e2d8] rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!aiPrompt.trim()) return;
+                    setAiProcessing(true);
+                    try {
+                      const result = await aiApi.analyze({ description: aiPrompt });
+                      if (result.items && result.items.length > 0) {
+                        const newItems: LineItem[] = result.items.map((item, idx) => ({
+                          id: Date.now() + idx,
+                          desc: item.itemName,
+                          hsn: '',
+                          qty: item.quantity || 1,
+                          unit: defaultUnit,
+                          price: item.unitPrice || 0,
+                          discount: 0,
+                        }));
+                        setItems(newItems);
+                        if (result.projectName && !customer.company) {
+                          setCustomer(prev => ({ ...prev, company: result.projectName }));
+                        }
+                      }
+                      setShowAiAssistant(false);
+                      setAiPrompt('');
+                    } catch (err: any) {
+                      console.warn('AI fallback:', err.message);
+                      const desc = aiPrompt.toLowerCase();
+                      const fallbackItems: LineItem[] = [];
+                      if (desc.includes('school') || desc.includes('erp') || desc.includes('education')) {
+                        fallbackItems.push(
+                          { id: Date.now(), desc: 'Student Management Module', hsn: '9983', qty: 1, unit: 'Set', price: 25000, discount: 0 },
+                          { id: Date.now() + 1, desc: 'Fee Management System', hsn: '9983', qty: 1, unit: 'Set', price: 15000, discount: 0 },
+                          { id: Date.now() + 2, desc: 'Attendance Tracking', hsn: '9983', qty: 1, unit: 'Set', price: 10000, discount: 0 },
+                          { id: Date.now() + 3, desc: 'Exam & Result Management', hsn: '9983', qty: 1, unit: 'Set', price: 15000, discount: 0 },
+                          { id: Date.now() + 4, desc: 'Teacher Portal', hsn: '9983', qty: 1, unit: 'Set', price: 12000, discount: 0 },
+                          { id: Date.now() + 5, desc: 'Admin Dashboard', hsn: '9983', qty: 1, unit: 'Set', price: 18000, discount: 0 },
+                          { id: Date.now() + 6, desc: 'Payment Gateway Integration', hsn: '9983', qty: 1, unit: 'Set', price: 10000, discount: 0 },
+                          { id: Date.now() + 7, desc: 'SMS/Email Notifications', hsn: '9983', qty: 1, unit: 'Set', price: 8000, discount: 0 },
+                          { id: Date.now() + 8, desc: 'Cloud Hosting Setup (Annual)', hsn: '9983', qty: 1, unit: 'Year', price: 25000, discount: 0 },
+                          { id: Date.now() + 9, desc: 'Domain Registration (.com)', hsn: '9983', qty: 1, unit: 'Year', price: 1200, discount: 0 },
+                        );
+                      } else {
+                        fallbackItems.push(
+                          { id: Date.now(), desc: 'Requirement Analysis & Planning', hsn: '9983', qty: 1, unit: 'Set', price: 10000, discount: 0 },
+                          { id: Date.now() + 1, desc: 'UI/UX Design', hsn: '9983', qty: 1, unit: 'Set', price: 15000, discount: 0 },
+                          { id: Date.now() + 2, desc: 'Frontend Development', hsn: '9983', qty: 1, unit: 'Set', price: 25000, discount: 0 },
+                          { id: Date.now() + 3, desc: 'Backend Development', hsn: '9983', qty: 1, unit: 'Set', price: 30000, discount: 0 },
+                          { id: Date.now() + 4, desc: 'Database Design & Setup', hsn: '9983', qty: 1, unit: 'Set', price: 10000, discount: 0 },
+                          { id: Date.now() + 5, desc: 'Testing & QA', hsn: '9983', qty: 1, unit: 'Set', price: 10000, discount: 0 },
+                          { id: Date.now() + 6, desc: 'Deployment & Launch', hsn: '9983', qty: 1, unit: 'Set', price: 8000, discount: 0 },
+                        );
+                      }
+                      setItems(fallbackItems);
+                      setShowAiAssistant(false);
+                      setAiPrompt('');
+                    }
+                    setAiProcessing(false);
+                  }}
+                  disabled={aiProcessing || !aiPrompt.trim()}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-bold text-[13px] rounded-xl hover:bg-purple-700 transition-all disabled:opacity-40 shadow-sm"
+                >
+                  {aiProcessing ? (
+                    <><RefreshCw size={15} className="animate-spin" /> Generating...</>
+                  ) : (
+                    <><Zap size={15} /> Generate Items</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-8">
           {/* Step 1: Customer Details */}
@@ -259,6 +374,9 @@ const QuotationBuilder = () => {
                   <button disabled={!canNextStep2()} className="flex items-center gap-2 px-5 py-3 bg-white text-indigo-700 font-bold text-[13px] rounded-xl border-2 border-indigo-200 hover:bg-indigo-50 transition-all disabled:opacity-40">
                     <Download size={16} /> PDF
                   </button>
+                  <button onClick={() => setShowShare(true)} disabled={!canNextStep2()} className="flex items-center gap-2 px-5 py-3 text-white font-bold text-[13px] rounded-xl bg-emerald-600 hover:bg-emerald-700 transition-all disabled:opacity-40">
+                    <Share2 size={16} /> Share
+                  </button>
                   <button disabled={!canNextStep2()} className="flex items-center gap-2 px-6 py-3 bg-brand-gold-600 text-white font-bold text-[13px] rounded-xl hover:bg-brand-gold-700 shadow-lg transition-all disabled:opacity-40">
                     <Send size={16} /> Send to Client
                   </button>
@@ -268,6 +386,12 @@ const QuotationBuilder = () => {
           )}
         </div>
       </div>
+
+      <ShareDialog
+        isOpen={showShare}
+        onClose={() => setShowShare(false)}
+        quotationText={`Quotation ${quoteNo} from QuoteFlow AI - ${customer.name} - Total: ${formatINR(total)}`}
+      />
     </Layout>
   );
 };

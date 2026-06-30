@@ -11,8 +11,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import org.springframework.core.annotation.Order;
 
 @Component
+@Order(1)
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private static final int MAX_REQUESTS = 20;

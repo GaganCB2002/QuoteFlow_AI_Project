@@ -1,0 +1,30 @@
+{
+  "WEBSITE::business website development" : [ {
+    "name" : "Basic Website",
+    "description" : "5-page static website with domain and hosting",
+    "minPrice" : 25000,
+    "maxPrice" : 50000,
+    "midPrice" : 37500,
+    "category" : "WEBSITE",
+    "source" : "web-research",
+    "currency" : "INR"
+  }, {
+    "name" : "Business Website",
+    "description" : "10-page dynamic CMS website",
+    "minPrice" : 50000,
+    "maxPrice" : 100000,
+    "midPrice" : 75000,
+    "category" : "WEBSITE",
+    "source" : "web-research",
+    "currency" : "INR"
+  }, {
+    "name" : "E-commerce Website",
+    "description" : "Online store with payment gateway",
+    "minPrice" : 80000,
+    "maxPrice" : 200000,
+    "midPrice" : 140000,
+    "category" : "WEBSITE",
+    "source" : "web-research",
+    "currency" : "INR"
+  } ]
+}

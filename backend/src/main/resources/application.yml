@@ -45,6 +45,15 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
 
+ai:
+  enabled: ${AI_ENABLED:false}
+  provider: ${AI_PROVIDER:openai}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:gpt-4o-mini}
+  endpoint: ${AI_ENDPOINT:https://api.openai.com/v1/chat/completions}
+  max-tokens: ${AI_MAX_TOKENS:2000}
+  temperature: ${AI_TEMPERATURE:0.3}
+
 encryption:
   secret:
     key: ${ENCRYPTION_SECRET_KEY}

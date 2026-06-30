@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bell, Search, CheckCheck, BellRing, FileText, Receipt, Users, Megaphone, AlertTriangle, Info, DollarSign, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, CheckCheck, FileText, Receipt, Users, Megaphone, AlertTriangle, Info, Calendar, DollarSign } from 'lucide-react';
 import Layout from './Layout';
 
 const notificationsData = [
@@ -14,6 +14,9 @@ const notificationsData = [
 ];
 
 const Notifications = () => {
+  useEffect(() => {
+    document.title = 'Notifications | QuoteFlow AI';
+  }, []);
   const [filter, setFilter] = useState<'All' | 'Unread'>('All');
   const [notifications, setNotifications] = useState(notificationsData);
 

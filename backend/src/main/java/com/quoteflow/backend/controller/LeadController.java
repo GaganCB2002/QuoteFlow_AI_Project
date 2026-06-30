@@ -6,6 +6,7 @@ import com.quoteflow.backend.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,11 +42,9 @@ public class LeadController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<Lead> updateLead(@PathVariable UUID id, @RequestBody Map<String, Object> body) {
-        Lead lead = leadService.getLeadById(id);
-        if (body.containsKey("source")) lead.setSource((String) body.get("source"));
-        if (body.containsKey("notes")) lead.setNotes((String) body.get("notes"));
-        return ResponseEntity.ok(lead);
+        return ResponseEntity.ok(leadService.updateLead(id, body));
     }
 
     @DeleteMapping("/{id}")

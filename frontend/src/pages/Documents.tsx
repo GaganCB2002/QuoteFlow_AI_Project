@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FolderOpen, Search, FileText, Receipt, File, Download, Eye, MoreHorizontal, Upload, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, FileText, Receipt, File, Download, Eye, Upload } from 'lucide-react';
 import Layout from './Layout';
 
 const docsData = [
@@ -25,6 +25,9 @@ const typeColor: Record<string, string> = {
 };
 
 const Documents = () => {
+  useEffect(() => {
+    document.title = 'Documents | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('All');
 

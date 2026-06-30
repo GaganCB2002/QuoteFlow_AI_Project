@@ -3,6 +3,7 @@ package com.quoteflow.backend.security;
 import com.quoteflow.backend.entity.Role;
 import com.quoteflow.backend.entity.User;
 import com.quoteflow.backend.repository.UserRepository;
+import com.quoteflow.backend.security.HashUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,7 +40,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             return;
         }
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
+        User user = userRepository.findByEmailHash(HashUtil.sha256(email)).orElseGet(() -> {
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setName(name != null ? name : email.split("@")[0]);

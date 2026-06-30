@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, ArrowLeft, Eye, EyeOff, Zap, Smartphone, BarChart3, CloudOff, Gift } from 'lucide-react';
 
@@ -12,6 +12,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Create Account | QuoteFlow AI';
+  }, []);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();

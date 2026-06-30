@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -55,6 +56,15 @@ public class LeadService {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
         lead.setStatus(status);
+        return leadRepository.save(lead);
+    }
+
+    @Transactional
+    public Lead updateLead(UUID id, Map<String, Object> body) {
+        Lead lead = leadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lead not found"));
+        if (body.containsKey("source")) lead.setSource((String) body.get("source"));
+        if (body.containsKey("notes")) lead.setNotes((String) body.get("notes"));
         return leadRepository.save(lead);
     }
 

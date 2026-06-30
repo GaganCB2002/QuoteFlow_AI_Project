@@ -18,8 +18,10 @@ import java.io.IOException;
 import com.quoteflow.backend.entity.User;
 import com.quoteflow.backend.repository.UserRepository;
 import java.time.LocalDateTime;
+import org.springframework.core.annotation.Order;
 
 @Component
+@Order(2)
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 

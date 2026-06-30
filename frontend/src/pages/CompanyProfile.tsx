@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Building2, Save, Upload } from 'lucide-react';
 import Layout from './Layout';
 
 const CompanyProfile = () => {
+  useEffect(() => {
+    document.title = 'Company Profile | QuoteFlow AI';
+  }, []);
+
   return (
     <Layout title="Company Profile" subtitle="Manage your business details">
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
           
           <div className="px-8 pb-8">
@@ -62,7 +64,6 @@ const CompanyProfile = () => {
             </form>
           </div>
         </div>
-      </div>
     </Layout>
   );
 };

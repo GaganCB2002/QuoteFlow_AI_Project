@@ -92,8 +92,11 @@ public class EstimationController {
     @GetMapping("/types")
     @SuppressWarnings("unchecked")
     public ResponseEntity<List<String>> getProjectTypes() {
-        return ResponseEntity.ok(estimationService.getProjectParams("WEBSITE").containsKey("availableTypes")
-                ? (List<String>) estimationService.getProjectParams("WEBSITE").get("availableTypes")
-                : List.of());
+        Map<String, Object> params = estimationService.getProjectParams("WEBSITE");
+        Object types = params.get("availableTypes");
+        if (types instanceof List<?> list && (list.isEmpty() || list.getFirst() instanceof String)) {
+            return ResponseEntity.ok((List<String>) list);
+        }
+        return ResponseEntity.ok(List.of());
     }
 }

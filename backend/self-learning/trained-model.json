@@ -1,0 +1,10 @@
+[ {
+  "key" : "ERP::school_management_erp_fee_attendance_exam",
+  "projectType" : "ERP",
+  "description" : "school management erp fee attendance exam",
+  "minPrice" : 80000,
+  "maxPrice" : 300000,
+  "matchCount" : 1,
+  "confidence" : "50%",
+  "lastUpdated" : "2026-06-30T13:40:36.164284700"
+} ]

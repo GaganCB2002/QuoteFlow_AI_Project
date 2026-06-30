@@ -31,6 +31,15 @@ encryption:
   secret:
     key: 8f47e3a2b1c5d6e7f809a1b2c3d4e5f6
 
+ai:
+  enabled: false
+  provider: openai
+  api-key: ${AI_API_KEY:}
+  model: gpt-4o-mini
+  endpoint: https://api.openai.com/v1/chat/completions
+  max-tokens: 2000
+  temperature: 0.3
+
 server:
   port: 8081
   ssl:

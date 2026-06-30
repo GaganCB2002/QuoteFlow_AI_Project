@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Megaphone, Search, Plus, Send, BarChart3, MessageCircle, Mail, Smartphone, TrendingUp, Users, Target, IndianRupee, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Megaphone, Search, Plus, MessageCircle, Mail, Smartphone, TrendingUp, Users, IndianRupee } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -25,6 +25,9 @@ const statusStyle = (s: string) => {
 };
 
 const Marketing = () => {
+  useEffect(() => {
+    document.title = 'Marketing Campaigns | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
   const filtered = campaignsData.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 

@@ -25,7 +25,6 @@ public class SecurityConfig {
 
     private final JwtRequestFilter jwtRequestFilter;
     private final RateLimitingFilter rateLimitingFilter;
-    private final TrialExpiryFilter trialExpiryFilter;
     private final UserDetailsServiceImpl userDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
@@ -41,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/api/health/**", "/api/public/**",
                                 "/api/visitors/**", "/api/landing-leads/**",
+                                "/api/ai/**", "/api/agent/**", "/api/tracking/**", "/api/research/**",
                                 "/api/subscription/trial/summary", "/api/subscription/check-expired",
                                 "/", "/index.html", "/css/**", "/app/**", "/landing/**",
                                 "/dashboard", "/estimation", "/quotations", "/products", "/invoices", "/receipts", "/customers", "/crm", "/marketing", "/finance", "/documents", "/notifications", "/visitors", "/admin", "/settings", "/profile", "/login", "/register", "/oauth2/**", "/login/oauth2/**",
@@ -57,8 +57,7 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(trialExpiryFilter, JwtRequestFilter.class);
-        http.addFilterBefore(rateLimitingFilter, TrialExpiryFilter.class);
+        http.addFilterBefore(rateLimitingFilter, JwtRequestFilter.class);
 
         return http.build();
     }

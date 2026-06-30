@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Receipt, Search, Plus, IndianRupee, Download, Send, MoreHorizontal, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Receipt, Search, Plus, IndianRupee, Download, Send, MoreHorizontal } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -26,6 +26,9 @@ const statusStyle = (s: string) => {
 };
 
 const Invoices = () => {
+  useEffect(() => {
+    document.title = 'Invoices | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('All');
 

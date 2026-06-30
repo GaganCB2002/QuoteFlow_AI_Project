@@ -25,10 +25,20 @@ public class QuotationService {
     private final UserRepository userRepository;
 
     public QuotationDto createQuotation(QuotationDto dto, User currentUser) {
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
         Company company = companyRepository.findById(dto.getCompanyId())
                 .orElseThrow(() -> new RuntimeException("Company not found"));
+        Customer customer;
+        if (dto.getCustomerId() != null) {
+            customer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+        } else {
+            customer = customerRepository.findByCompanyId(company.getId()).stream()
+                    .findFirst()
+                    .orElseGet(() -> customerRepository.save(Customer.builder()
+                            .company(company)
+                            .name("Walk-in Customer")
+                            .build()));
+        }
 
         Quotation quotation = Quotation.builder()
                 .quoteNo(generateQuoteNumber(company))

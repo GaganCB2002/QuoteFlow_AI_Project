@@ -1,0 +1,9 @@
+{
+  "quoteNo" : "Q-OLD",
+  "projectType" : "WEBSITE",
+  "projectName" : "Older",
+  "companyName" : "Co",
+  "createdAt" : "2026-06-30T13:40:35.758004900",
+  "folderPath" : "reports\\website\\older\\co\\2026-06-30_134035_Q-OLD",
+  "files" : [ "quotation.json", "items.json", "market-research.json", "cost-breakdown.json" ]
+}

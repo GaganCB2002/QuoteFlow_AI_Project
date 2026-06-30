@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Receipt, Search, IndianRupee, Download, MoreHorizontal, Banknote, CreditCard, Smartphone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Receipt, Search, IndianRupee, Download, Banknote, CreditCard, Smartphone } from 'lucide-react';
 import Layout from './Layout';
 
 const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
@@ -30,6 +30,9 @@ const statusStyle = (s: string) => {
 };
 
 const Receipts = () => {
+  useEffect(() => {
+    document.title = 'Receipts & Payments | QuoteFlow AI';
+  }, []);
   const [search, setSearch] = useState('');
 
   const filtered = receiptsData.filter(r =>
