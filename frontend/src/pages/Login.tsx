@@ -33,7 +33,7 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isLocked && lockoutTimer > 0) {
       interval = setInterval(() => {
         setLockoutTimer((prev) => prev - 1);
