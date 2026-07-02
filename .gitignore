@@ -1,6 +1,35 @@
+# IDE
 .vscode/
 .idea/
+
+# Logs
 *.log
+*.err
+
+# Environment variables (never commit secrets)
 .env
 .env.local
 .env.*.local
+.env.production
+
+# Node binaries bundled with project
+frontend/node/
+
+# Java build output
+backend/target/
+**/target/
+
+# Maven wrapper (optional - keep if you want)
+# .mvn/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend build output
+frontend/dist/
+frontend/dist-ssr/
+
+# Frontend node_modules
+frontend/node_modules/
+node_modules/
