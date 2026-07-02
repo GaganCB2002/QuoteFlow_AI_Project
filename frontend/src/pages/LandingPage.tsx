@@ -8,7 +8,6 @@ import TestimonialMarquee from '../components/TestimonialMarquee';
 import PricingSection from '../components/PricingSection';
 import TechStackSection from '../components/TechStackSection';
 import DashboardZoomSection from '../components/DashboardZoomSection';
-import TrustLogos from '../components/TrustLogos';
 import HorizontalScrollSection from '../components/HorizontalScrollSection';
 import DetailedFeaturesSection from '../components/DetailedFeaturesSection';
 import ContactSection from '../components/ContactSection';
@@ -108,9 +107,6 @@ const LandingPage = () => {
 
       {/* Cinematic Scroll Hero Section */}
       <CinematicHeroScroll />
-
-      {/* Trust Logos Banner */}
-      <TrustLogos />
 
       {/* Dashboard 3D Zoom on Scroll */}
       <DashboardZoomSection />
