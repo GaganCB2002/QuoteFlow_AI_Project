@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers } from 'lucide-react';
+import QuoteFlowLogo from './QuoteFlowLogo';
 import { Link } from 'react-router-dom';
 
 const ComprehensiveFooter = () => {
@@ -16,8 +16,8 @@ const ComprehensiveFooter = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12 sm:gap-10 mb-16">
           <div className="footer-brand pr-8">
             <Link to="/" className="flex items-center gap-3 text-2xl font-display font-extrabold text-gray-900 dark:text-white mb-6">
-              <div className="w-10 h-10 bg-brand-gold-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <Layers size={22} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg">
+                <QuoteFlowLogo size={32} />
               </div>
               QuoteFlow
             </Link>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers } from 'lucide-react';
+import QuoteFlowLogo from './QuoteFlowLogo';
 
 const PremiumLoader = () => {
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,7 @@ const PremiumLoader = () => {
             className="flex flex-col items-center gap-6"
           >
             <div className="relative">
-              <Layers className="text-brand-gold-500 w-16 h-16" strokeWidth={1} />
+              <QuoteFlowLogo size={64} />
               
               {/* Spinning ring for loading indication */}
               <motion.div 

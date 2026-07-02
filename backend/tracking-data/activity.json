@@ -124,4 +124,39 @@
   "page" : "/login",
   "details" : "Quotation Builder | QuoteFlow AI",
   "timestamp" : "2026-07-02T16:25:12.551093300"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.182.19",
+  "action" : "page_view",
+  "page" : "/dashboard",
+  "details" : "Dashboard | QuoteFlow AI",
+  "timestamp" : "2026-07-02T18:47:15.952693500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.182.19",
+  "action" : "page_view",
+  "page" : "/dashboard",
+  "details" : "Dashboard | QuoteFlow AI",
+  "timestamp" : "2026-07-02T18:48:59.686829300"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.182.19",
+  "action" : "page_view",
+  "page" : "/notifications",
+  "details" : "Notifications | QuoteFlow AI",
+  "timestamp" : "2026-07-02T18:49:01.152640600"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.182.19",
+  "action" : "page_view",
+  "page" : "/dashboard",
+  "details" : "Dashboard | QuoteFlow AI",
+  "timestamp" : "2026-07-02T18:49:03.320668900"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.182.19",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T18:49:42.856097200"
 } ]

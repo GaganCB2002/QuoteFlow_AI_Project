@@ -14,7 +14,8 @@ import ContactSection from '../components/ContactSection';
 import CTASection from '../components/CTASection';
 import ComprehensiveFooter from '../components/ComprehensiveFooter';
 import MagneticButton from '../components/MagneticButton';
-import { ArrowRight, Moon, Sun, Layers } from 'lucide-react';
+import { ArrowRight, Moon, Sun } from 'lucide-react';
+import QuoteFlowLogo from '../components/QuoteFlowLogo';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const LandingPage = () => {
           className="max-w-7xl mx-auto flex items-center justify-between rounded-full px-6 py-4 pointer-events-auto shadow-sm border border-black/5 dark:border-white/5"
         >
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <Layers className="text-primary-500 w-6 h-6" />
+            <QuoteFlowLogo size={28} />
             <span className="font-display font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">QuoteFlow</span>
           </div>
           

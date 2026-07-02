@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LayoutDashboard, Users, FileText, Calculator, Package, Receipt, BarChart3, Megaphone, DollarSign, FolderOpen, Eye, BellRing, Layers, LogOut, ChevronLeft, ChevronRight, Shield, Brain, Search, Bell, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Calculator, Package, Receipt, BarChart3, Megaphone, DollarSign, FolderOpen, Eye, BellRing, LogOut, ChevronLeft, ChevronRight, Shield, Brain, Search, Bell, Sun, Moon } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLocationTracking } from '../hooks/useLocationTracking';
 import { useTheme } from '../context/ThemeContext';
+import QuoteFlowLogo from '../components/QuoteFlowLogo';
 import { storage } from '../utils';
 
 const getNavItems = (role: string) => {
@@ -74,7 +75,7 @@ const Layout = ({ children, title, subtitle }: { children: React.ReactNode; titl
       >
         <div className={`h-20 flex items-center px-6 border-b border-white/5 ${collapsed ? 'justify-center px-0' : ''}`}>
           <Link to="/dashboard" className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-            <Layers className="text-brand-gold-300 w-7 h-7 shrink-0" />
+            <QuoteFlowLogo size={28} />
             {!collapsed && <h1 className="text-xl font-bold text-white tracking-wide">QuoteFlow</h1>}
           </Link>
           <button

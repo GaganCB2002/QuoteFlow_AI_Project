@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { LogIn, ArrowLeft, Smartphone, Mail, Shield, Eye, EyeOff, Zap, BarChart3, CloudOff, UserCog, UserRound, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiRequest, getApiBase } from '../utils/api';
+import QuoteFlowLogo from '../components/QuoteFlowLogo';
 import { storage } from '../utils/storage';
 import { isValidEmail, isValidPhone } from '../utils/validation';
 import { getErrorMessage } from '../utils/errors';
@@ -20,6 +21,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; phone?: string }>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockoutTimer, setLockoutTimer] = useState(0);
   const navigate = useNavigate();
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const tfaRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -27,6 +31,19 @@ const Login = () => {
   useEffect(() => {
     document.title = 'Sign In | QuoteFlow AI';
   }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLocked && lockoutTimer > 0) {
+      interval = setInterval(() => {
+        setLockoutTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (lockoutTimer === 0 && isLocked) {
+      setIsLocked(false);
+      setFailedAttempts(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLocked, lockoutTimer]);
 
   const handleOtpChange = (idx: number, val: string, refs: React.MutableRefObject<(HTMLInputElement | null)[]>, stateFn: React.Dispatch<React.SetStateAction<string[]>>) => {
     if (val.length > 1) return;
@@ -71,6 +88,14 @@ const Login = () => {
       }
     } catch (err) {
       setError(getErrorMessage(err));
+      setFailedAttempts((prev) => {
+        const newCount = prev + 1;
+        if (newCount >= 2) {
+          setIsLocked(true);
+          setLockoutTimer(15);
+        }
+        return newCount;
+      });
     } finally {
       setLoading(false);
     }
@@ -254,9 +279,7 @@ const Login = () => {
         <div className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl mix-blend-overlay"></div>
         <div className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 text-2xl font-extrabold mb-8">
-            <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center text-xl font-extrabold shadow-sm">
-              Q
-            </div>
+            <QuoteFlowLogo size={40} />
             QuoteFlow AI
           </div>
           <h2 className="text-3xl lg:text-4xl font-extrabold mb-4 leading-tight tracking-tight">
@@ -294,9 +317,15 @@ const Login = () => {
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1 tracking-tight">Sign In</h2>
               <p className="text-sm text-gray-500 mb-7">Access your dashboard to manage your business</p>
 
-              {error && (
+              {error && !isLocked && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
                   {error}
+                </div>
+              )}
+              {isLocked && (
+                <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-xl text-sm text-orange-700 font-medium flex items-center gap-2">
+                  <Shield size={16} />
+                  Too many failed attempts. Please wait {lockoutTimer} seconds.
                 </div>
               )}
 
@@ -331,8 +360,9 @@ const Login = () => {
                       onChange={e => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: undefined })); }}
                       onBlur={() => { if (email && !isValidEmail(email.trim())) setFieldErrors(prev => ({ ...prev, email: 'Enter a valid email address' })); }}
                       placeholder="you@company.com"
-                      className={`w-full px-4 py-3 border ${fieldErrors.email ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all`}
+                      className={`w-full px-4 py-3 border ${fieldErrors.email ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all disabled:opacity-50 disabled:bg-gray-50`}
                       required
+                      disabled={loading || isLocked}
                       autoComplete="email"
                     />
                     {fieldErrors.email && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.email}</p>}
@@ -346,8 +376,9 @@ const Login = () => {
                         value={password}
                         onChange={e => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
                         placeholder="Enter your password"
-                        className={`w-full px-4 py-3 pr-11 border ${fieldErrors.password ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all`}
+                        className={`w-full px-4 py-3 pr-11 border ${fieldErrors.password ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all disabled:opacity-50 disabled:bg-gray-50`}
                         required
+                        disabled={loading || isLocked}
                         autoComplete="current-password"
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -363,11 +394,11 @@ const Login = () => {
                   </div>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || isLocked}
                     className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <LogIn size={16} />}
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {isLocked ? `Try again in ${lockoutTimer}s` : loading ? 'Signing in...' : 'Sign In'}
                   </button>
                 </form>
               ) : (
