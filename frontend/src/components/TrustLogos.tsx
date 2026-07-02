@@ -14,7 +14,6 @@ const TrustLogos = () => {
   return (
     <section className="py-12 bg-surface dark:bg-surface-dark border-b border-gray-200/50 dark:border-gray-800/50">
       <div className="max-w-7xl mx-auto px-5 text-center">
-        <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8">Trusted by forward-thinking teams</p>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
           {logos.map((logo, i) => (
             <motion.img 
