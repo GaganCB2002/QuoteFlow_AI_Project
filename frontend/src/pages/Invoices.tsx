@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Receipt, Search, Plus, IndianRupee, Download, Send, MoreHorizontal } from 'lucide-react';
+import { Receipt, Search, Plus, Download, Send, MoreHorizontal } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const invoicesData = [
   { id: 'INV-2026-001', customer: 'Ravi Constructions', date: '10 Jun 2026', dueDate: '25 Jun 2026', amount: 185000, status: 'Paid', type: 'Tax Invoice' },

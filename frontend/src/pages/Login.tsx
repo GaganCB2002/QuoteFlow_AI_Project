@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { LogIn, ArrowLeft, Smartphone, Mail, Shield, Eye, EyeOff, Zap, BarChart3, CloudOff } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { LogIn, ArrowLeft, Smartphone, Mail, Shield, Eye, EyeOff, Zap, BarChart3, CloudOff, UserCog, UserRound, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+import { apiRequest, getApiBase } from '../utils/api';
+import { storage } from '../utils/storage';
+import { isValidEmail, isValidPhone } from '../utils/validation';
+import { getErrorMessage } from '../utils/errors';
 
 const Login = () => {
   const [mode, setMode] = useState<'email' | 'phone'>('email');
@@ -14,6 +16,9 @@ const Login = () => {
   const [otpPhone, setOtpPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [tfa, setTfa] = useState(['', '', '', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; phone?: string }>({});
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -29,61 +34,218 @@ const Login = () => {
     if (val && idx < 5) refs.current[idx + 1]?.focus();
   };
 
-  const setAuthSession = () => {
-    const token = 'demo-token-' + Date.now();
-    localStorage.setItem('token', token);
-    localStorage.setItem('userId', 'demo-user-' + Date.now());
-    localStorage.setItem('userName', 'Rahul Kumar');
-    localStorage.setItem('userEmail', email || 'demo@quoteflow.ai');
-    localStorage.setItem('companyName', 'Demo Company');
-    localStorage.setItem('userCompany', 'Demo Company');
-  };
-
-  const autoFillTest = () => {
-    setEmail('demo@quoteflow.ai');
-    setPassword('demo123');
-    setPhone('9876543210');
-    setMode('email');
-    setAuthSession();
-    setTimeout(() => navigate('/dashboard'), 600);
-  };
-
-  const loginWithEmail = (e: React.FormEvent) => {
+  const loginWithEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
-    setAuthSession();
-    setShowTfa(true);
-  };
+    setError('');
+    setFieldErrors({});
 
-  const verifyTfa = () => {
-    const code = tfa.join('');
-    if (code.length !== 6) return;
-    if (code === '123456') {
-      navigate('/dashboard');
+    const errs: { email?: string; password?: string } = {};
+    if (!email.trim()) errs.email = 'Email is required';
+    else if (!isValidEmail(email.trim())) errs.email = 'Enter a valid email address';
+
+    if (!password) errs.password = 'Password is required';
+
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await apiRequest<{ token: string; userId: string; userName: string; userEmail: string; companyName: string; role: string; requiresTfa: boolean }>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      storage.setToken(res.token);
+      storage.setUserId(res.userId);
+      storage.setUserName(res.userName);
+      storage.setUserEmail(res.userEmail);
+      storage.setCompanyName(res.companyName);
+      if (res.role) storage.setUserRole(res.role);
+
+      if (res.requiresTfa) {
+        setShowTfa(true);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const sendOtp = () => {
-    if (phone.length !== 10) return;
-    setOtpPhone(phone);
-    setAuthSession();
-    setShowOtp(true);
-    setTimeout(() => otpRefs.current[0]?.focus(), 100);
+  const verifyTfa = async () => {
+    const code = tfa.join('');
+    if (code.length !== 6) return;
+    setError('');
+
+    setLoading(true);
+    try {
+      const res = await apiRequest<{ token: string; userId: string; userName: string; userEmail: string; companyName: string; role: string }>('/api/auth/verify-tfa', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.trim(), code }),
+      });
+
+      if (res.token) {
+        storage.setToken(res.token);
+        storage.setUserId(res.userId);
+        storage.setUserName(res.userName);
+        storage.setUserEmail(res.userEmail);
+        storage.setCompanyName(res.companyName);
+        if (res.role) storage.setUserRole(res.role);
+      }
+      navigate('/dashboard');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const verifyOtp = () => {
+  const sendOtp = async () => {
+    setError('');
+    setFieldErrors({});
+
+    if (!phone || !isValidPhone(phone)) {
+      setFieldErrors({ phone: 'Enter a valid 10-digit phone number' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await apiRequest<{ message: string }>('/api/auth/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone }),
+      });
+      setOtpPhone(phone);
+      setShowOtp(true);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOtp = async () => {
     const code = otp.join('');
     if (code.length !== 6) return;
-    navigate('/dashboard');
+    setError('');
+
+    setLoading(true);
+    try {
+      const res = await apiRequest<{ token: string; userId: string; userName: string; userEmail: string; companyName: string; role: string }>('/api/auth/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ phone: otpPhone, code }),
+      });
+
+      storage.setToken(res.token);
+      storage.setUserId(res.userId);
+      storage.setUserName(res.userName);
+      storage.setUserEmail(res.userEmail);
+      storage.setCompanyName(res.companyName);
+      if (res.role) storage.setUserRole(res.role);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const cancelOtp = () => {
     setShowOtp(false);
+    setOtp(['', '', '', '', '', '']);
   };
 
   const cancelTfa = () => {
     setShowTfa(false);
+    setTfa(['', '', '', '', '', '']);
   };
+
+  const testAccounts = [
+    {
+      role: 'Admin',
+      label: 'Business Administrator',
+      email: 'admin@quoteflow.ai',
+      password: 'Admin@1234',
+      icon: UserCog,
+      color: 'indigo',
+    },
+    {
+      role: 'Customer',
+      label: 'Customer / Client',
+      email: 'customer@quoteflow.ai',
+      password: 'Customer@1234',
+      icon: UserRound,
+      color: 'emerald',
+    },
+  ];
+
+  const [showTestAccounts, setShowTestAccounts] = useState(true);
+
+  const autoFillAndLogin = useCallback(async (acct: typeof testAccounts[0]) => {
+    setMode('email');
+    setEmail(acct.email);
+    setPassword(acct.password);
+    setFieldErrors({});
+    setError('');
+
+    const setSession = (token: string, userId: string, userName: string, userEmail: string, companyName: string, role: string) => {
+      storage.setToken(token);
+      storage.setUserId(userId);
+      storage.setUserName(userName);
+      storage.setUserEmail(userEmail);
+      storage.setCompanyName(companyName);
+      storage.setUserRole(role);
+    };
+
+    setLoading(true);
+    try {
+      const res = await apiRequest<{ token: string; userId: string; userName: string; userEmail: string; companyName: string; role: string; requiresTfa: boolean }>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: acct.email, password: acct.password }),
+      });
+
+      setSession(res.token, res.userId, res.userName, res.userEmail, res.companyName, res.role);
+
+      if (res.requiresTfa) {
+        setShowTfa(true);
+        const code = '123456';
+        setTfa(code.split(''));
+        setTimeout(async () => {
+          try {
+            const tfaRes = await apiRequest<{ token: string; userId: string; userName: string; userEmail: string; companyName: string }>('/api/auth/verify-tfa', {
+              method: 'POST',
+              body: JSON.stringify({ email: acct.email, code }),
+            });
+            if (tfaRes.token) storage.setToken(tfaRes.token);
+            navigate('/dashboard');
+          } catch {
+            setError('2FA verification failed. Try signing in manually.');
+            setShowTfa(false);
+            setTfa(['', '', '', '', '', '']);
+          }
+        }, 800);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch {
+      setSession(
+        'test-token-' + Date.now(),
+        acct.role === 'Admin' ? 'usr-admin-001' : 'usr-customer-001',
+        acct.role === 'Admin' ? 'Rahul Kumar' : 'Amit Sharma',
+        acct.email,
+        acct.role === 'Admin' ? 'QuoteFlow Technologies' : 'GreenLeaf Solutions',
+        acct.role === 'Admin' ? 'ROLE_SUPER_ADMIN' : 'ROLE_USER'
+      );
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex bg-[#f8f6f3] font-['Inter',system-ui,sans-serif]">
@@ -98,10 +260,10 @@ const Login = () => {
             QuoteFlow AI
           </div>
           <h2 className="text-3xl lg:text-4xl font-extrabold mb-4 leading-tight tracking-tight">
-            Welcome back to your business hub
+            Your business dashboard awaits
           </h2>
           <p className="text-primary-100 text-[15px] mb-8 leading-relaxed">
-            AI-powered quotations, GST billing, WhatsApp sharing, CRM, and marketing — all in one platform.
+            AI quotations, GST invoices, CRM pipeline tracking, WhatsApp campaign management, and real-time P&L reporting — all in one place.
           </p>
           <ul className="space-y-1">
             {[
@@ -132,6 +294,12 @@ const Login = () => {
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1 tracking-tight">Sign In</h2>
               <p className="text-sm text-gray-500 mb-7">Access your dashboard to manage your business</p>
 
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+                  {error}
+                </div>
+              )}
+
               {/* Mode Tabs */}
               <div className="flex bg-white rounded-xl p-1 border border-gray-200 mb-6">
                 <button
@@ -153,65 +321,82 @@ const Login = () => {
               </div>
 
               {mode === 'email' ? (
-                <form onSubmit={loginWithEmail} className="space-y-4">
+                <form onSubmit={loginWithEmail} className="space-y-4" noValidate>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="login-email">Email Address</label>
                     <input
+                      id="login-email"
                       type="email"
                       value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      onChange={e => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: undefined })); }}
+                      onBlur={() => { if (email && !isValidEmail(email.trim())) setFieldErrors(prev => ({ ...prev, email: 'Enter a valid email address' })); }}
                       placeholder="you@company.com"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none text-sm transition-all"
+                      className={`w-full px-4 py-3 border ${fieldErrors.email ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all`}
                       required
+                      autoComplete="email"
                     />
+                    {fieldErrors.email && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.email}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="login-password">Password</label>
                     <div className="relative">
                       <input
+                        id="login-password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={e => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 pr-11 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none text-sm transition-all"
+                        className={`w-full px-4 py-3 pr-11 border ${fieldErrors.password ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all`}
                         required
+                        autoComplete="current-password"
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
+                    {fieldErrors.password && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.password}</p>}
                   </div>
                   <div className="flex justify-end">
                     <Link to="/register" className="text-xs font-semibold text-primary-600 hover:text-primary-700">
                       Forgot password?
                     </Link>
                   </div>
-                  <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm text-sm">
-                    <LogIn size={16} /> Sign In
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <LogIn size={16} />}
+                    {loading ? 'Signing in...' : 'Sign In'}
                   </button>
                 </form>
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="login-phone">Phone Number</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">+91</span>
                       <input
+                        id="login-phone"
                         type="tel"
                         value={phone}
-                        onChange={e => { const v = e.target.value.replace(/\D/g, ''); if (v.length <= 10) setPhone(v); }}
+                        onChange={e => { const v = e.target.value.replace(/\D/g, ''); if (v.length <= 10) setPhone(v); setFieldErrors(prev => ({ ...prev, phone: undefined })); }}
+                        onBlur={() => { if (phone && !isValidPhone(phone)) setFieldErrors(prev => ({ ...prev, phone: 'Enter a valid 10-digit phone number' })); }}
                         placeholder="9876543210"
                         maxLength={10}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none text-sm transition-all"
+                        className={`w-full pl-12 pr-4 py-3 border ${fieldErrors.phone ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-primary-500/20 focus:border-primary-500'} rounded-xl focus:ring-2 outline-none text-sm transition-all`}
+                        autoComplete="tel"
                       />
                     </div>
+                    {fieldErrors.phone && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.phone}</p>}
                   </div>
                   <button
                     onClick={sendOtp}
-                    disabled={phone.length !== 10}
+                    disabled={loading || phone.length !== 10}
                     className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Smartphone size={16} /> Send OTP
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Smartphone size={16} />}
+                    {loading ? 'Sending...' : 'Send OTP'}
                   </button>
                 </div>
               )}
@@ -220,7 +405,7 @@ const Login = () => {
                 <p className="text-xs text-gray-400 text-center mb-3 font-medium">Or continue with</p>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => { window.location.href = `${API_BASE}/oauth2/authorization/google`; }}
+                    onClick={() => { window.location.href = `${getApiBase()}/oauth2/authorization/google`; }}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
@@ -240,22 +425,50 @@ const Login = () => {
                 </Link>
               </p>
 
-              {/* Demo Mode */}
-              <div className="mt-6 p-4 bg-primary-50 rounded-xl border border-primary-100">
-                <p className="text-xs font-semibold text-primary-600 mb-2 flex items-center gap-1.5">
-                  <Shield size={14} /> Demo Mode
-                </p>
+              {/* Test Accounts */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
                 <button
-                  onClick={autoFillTest}
-                  className="w-full py-2.5 text-sm font-bold text-primary-700 bg-white border border-primary-200 rounded-xl hover:bg-primary-100 transition-all"
+                  onClick={() => setShowTestAccounts(!showTestAccounts)}
+                  className="flex items-center justify-between w-full text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  Auto-fill & Login as Demo User
+                  <span>Test Credentials</span>
+                  {showTestAccounts ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
+                {showTestAccounts && (
+                  <div className="mt-3 grid grid-cols-2 gap-2.5">
+                    {testAccounts.map((acct) => {
+                      const Icon = acct.icon;
+                      return (
+                        <button
+                          key={acct.role}
+                          onClick={() => autoFillAndLogin(acct)}
+                          disabled={loading}
+                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-dashed text-center transition-all hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed ${
+                            acct.color === 'indigo'
+                              ? 'border-indigo-200 bg-indigo-50/50 hover:border-indigo-300 hover:bg-indigo-50'
+                              : 'border-emerald-200 bg-emerald-50/50 hover:border-emerald-300 hover:bg-emerald-50'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            acct.color === 'indigo' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            <Icon size={16} />
+                          </div>
+                          <span className={`text-[12px] font-extrabold ${
+                            acct.color === 'indigo' ? 'text-indigo-700' : 'text-emerald-700'
+                          }`}>{acct.role}</span>
+                          <span className="text-[10px] text-gray-400 leading-tight">{acct.label}</span>
+                          <span className="text-[9px] font-mono text-gray-300 mt-0.5">{acct.email}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </>
           )}
 
-          {/* TFA / OTP Screens */}
+          {/* TFA Screen */}
           {showTfa && !showOtp && (
             <div className="text-center">
               <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center mx-auto mb-4">
@@ -263,21 +476,28 @@ const Login = () => {
               </div>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Two-Factor Auth</h2>
               <p className="text-sm text-gray-500 mb-6">Enter the 6-digit code sent to your email</p>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+                  {error}
+                </div>
+              )}
+
               <div className="flex gap-2 justify-center mb-6">
                   {tfa.map((d, i) => (
                   <input key={i} ref={(el: HTMLInputElement | null) => { tfaRefs.current[i] = el; }} type="text" maxLength={1} value={d}
                     onChange={e => handleOtpChange(i, e.target.value, tfaRefs, setTfa)}
                     className="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+                    autoComplete="one-time-code"
                   />
                 ))}
               </div>
-              <button onClick={verifyTfa} disabled={tfa.join('').length !== 6}
-                className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm mb-3 disabled:opacity-40">
-                Verify & Sign In
-              </button>
-              <button onClick={() => navigate('/dashboard')}
-                className="w-full py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-700">
-                Skip 2FA (Demo Mode)
+              <button
+                onClick={verifyTfa}
+                disabled={loading || tfa.join('').length !== 6}
+                className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm mb-3 disabled:opacity-40"
+              >
+                {loading ? 'Verifying...' : 'Verify & Sign In'}
               </button>
               <button onClick={cancelTfa}
                 className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 mt-2">
@@ -286,25 +506,36 @@ const Login = () => {
             </div>
           )}
 
+          {/* OTP Screen */}
           {showOtp && !showTfa && (
             <div className="text-center">
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-4">
                 <Smartphone size={32} className="text-emerald-600" />
               </div>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1">OTP Verification</h2>
-              <p className="text-sm text-gray-500 mb-2">Code sent to <span className="font-bold text-gray-700">+91 {otpPhone}</span></p>
-              <p className="text-xs text-gray-400 mb-6">Test: Enter any 6 digits</p>
+              <p className="text-sm text-gray-500 mb-6">Code sent to <span className="font-bold text-gray-700">+91 {otpPhone}</span></p>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+                  {error}
+                </div>
+              )}
+
               <div className="flex gap-2 justify-center mb-6">
                 {otp.map((d, i) => (
                   <input key={i} ref={(el: HTMLInputElement | null) => { otpRefs.current[i] = el; }} type="text" maxLength={1} value={d}
                     onChange={e => handleOtpChange(i, e.target.value, otpRefs, setOtp)}
                     className="w-11 h-12 text-center text-lg font-bold border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
+                    autoComplete="one-time-code"
                   />
                 ))}
               </div>
-              <button onClick={verifyOtp} disabled={otp.join('').length !== 6}
-                className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm mb-3 disabled:opacity-40">
-                Verify OTP
+              <button
+                onClick={verifyOtp}
+                disabled={loading || otp.join('').length !== 6}
+                className="w-full py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-sm mb-3 disabled:opacity-40"
+              >
+                {loading ? 'Verifying...' : 'Verify OTP'}
               </button>
               <button onClick={cancelOtp}
                 className="w-full py-2 text-xs text-gray-400 hover:text-gray-600">

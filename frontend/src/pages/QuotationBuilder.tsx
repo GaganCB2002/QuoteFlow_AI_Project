@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Send, Save, Download, User, Building2, Mail, Phone, MapPin, Hash, IndianRupee, X, Sparkles, Zap, RefreshCw, Share2 } from 'lucide-react';
+import { FileText, Plus, Send, Save, Download, User, Building2, Mail, Phone, MapPin, Hash, X, Sparkles, Zap, RefreshCw, Share2 } from 'lucide-react';
 import ShareDialog from '../components/ShareDialog';
 import Layout from './Layout';
 import { aiApi } from '../api';
-
-const formatINR = (amount: number) =>
-  '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 interface LineItem {
   id: number;
@@ -140,8 +138,7 @@ const QuotationBuilder = () => {
                       }
                       setShowAiAssistant(false);
                       setAiPrompt('');
-                    } catch (err: any) {
-                      console.warn('AI fallback:', err.message);
+                    } catch {
                       const desc = aiPrompt.toLowerCase();
                       const fallbackItems: LineItem[] = [];
                       if (desc.includes('school') || desc.includes('erp') || desc.includes('education')) {

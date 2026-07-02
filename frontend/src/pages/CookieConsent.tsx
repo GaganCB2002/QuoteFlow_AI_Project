@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { storage } from '../utils/storage';
 
 const CookieConsent = () => {
   const [visible, setVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookieConsent');
+    const consent = storage.getCookieConsent();
     if (!consent) {
       setTimeout(() => setVisible(true), 500);
     }
   }, []);
 
   const acceptAll = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
-    localStorage.setItem('cookieConsentDate', new Date().toISOString());
+    storage.setCookieConsent('accepted');
+    localStorage.setItem('qf_consent_date', new Date().toISOString());
     document.cookie = "cookieConsent=accepted; path=/; max-age=" + (60 * 60 * 24 * 365);
     document.cookie = "quoteflow_consent=true; path=/; max-age=" + (60 * 60 * 24 * 365);
     setVisible(false);
   };
 
   const decline = () => {
-    localStorage.setItem('cookieConsent', 'declined');
-    localStorage.setItem('cookieConsentDate', new Date().toISOString());
+    storage.setCookieConsent('declined');
+    localStorage.setItem('qf_consent_date', new Date().toISOString());
     document.cookie = "cookieConsent=declined; path=/; max-age=" + (60 * 60 * 24 * 365);
     setVisible(false);
   };

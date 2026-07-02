@@ -3,6 +3,7 @@ import Layout from './Layout';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon, User, Shield, Bell, LogOut, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { storage } from '../utils/storage';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -13,12 +14,7 @@ const Settings = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('companyName');
-    localStorage.removeItem('userCompany');
+    storage.clearSession();
     navigate('/login');
   };
 
@@ -34,12 +30,12 @@ const Settings = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-                  {localStorage.getItem('userName')?.split(' ').map(s => s[0]).join('').toUpperCase().slice(0, 2) || 'U'}
+                  {storage.getUserInitials()}
                 </div>
                 <div>
-                  <p className="text-[16px] font-bold text-gray-900">{localStorage.getItem('userName') || 'User'}</p>
-                  <p className="text-[13px] text-gray-500">{localStorage.getItem('userEmail') || 'user@example.com'}</p>
-                  <p className="text-[12px] text-gray-400">{localStorage.getItem('companyName') || 'Company'}</p>
+                  <p className="text-[16px] font-bold text-gray-900">{storage.getUserName()}</p>
+                  <p className="text-[13px] text-gray-500">{storage.getUserEmail()}</p>
+                  <p className="text-[12px] text-gray-400">{storage.getCompanyName()}</p>
                 </div>
               </div>
             </div>

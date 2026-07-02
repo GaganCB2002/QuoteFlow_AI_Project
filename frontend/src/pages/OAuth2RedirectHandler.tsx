@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { storage } from '../utils/storage';
 
 const OAuth2RedirectHandler = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const OAuth2RedirectHandler = () => {
     const error = params.get('error');
 
     if (token) {
-      localStorage.setItem('token', token);
+      storage.setToken(token);
       navigate('/dashboard', { replace: true });
     } else {
       navigate('/login?error=' + (error || 'OAuth2 login failed'), { replace: true });

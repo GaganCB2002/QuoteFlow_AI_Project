@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IndianRupee, TrendingUp, TrendingDown, PieChart, ArrowUpRight, ArrowDownRight, Calendar, Download, MoreHorizontal } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const transactionsData = [
   { id: 1, desc: 'Website Development - Ravi Constructions', type: 'Income', amount: 185000, date: '11 Jun 2026', category: 'Services', status: 'Completed' },

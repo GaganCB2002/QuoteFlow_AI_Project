@@ -1,9 +1,9 @@
 {
   "DUP" : [ {
-    "name" : "Dup Service",
-    "description" : "Original",
-    "minPrice" : 10000,
+    "category" : "DUP",
     "maxPrice" : 50000,
-    "category" : "DUP"
+    "minPrice" : 10000,
+    "description" : "Original",
+    "name" : "Dup Service"
   } ]
 }

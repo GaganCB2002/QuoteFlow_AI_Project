@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Save, Download, ArrowLeft, Plus, Trash2, Edit3, IndianRupee,
-  Check, X, TrendingUp, Users, Sparkles, RefreshCw
+  Save, Download, ArrowLeft, Plus, Trash2, Edit3,
+  Check, X, Sparkles, RefreshCw
 } from 'lucide-react';
 import Layout from './Layout';
 import { agentApi } from '../api';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
+import { getErrorMessage } from '../utils/errors';
 
 const QuotationEditor = () => {
   const { quoteNo } = useParams();
@@ -24,6 +24,7 @@ const QuotationEditor = () => {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     document.title = 'Edit Quotation | QuoteFlow AI';
@@ -32,8 +33,9 @@ const QuotationEditor = () => {
   }, [quoteNo]);
 
   const loadQuotation = async () => {
+    setError('');
     try {
-      const data = await agentApi.getQuotation(quoteNo!);
+      const data = await agentApi.getQuotation(quoteNo!) as any;
       setQuotation(data);
       const loadedItems = data.items || data.quotation?.lineItems || [];
       setItems(loadedItems);
@@ -44,12 +46,14 @@ const QuotationEditor = () => {
       const pt = data.quotation?.executiveSummary?.projectType || data.quotation?.marketAnalysis?.projectType || '';
       if (pt) {
         try {
-          const sugg = await agentApi.getSuggestions(pt, data.quotation?.executiveSummary?.description || '', 100000);
+          const sugg = await agentApi.getSuggestions(pt, data.quotation?.executiveSummary?.description || '', 100000) as any;
           setSuggestions(sugg);
-        } catch {}
+        } catch {
+          // Suggestions are optional
+        }
       }
-    } catch (e) {
-      alert('Failed to load quotation');
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
     setLoading(false);
   };
@@ -61,55 +65,60 @@ const QuotationEditor = () => {
   };
 
   const handleSave = async () => {
+    setError('');
     setSaving(true);
     try {
       await agentApi.editItems(quoteNo!, items);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (e: any) {
-      alert('Save failed: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
     setSaving(false);
   };
 
   const handleAddFeature = async () => {
     if (!newFeature.name || !newFeature.price) return;
+    setError('');
     try {
-      const result = await agentApi.addFeature(quoteNo!, newFeature);
+      const result = await agentApi.addFeature(quoteNo!, newFeature) as any;
       setItems(result.items || []);
       setNewFeature({ name: '', description: '', price: 0 });
       setShowAddFeature(false);
-    } catch (e: any) {
-      alert('Failed to add feature: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
   };
 
   const handleRemoveItem = async (itemName: string) => {
+    setError('');
     try {
-      const result = await agentApi.removeFeature(quoteNo!, itemName);
+      const result = await agentApi.removeFeature(quoteNo!, itemName) as any;
       setItems(result.items || []);
-    } catch (e: any) {
-      alert('Failed to remove: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
   };
 
   const handleOverridePrice = async (itemName: string) => {
+    setError('');
     try {
-      const result = await agentApi.overridePrice(quoteNo!, itemName, editPrice);
+      const result = await agentApi.overridePrice(quoteNo!, itemName, editPrice) as any;
       setItems(result.items || []);
       setEditingItem(null);
-    } catch (e: any) {
-      alert('Failed to update price: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
   };
 
   const handleApplyTier = async (tier: string) => {
+    setError('');
     try {
       await agentApi.applyTier(quoteNo!, tier);
       setSelectedTier(tier);
       await loadQuotation();
-    } catch (e: any) {
-      alert('Failed to apply tier: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
   };
 
@@ -118,13 +127,16 @@ const QuotationEditor = () => {
   };
 
   const handleAddFeatureWithData = async (feat: any) => {
+    setError('');
     try {
-      const result = await agentApi.addFeature(quoteNo!, feat);
+      const result = await agentApi.addFeature(quoteNo!, feat) as any;
       setItems(result.items || []);
-    } catch (e: any) {
-      alert('Failed to add feature: ' + e.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     }
   };
+
+  const clearError = () => setError('');
 
   const q = quotation?.quotation || {};
   const market = q.marketAnalysis || {};
@@ -136,7 +148,15 @@ const QuotationEditor = () => {
   }
 
   if (!quotation) {
-    return <Layout><div className="p-8 text-center text-gray-400"><p className="text-lg font-bold mb-2">No Quotation Selected</p><p className="text-sm">Please select a quotation from My Quotations to edit.</p><button onClick={() => navigate('/my-quotations')} className="mt-4 px-4 py-2 bg-brand-gold-500 text-white rounded-lg">Go to My Quotations</button></div></Layout>;
+    return (
+      <Layout>
+        <div className="p-8 text-center text-gray-400">
+          <p className="text-lg font-bold mb-2">No Quotation Selected</p>
+          <p className="text-sm">Please select a quotation from My Quotations to edit.</p>
+          <button onClick={() => navigate('/my-quotations')} className="mt-4 px-4 py-2 bg-brand-gold-500 text-white rounded-lg">Go to My Quotations</button>
+        </div>
+      </Layout>
+    );
   }
 
   return (
@@ -162,9 +182,16 @@ const QuotationEditor = () => {
           </div>
         </div>
 
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 font-bold flex items-center justify-between gap-2">
+            <span>{error}</span>
+            <button onClick={clearError} className="text-red-400 hover:text-red-600"><X size={16} /></button>
+          </div>
+        )}
+
         {saved && (
           <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[13px] text-emerald-700 font-bold flex items-center gap-2">
-            <Check size={16} /> Changes saved successfully to local storage
+            <Check size={16} /> Changes saved successfully
           </div>
         )}
 

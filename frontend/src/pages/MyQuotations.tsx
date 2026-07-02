@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Download, FolderOpen, Calendar, Tag, Building2, ExternalLink, Clock, Search, ArrowLeft, Edit3, Share2 } from 'lucide-react';
 import ShareDialog from '../components/ShareDialog';
 import Layout from './Layout';
-import { agentApi, QuotationSummary } from '../api';
+import { agentApi } from '../api';
+import type { QuotationSummary } from '../types';
+import { formatINR } from '../utils/format';
 
 const MyQuotations = () => {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ const MyQuotations = () => {
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showShare, setShowShare] = useState(false);
   const [shareQuote, setShareQuote] = useState<any>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     document.title = 'My Quotations | QuoteFlow AI';
@@ -31,11 +34,12 @@ const MyQuotations = () => {
   };
 
   const viewQuotation = async (quoteNo: string) => {
+    setError('');
     try {
       const data = await agentApi.getQuotation(quoteNo);
       setSelectedQuote(data);
     } catch {
-      alert('Could not load quotation');
+      setError('Could not load quotation');
     }
   };
 
@@ -44,8 +48,6 @@ const MyQuotations = () => {
     q.projectName?.toLowerCase().includes(search.toLowerCase()) ||
     q.companyName?.toLowerCase().includes(search.toLowerCase())
   );
-
-  const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
 
   if (selectedQuote) {
     const q = selectedQuote.quotation || {};
@@ -134,6 +136,10 @@ const MyQuotations = () => {
             <Clock size={14} className="inline mr-1.5" /> Refresh
           </button>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-[13px] text-red-700 font-medium">{error}</div>
+        )}
 
         <div className="relative mb-6 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />

@@ -1,0 +1,20 @@
+Project Name: QuoteFlow AI
+Link: https://quoteflow.ai
+
+What is the Project?
+QuoteFlow AI is a full-stack, AI-powered business management platform for Indian SMBs that unifies quotations, billing, CRM, marketing, and estimation into one dashboard.
+
+Main Features:
+- AI Quotation Generator (natural language to itemized quotes)
+- GST Invoicing & Billing (auto CGST/SGST/IGST)
+- Customer Management (CRM) with Kanban deal pipeline
+- Marketing Campaigns (WhatsApp, email, SMS)
+- Finance & Analytics (P&L, cash flow, profit margins)
+- Document Management & Visitor Tracking
+- Mobile apps (Android/iOS via Capacitor)
+
+Motivation:
+Indian SMBs were juggling 5+ separate tools (Excel, billing software, CRM, WhatsApp, estimators) leading to manual data entry, expensive non-GST software, and 30-50% underquoting.
+
+Problem Statement:
+SMBs lose time and money switching between disconnected tools. QuoteFlow solves this with one login, one dashboard, and zero context switching — powered by AI.

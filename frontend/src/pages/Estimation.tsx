@@ -10,8 +10,9 @@ import ShareDialog from '../components/ShareDialog';
 import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
 import { aiApi, agentApi } from '../api';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
+import { storage } from '../utils/storage';
+import { downloadBlob } from '../utils/api';
 
 // Cost Database
 const COSTS = {
@@ -312,8 +313,7 @@ const Estimation = () => {
       const result = await aiApi.analyze({ description: form.description });
       mapAiResultToForm(result);
       if (result.confidence) setAiConfidence(result.confidence);
-    } catch (err: any) {
-      console.warn('AI API unavailable, using rule-based estimation:', err.message);
+    } catch {
       setAiError('AI service unavailable. Using rule-based estimation.');
       setTimeout(() => setAiError(null), 5000);
 
@@ -370,14 +370,13 @@ const Estimation = () => {
     try {
       const result = await agentApi.analyze({
         description: form.description,
-        customerName: localStorage.getItem('userName') || 'Client',
-        customerCompany: localStorage.getItem('companyName') || localStorage.getItem('userCompany') || 'Client Company'
+        customerName: storage.getUserName() || 'Client',
+        customerCompany: storage.getCompanyName() || 'Client Company',
       });
       setAgentResult(result);
       setAiConfidence(result.confidenceScore);
       setShowQuotation(true);
-    } catch (err: any) {
-      console.error('Agent analysis error:', err);
+    } catch {
       setAiError('Agent analysis failed. Using local estimation instead.');
       setTimeout(() => setAiError(null), 6000);
     }
@@ -855,8 +854,8 @@ const Estimation = () => {
                   setShowQuotation(true);
                   try {
                     await aiApi.generateQuotation({ description: form.description });
-                  } catch (e) {
-                    console.warn('Could not save quotation to server, showing locally:', e);
+                  } catch {
+                    // Show locally even if server save fails
                   }
                 }}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-brand-gold-600 text-white font-bold text-[14px] rounded-xl hover:bg-brand-gold-700 shadow-lg transition-all"
@@ -1278,7 +1277,7 @@ const Estimation = () => {
               <button onClick={() => navigate('/quotations/new')} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-brand-gold-600 rounded-xl hover:bg-brand-gold-700 shadow-sm transition-all">
                 <Send size={16} /> Send to Client
               </button>
-              <button onClick={() => { const blob = new Blob([JSON.stringify({ description: form.description, costs }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `quotation-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); }} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
+              <button onClick={() => downloadBlobFromData(`quotation-${Date.now()}.json`, { description: form.description, costs })} className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 shadow-sm transition-all">
                 <Download size={16} /> Download Quotation
               </button>
             </div>
@@ -1293,6 +1292,18 @@ const Estimation = () => {
       />
     </Layout>
   );
+};
+
+const downloadBlobFromData = (filename: string, data: unknown) => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 const CostRow = ({ label, cost, icon: Icon }: { label: string; cost: number; icon: any }) => (

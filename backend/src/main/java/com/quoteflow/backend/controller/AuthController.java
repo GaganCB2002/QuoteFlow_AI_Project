@@ -49,7 +49,17 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getPhone());
         final String jwt = jwtUtil.generateToken(userDetails);
 
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(jwt);
+
         if (userDetails instanceof User user) {
+            authResponse.setUserId(user.getId().toString());
+            authResponse.setUserName(user.getName());
+            authResponse.setUserEmail(user.getEmail());
+            authResponse.setCompanyName(user.getCompany() != null ? user.getCompany().getCompanyName() : "");
+            authResponse.setRole(user.getRole().name());
+            authResponse.setRequiresTfa(false); // Can be updated if TFA is implemented later
+
             try {
                 String ipAddress = request.getHeader("X-Forwarded-For");
                 if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
@@ -62,7 +72,7 @@ public class AuthController {
             }
         }
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/register")

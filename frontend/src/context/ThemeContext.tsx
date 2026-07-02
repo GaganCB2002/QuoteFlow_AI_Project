@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { storage } from '../utils';
 
 type Theme = 'light' | 'dark';
 
@@ -11,12 +12,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check local storage first
-    const savedTheme = localStorage.getItem('quoteflow-theme');
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      return savedTheme;
-    }
-    // Fallback to system preference
+    const saved = storage.getTheme();
+    if (saved) return saved;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
     }
@@ -24,7 +21,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   useEffect(() => {
-    localStorage.setItem('quoteflow-theme', theme);
+    storage.setTheme(theme);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {

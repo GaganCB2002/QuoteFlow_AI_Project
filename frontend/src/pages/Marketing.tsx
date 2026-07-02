@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Megaphone, Search, Plus, MessageCircle, Mail, Smartphone, TrendingUp, Users, IndianRupee } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const campaignsData = [
   { id: 1, name: 'Summer Sale 2026', channel: 'WhatsApp', status: 'Active', sent: 1250, opened: 845, clicked: 320, converted: 45, revenue: 185000, date: '10 Jun 2026' },

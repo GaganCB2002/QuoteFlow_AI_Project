@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { getApiBase } from '../utils/api';
+import { storage } from '../utils/storage';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const API_BASE = getApiBase();
 
 interface TrackingData {
   userId: string;
@@ -96,10 +98,10 @@ export function useLocationTracking() {
     if (tracked.current) return;
     tracked.current = true;
 
-    const consent = localStorage.getItem('cookieConsent');
+    const consent = storage.getCookieConsent();
     if (!consent) return;
 
-    const userId = localStorage.getItem('userId') || 'anonymous';
+    const userId = storage.getUserId() || 'anonymous';
 
     (async () => {
       try {
@@ -150,7 +152,7 @@ export function useLocationTracking() {
 }
 
 export async function trackActivity(action: string, details: string = '') {
-  const consent = localStorage.getItem('cookieConsent');
+  const consent = storage.getCookieConsent();
   if (!consent) return;
 
   try {
@@ -158,7 +160,7 @@ export async function trackActivity(action: string, details: string = '') {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: localStorage.getItem('userId') || 'anonymous',
+        userId: storage.getUserId() || 'anonymous',
         action,
         page: window.location.pathname,
         details,

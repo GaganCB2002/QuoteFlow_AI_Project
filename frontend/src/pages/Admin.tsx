@@ -49,11 +49,11 @@ const Admin = () => {
       trackingApi.getAllLocations().catch(() => []),
       trackingApi.getAllActivities().catch(() => []),
     ]).then(([u, c, s, locs, acts]) => {
-      setUsers(u);
+      setUsers(u as any[]);
       setSummary(s);
-      setAllLocations(locs);
-      setActivities(acts);
-      if (s?.users) setTrackedUsers(s.users);
+      setAllLocations(locs as any[]);
+      setActivities(acts as ActivityEntry[]);
+      if (s && typeof s === 'object' && 'users' in s) setTrackedUsers((s as { users: TrackedUser[] }).users);
       setLoading(false);
     });
   }, [refreshKey]);

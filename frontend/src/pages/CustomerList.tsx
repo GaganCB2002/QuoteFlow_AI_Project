@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, MoreVertical, Mail, Phone, IndianRupee, Star, Users, UserCheck } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const customersData = [
   { id: 1, name: 'Acme Corp', contact: 'John Doe', email: 'john@acme.com', phone: '+91 9876543210', status: 'Active', totalSpent: 425000, invoices: 12, lastActive: '11 Jun 2026' },

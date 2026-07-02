@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Search, Plus, Phone, Mail, MoreHorizontal, IndianRupee, TrendingUp, Users, Target } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const leadsData = [
   { id: 1, name: 'Ravi Kumar', company: 'Ravi Constructions', email: 'ravi@constructions.com', phone: '+91 98765 43210', stage: 'New', value: 185000, date: '11 Jun 2026' },

@@ -1,27 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { FileText, Receipt, Target, Users, ShieldAlert, Plus, UserPlus, FilePlus2, ChevronRight, TrendingUp, TrendingDown, IndianRupee, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Layout from './Layout';
+import { formatINR } from '../utils/format';
+import { apiRequest } from '../utils/api';
+import { getErrorMessage } from '../utils/errors';
 
-const formatINR = (amount: number) =>
-  '₹' + amount.toLocaleString('en-IN');
+interface DashboardStats {
+  totalQuotes: number;
+  totalInvoices: number;
+  revenue: number;
+  conversionRate: number;
+  activeCustomers: number;
+  pendingApprovals: number;
+  revenueThisMonth: number;
+  revenueLastMonth: number;
+}
 
-const statsData = [
-  { icon: FileText, title: 'Total Quotes', value: '24', trend: '+12%', trendUp: true, color: 'amber' },
-  { icon: Receipt, title: 'Total Invoices', value: '18', trend: '+8%', trendUp: true, color: 'indigo' },
-  { icon: IndianRupee, title: 'Revenue', value: formatINR(428500), trend: '+15%', trendUp: true, color: 'emerald' },
-  { icon: Target, title: 'Conversion Rate', value: '68%', trend: '-5%', trendUp: false, color: 'rose' },
-  { icon: Users, title: 'Active Customers', value: '32', trend: '+22%', trendUp: true, color: 'blue' },
-  { icon: ShieldAlert, title: 'Pending Approvals', value: '7', trend: '-2%', trendUp: false, color: 'amber' },
-];
-
-const recentQuotes = [
-  { id: 'Q-101', customer: 'Ravi Constructions', amount: 185000, status: 'Approved', date: '10 Jun 2026' },
-  { id: 'Q-102', customer: 'Priya Enterprises', amount: 42500, status: 'Pending', date: '09 Jun 2026' },
-  { id: 'Q-103', customer: 'GreenLeaf Solutions', amount: 92000, status: 'Draft', date: '08 Jun 2026' },
-  { id: 'Q-104', customer: 'Agarwal & Sons', amount: 234000, status: 'Approved', date: '07 Jun 2026' },
-  { id: 'Q-105', customer: 'SkyHigh Ventures', amount: 15000, status: 'Pending', date: '06 Jun 2026' },
-];
+interface RecentQuote {
+  id: string;
+  customer: string;
+  amount: number;
+  status: string;
+  date: string;
+}
 
 const statusBadge = (status: string) => {
   const styles: Record<string, string> = {
@@ -38,16 +41,108 @@ const statusBadge = (status: string) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentQuotes, setRecentQuotes] = useState<RecentQuote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     document.title = 'Dashboard | QuoteFlow AI';
   }, []);
 
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [statsData, quotesData] = await Promise.all([
+          apiRequest<DashboardStats>('/api/dashboard/stats'),
+          apiRequest<RecentQuote[]>('/api/dashboard/recent-quotes'),
+        ]);
+        setStats(statsData);
+        setRecentQuotes(quotesData);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const statCards = stats ? [
+    { icon: FileText, title: 'Total Quotes', value: String(stats.totalQuotes), trend: '+12%', trendUp: true, color: 'amber' },
+    { icon: Receipt, title: 'Total Invoices', value: String(stats.totalInvoices), trend: '+8%', trendUp: true, color: 'indigo' },
+    { icon: IndianRupee, title: 'Revenue', value: formatINR(stats.revenue), trend: '+15%', trendUp: true, color: 'emerald' },
+    { icon: Target, title: 'Conversion Rate', value: `${stats.conversionRate}%`, trend: '-5%', trendUp: false, color: 'rose' },
+    { icon: Users, title: 'Active Customers', value: String(stats.activeCustomers), trend: '+22%', trendUp: true, color: 'blue' },
+    { icon: ShieldAlert, title: 'Pending Approvals', value: String(stats.pendingApprovals), trend: '-2%', trendUp: false, color: 'amber' },
+  ] : [];
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="p-8 max-w-7xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-24 bg-gray-100 rounded-2xl" />
+            <div className="h-10 w-48 bg-gray-100 rounded-lg" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-28 bg-gray-100 rounded-2xl" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 h-64 bg-gray-100 rounded-2xl" />
+              <div className="h-64 bg-gray-100 rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="p-8 max-w-7xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+            <p className="text-red-700 font-semibold text-sm">Failed to load dashboard data</p>
+            <p className="text-red-500 text-xs mt-1">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-xl hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 100 } }
+  };
+
   return (
     <Layout>
-      <div className="p-8 max-w-7xl mx-auto">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="p-8 max-w-7xl mx-auto"
+      >
         {/* Trial Status Banner */}
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-4 sm:p-5 mb-8 text-white shadow-lg animate-fade-in">
+        <motion.div variants={itemVariants} className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-4 sm:p-5 mb-8 text-white shadow-lg">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <Gift size={24} className="text-indigo-200" />
@@ -63,23 +158,23 @@ const Dashboard = () => {
               Upgrade Now
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Header */}
-        <div className="flex justify-between items-end mb-8">
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight">Dashboard</h2>
             <p className="text-[14px] text-gray-500 font-medium mt-1">Here's your business overview.</p>
           </div>
           <div className="flex items-center gap-2 text-[13px] text-gray-400 font-medium">
-            <span>Last updated: 11 Jun 2026</span>
+            <span>Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-          {statsData.map((stat, i) => (
+        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+          {statCards.map((stat, i) => (
             <div
               key={i}
               className="bg-white p-5 rounded-2xl shadow-sm border border-[#e8e2d8] hover:shadow-md transition-all hover:-translate-y-0.5"
@@ -108,10 +203,10 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content Grid */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Quotations */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-[#e8e2d8] p-6">
             <div className="flex justify-between items-center mb-6">
@@ -136,7 +231,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentQuotes.map((q, i) => (
+                  {recentQuotes.map((q) => (
                     <tr key={q.id} className="border-b border-[#e8e2d8]/60 hover:bg-gray-50 transition-colors">
                       <td className="py-3.5 font-medium text-gray-400">{q.id}</td>
                       <td className="py-3.5 font-semibold text-gray-900">{q.customer}</td>
@@ -183,27 +278,32 @@ const Dashboard = () => {
                 New Invoice
               </button>
             </div>
-            {/* Revenue Summary */}
-            <div className="mt-6 pt-6 border-t border-[#e8e2d8]">
-              <h4 className="text-[13px] font-bold text-gray-900 mb-3">Revenue Summary</h4>
-              <div className="space-y-2.5">
-                <div className="flex justify-between text-[13px]">
-                  <span className="text-gray-500">This Month</span>
-                  <span className="font-bold text-gray-900">{formatINR(428500)}</span>
-                </div>
-                <div className="flex justify-between text-[13px]">
-                  <span className="text-gray-500">Last Month</span>
-                  <span className="font-bold text-gray-900">{formatINR(372000)}</span>
-                </div>
-                <div className="flex justify-between text-[13px] pt-2 border-t border-[#e8e2d8]">
-                  <span className="text-gray-700 font-bold">Growth</span>
-                  <span className="font-bold text-emerald-600">+15.2%</span>
+            {stats && (
+              <div className="mt-6 pt-6 border-t border-[#e8e2d8]">
+                <h4 className="text-[13px] font-bold text-gray-900 mb-3">Revenue Summary</h4>
+                <div className="space-y-2.5">
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-gray-500">This Month</span>
+                    <span className="font-bold text-gray-900">{formatINR(stats.revenueThisMonth)}</span>
+                  </div>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-gray-500">Last Month</span>
+                    <span className="font-bold text-gray-900">{formatINR(stats.revenueLastMonth)}</span>
+                  </div>
+                  <div className="flex justify-between text-[13px] pt-2 border-t border-[#e8e2d8]">
+                    <span className="text-gray-700 font-bold">Growth</span>
+                    <span className="font-bold text-emerald-600">
+                      {stats.revenueLastMonth > 0
+                        ? `+${((stats.revenueThisMonth - stats.revenueLastMonth) / stats.revenueLastMonth * 100).toFixed(1)}%`
+                        : 'N/A'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </Layout>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Search, TrendingUp, Smartphone, Monitor, Clock, Users, BarChart3 } from 'lucide-react';
+import { Eye, Search, TrendingUp, Smartphone, Monitor, Users, BarChart3 } from 'lucide-react';
 import Layout from './Layout';
 
 const visitorsData = [

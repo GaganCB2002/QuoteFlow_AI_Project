@@ -1,0 +1,127 @@
+[ {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:55:51.297761300"
+}, {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:55:52.393069300"
+}, {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/invoices/new",
+  "details" : "Invoices | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:55:53.709431700"
+}, {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/invoices/new",
+  "details" : "Invoices | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:56:01.768208"
+}, {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/invoices/new",
+  "details" : "Invoices | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:56:02.826184300"
+}, {
+  "userId" : "demo-user-1782811544362",
+  "ip" : "157.50.188.249",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-06-30T14:56:04.325781600"
+}, {
+  "userId" : "demo-user-1782975994310",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T12:36:41.222782700"
+}, {
+  "userId" : "demo-user-1782975994310",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T12:36:43.815035500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "Dashboard | QuoteFlow AI",
+  "timestamp" : "2026-07-02T15:55:00.061678400"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T15:55:01.395688500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T15:55:09.446057300"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T15:55:10.196873500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/notifications",
+  "details" : "Notifications | QuoteFlow AI",
+  "timestamp" : "2026-07-02T15:55:14.127265500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T16:22:33.805613500"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/estimation",
+  "details" : "AI Project Estimation | QuoteFlow AI",
+  "timestamp" : "2026-07-02T16:22:35.193062400"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/notifications",
+  "details" : "Notifications | QuoteFlow AI",
+  "timestamp" : "2026-07-02T16:22:52.702394"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/quotations/new",
+  "details" : "Quotation Builder | QuoteFlow AI",
+  "timestamp" : "2026-07-02T16:25:12.002765200"
+}, {
+  "userId" : "usr-admin-001",
+  "ip" : "157.50.174.252",
+  "action" : "page_view",
+  "page" : "/login",
+  "details" : "Quotation Builder | QuoteFlow AI",
+  "timestamp" : "2026-07-02T16:25:12.551093300"
+} ]

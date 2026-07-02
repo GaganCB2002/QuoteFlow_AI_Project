@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Receipt, Search, IndianRupee, Download, Banknote, CreditCard, Smartphone } from 'lucide-react';
+import { Search, Download, Banknote, CreditCard, Smartphone } from 'lucide-react';
 import Layout from './Layout';
-
-const formatINR = (amount: number) => '₹' + amount.toLocaleString('en-IN');
+import { formatINR } from '../utils/format';
 
 const receiptsData = [
   { id: 'RCP-2026-001', invoice: 'INV-2026-001', customer: 'Ravi Constructions', date: '11 Jun 2026', amount: 185000, mode: 'Bank Transfer', ref: 'HDFC/TRF/12345', status: 'Cleared' },
