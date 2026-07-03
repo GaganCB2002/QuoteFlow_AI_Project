@@ -74,15 +74,15 @@ const Dashboard = () => {
       setLoading(true);
       setError('');
       try {
-        const [statsData, quotesData] = await Promise.all([
-          apiRequest<DashboardStats>('/api/dashboard/stats'),
-          apiRequest<RecentQuote[]>('/api/dashboard/recent-quotes'),
-        ]);
+        const statsData = await apiRequest<DashboardStats>('/api/dashboard/stats');
         setStats(statsData);
+      } catch {
+        setStats(mockStats);
+      }
+      try {
+        const quotesData = await apiRequest<RecentQuote[]>('/api/dashboard/recent-quotes');
         setRecentQuotes(quotesData);
       } catch {
-        // Backend unavailable — use mock data so the dashboard still works
-        setStats(mockStats);
         setRecentQuotes(mockQuotes);
       } finally {
         setLoading(false);
@@ -292,7 +292,7 @@ const Dashboard = () => {
                 Add Customer
               </button>
               <button
-                onClick={() => navigate('/invoices/new')}
+                onClick={() => navigate('/invoices')}
                 className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-gray-700 font-bold bg-white border border-[#e8e2d8] hover:bg-gray-50 transition-all text-[13px]"
               >
                 <FilePlus2 size={16} className="mr-2" strokeWidth={2.5} />

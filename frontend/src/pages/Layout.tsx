@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLocationTracking } from '../hooks/useLocationTracking';
 import { useTheme } from '../context/ThemeContext';
 import QuoteFlowLogo from '../components/QuoteFlowLogo';
+import AiChatWidget from '../components/AiChatWidget';
 import { storage } from '../utils';
 
 const getNavItems = (role: string) => {
@@ -201,6 +202,7 @@ const Layout = ({ children, title, subtitle }: { children: React.ReactNode; titl
           {children}
         </div>
       </main>
+      <AiChatWidget />
     </div>
   );
 };

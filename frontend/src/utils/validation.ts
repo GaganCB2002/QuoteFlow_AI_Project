@@ -25,6 +25,7 @@ export function isStrongPassword(password: string): { valid: boolean; message: s
   if (!/[A-Z]/.test(password)) return { valid: false, message: 'Must contain an uppercase letter' };
   if (!/[a-z]/.test(password)) return { valid: false, message: 'Must contain a lowercase letter' };
   if (!/[0-9]/.test(password)) return { valid: false, message: 'Must contain a number' };
+  if (!/[@#$%^&+=!]/.test(password)) return { valid: false, message: 'Must contain a special character (@#$%^&+=!)' };
   return { valid: true, message: '' };
 }
 

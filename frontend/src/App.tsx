@@ -31,6 +31,7 @@ import Visitors from './pages/Visitors';
 import Admin from './pages/Admin';
 import LearningAdmin from './pages/LearningAdmin';
 import Settings from './pages/Settings';
+import AiChatWidget from './components/AiChatWidget';
 import { storage } from './utils';
 
 class ErrorBoundary extends React.Component<
@@ -149,6 +150,7 @@ const App = () => {
       <CookieConsent />
       <div className="min-h-screen bg-[#f7f5f0] dark:bg-[#0a0f1c] flex flex-col">
         <AnimatedRoutes />
+        <AiChatWidget />
       </div>
     </ErrorBoundary>
   );

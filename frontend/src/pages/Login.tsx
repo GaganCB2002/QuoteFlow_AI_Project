@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { LogIn, ArrowLeft, Smartphone, Mail, Shield, Eye, EyeOff, Zap, BarChart3, CloudOff, UserCog, UserRound, ChevronDown, ChevronUp } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { apiRequest, getApiBase } from '../utils/api';
 import QuoteFlowLogo from '../components/QuoteFlowLogo';
 import { storage } from '../utils/storage';
@@ -25,6 +25,8 @@ const Login = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [lockoutTimer, setLockoutTimer] = useState(0);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const tfaRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -84,7 +86,7 @@ const Login = () => {
       if (res.requiresTfa) {
         setShowTfa(true);
       } else {
-        navigate('/dashboard');
+        navigate(redirectTo);
       }
     } catch (err) {
       setError(getErrorMessage(err));
@@ -121,7 +123,7 @@ const Login = () => {
         storage.setCompanyName(res.companyName);
         if (res.role) storage.setUserRole(res.role);
       }
-      navigate('/dashboard');
+      navigate(redirectTo);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -171,8 +173,8 @@ const Login = () => {
       storage.setUserName(res.userName);
       storage.setUserEmail(res.userEmail);
       storage.setCompanyName(res.companyName);
-      if (res.role) storage.setUserRole(res.role);
-      navigate('/dashboard');
+      if (res.role)       storage.setUserRole(res.role);
+      navigate(redirectTo);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -247,7 +249,7 @@ const Login = () => {
               body: JSON.stringify({ email: acct.email, code }),
             });
             if (tfaRes.token) storage.setToken(tfaRes.token);
-            navigate('/dashboard');
+            navigate(redirectTo);
           } catch {
             setError('2FA verification failed. Try signing in manually.');
             setShowTfa(false);
@@ -255,7 +257,7 @@ const Login = () => {
           }
         }, 800);
       } else {
-        navigate('/dashboard');
+        navigate(redirectTo);
       }
     } catch {
       setSession(
@@ -266,11 +268,11 @@ const Login = () => {
         acct.role === 'Admin' ? 'QuoteFlow Technologies' : 'GreenLeaf Solutions',
         acct.role === 'Admin' ? 'ROLE_SUPER_ADMIN' : 'ROLE_USER'
       );
-      navigate('/dashboard');
+      navigate(redirectTo);
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   return (
     <div className="min-h-screen flex bg-[#f8f6f3] font-['Inter',system-ui,sans-serif]">

@@ -691,7 +691,7 @@ const Estimation = () => {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {authMethods.map(a => (
-                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.authMethods.includes(a.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
@@ -714,7 +714,7 @@ const Estimation = () => {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {paymentGateways.map(p => (
-                          <label key={p.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={p.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.paymentGateways.includes(p.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
@@ -737,7 +737,7 @@ const Estimation = () => {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {notificationChannels.map(n => (
-                          <label key={n.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={n.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.notifications.includes(n.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
@@ -760,7 +760,7 @@ const Estimation = () => {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {adminFeatures.map(a => (
-                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.adminFeatures.includes(a.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
@@ -783,7 +783,7 @@ const Estimation = () => {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {aiFeatures.map(a => (
-                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={a.id} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.aiFeatures.includes(a.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
@@ -806,7 +806,7 @@ const Estimation = () => {
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {defaultModules.map(m => (
-                          <label key={m.id} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold ${
+                          <label key={m.id} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-all text-[12px] font-semibold relative ${
                             form.modules.includes(m.id)
                               ? 'border-brand-gold-500 bg-brand-gold-500/10 text-brand-gold-700'
                               : 'border-[#e8e2d8] bg-white text-gray-500 hover:border-gray-300'
